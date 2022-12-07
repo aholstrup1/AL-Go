@@ -12,7 +12,10 @@ Param(
     [Parameter(HelpMessage = "Settings from repository in compressed Json format", Mandatory = $false)]
     [string] $settingsJson = '{"AppBuild":"", "AppRevision":""}',
     [Parameter(HelpMessage = "Secrets from repository in compressed Json format", Mandatory = $false)]
-    [string] $secretsJson = '{"insiderSasToken":"","licenseFileUrl":"","CodeSignCertificateUrl":"","CodeSignCertificatePassword":"","KeyVaultCertificateUrl":"","KeyVaultCertificatePassword":"","KeyVaultClientId":"","StorageContext":"","ApplicationInsightsConnectionString":""}'
+    [string] $secretsJson = '{"insiderSasToken":"","licenseFileUrl":"","CodeSignCertificateUrl":"","CodeSignCertificatePassword":"","KeyVaultCertificateUrl":"","KeyVaultCertificatePassword":"","KeyVaultClientId":"","StorageContext":"","ApplicationInsightsConnectionString":""}',
+    [Parameter(HelpMessage = "Build mode", Mandatory = $false)]
+    [ValidateSet('Standard','CLEAN')]
+    [string] $buildMode = "Standard"
 )
 
 $ErrorActionPreference = "Stop"
@@ -340,7 +343,23 @@ try {
         if ($repo."$_") { $runAlPipelineParams += @{ "$_" = $true } }
     }
 
-    Write-Host "Invoke Run-AlPipeline"
+    $preprocessorsymbols = @()
+    if ($buildMode -eq 'CLEAN') {
+       $runAlPipelineParams["doNotBuildTests"] = $true
+       $runAlPipelineParams["doNotRunTests"] = $true
+       $runAlPipelineParams["doNotRunBcptTests"] = $true
+       $runAlPipelineParams["doNotPublishApps"] = $true
+       
+        $version = 15
+        for ($version++ ;$version -le [int] 22; $version++)
+        {
+            $preprocessorsymbols += 'CLEAN' + $version.ToString()
+        }
+        Write-Host "Adding Preprocessor symbols: $preprocessorsymbols"
+    } 
+    
+
+    Write-Host "Invoke Run-AlPipeline with buildmode $buildMode"
     Run-AlPipeline @runAlPipelineParams `
         -pipelinename $workflowName `
         -containerName $containerName `
@@ -377,7 +396,8 @@ try {
         -buildArtifactFolder $buildArtifactFolder `
         -CreateRuntimePackages:$CreateRuntimePackages `
         -appBuild $appBuild -appRevision $appRevision `
-        -uninstallRemovedApps
+        -uninstallRemovedApps `
+        -preprocessorSymbols $preprocessorsymbols
 
     if ($containerBaseFolder) {
 
