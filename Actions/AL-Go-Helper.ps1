@@ -31,7 +31,6 @@ $runAlPipelineOverrides = @(
     "RunTestsInBcContainer"
     "GetBcContainerAppRuntimePackage"
     "RemoveBcContainer"
-    "RestoreTranslations"
 )
 
 # Well known AppIds
