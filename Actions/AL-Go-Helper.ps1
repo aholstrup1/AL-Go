@@ -31,6 +31,7 @@ $runAlPipelineOverrides = @(
     "RunTestsInBcContainer"
     "GetBcContainerAppRuntimePackage"
     "RemoveBcContainer"
+    "RestoreTranslations"
 )
 
 # Well known AppIds
@@ -259,7 +260,7 @@ function DownloadAndImportBcContainerHelper {
         }
         elseif ($BcContainerHelperVersion -eq "dev") {
             Write-Host "Downloading BcContainerHelper dev branch"
-            $webclient.DownloadFile("https://github.com/freddydk/navcontainerhelper/archive/master.zip", "$tempName.zip")
+            $webclient.DownloadFile("https://github.com/aholstrup/navcontainerhelper/archive/master.zip", "$tempName.zip")
         }
         elseif ($BcContainerHelperVersion -eq "preview") {
             Write-Host "Downloading BcContainerHelper $BcContainerHelperVersion version from Blob Storage"
@@ -433,6 +434,7 @@ function ReadSettings {
         "PartnerTelemetryConnectionString"       = ""
         "SendExtendedTelemetryToMicrosoft"       = $false
         "Environments"                           = @()
+        "buildModes"                             = @()
     }
     $gitHubFolder = ".github"
     $repoSettingsPath = $RepoSettingsFile
