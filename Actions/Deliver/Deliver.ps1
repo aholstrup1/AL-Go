@@ -169,7 +169,6 @@ try {
             }
             
             #Calculate the folders per artifact type
-                $artifactType = $_
                 $singleArtifactFilter = "*-$refname-$artifactType-*.*.*.*";
             
             #Calculate the folders per artifact type
