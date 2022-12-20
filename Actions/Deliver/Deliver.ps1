@@ -169,7 +169,6 @@ try {
             }
             
             #Calculate the folders per artifact type
-            'Apps', 'TestApps', 'Dependencies' | ForEach-Object {
                 $artifactType = $_
                 $singleArtifactFilter = "*-$refname-$artifactType-*.*.*.*";
             
