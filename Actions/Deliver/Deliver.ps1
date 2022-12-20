@@ -167,13 +167,11 @@ try {
                 "RepoSettings" = $settings
                 "ProjectSettings" = $projectSettings
             }
-
-            $projectToFilter = $project.Replace('\','_') # this is the project name as it appears in the artifact folder name
             
             #Calculate the folders per artifact type
             'Apps', 'TestApps', 'Dependencies' | ForEach-Object {
                 $artifactType = $_
-                $singleArtifactFilter = "$projectToFilter-$refname-$artifactType-*.*.*.*";
+                $singleArtifactFilter = "*-$refname-$artifactType-*.*.*.*";
 
                 # Get the folder hoding the artifacts from the standard build
                 $artifactFolder =  @(Get-ChildItem -Path (Join-Path $baseFolder $singleArtifactFilter) -Directory)
@@ -195,15 +193,15 @@ try {
                 }
 
                 # Get the folders holding the artifacts from all build modes
-                # Build modes are identified as a prefix to the artifact folder name
-                $artifactsFolders = @(Get-ChildItem -Path (Join-Path $baseFolder $("*" + $singleArtifactFilter)) -Directory)
+                $multipleArtifactFilter = "*-$refname-*$artifactType-*.*.*.*";
+                $artifactsFolders = @(Get-ChildItem -Path (Join-Path $baseFolder $multipleArtifactFilter) -Directory)
 
                 if ($artifactsFolders.Count -gt 0) {
                     $parameters[$artifactType.ToLower() + "Folders"] = $artifactsFolders.FullName
                 }
             }
             
-            Write-Host "Calling custom script: $customScript with parameters: $($parameters | ConvertTo-Json -Depth 1)"
+            Write-Host "Calling custom script: $customScript with parameters: $($parameters | ConvertTo-Json)"
             . $customScript -parameters $parameters
         }
         elseif ($deliveryTarget -eq "GitHubPackages") {
