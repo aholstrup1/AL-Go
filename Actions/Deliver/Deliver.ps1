@@ -197,7 +197,7 @@ try {
                 $multipleArtifactFilter = "*-$refname-*$artifactType-*.*.*.*";
                 $artifactsFolders = @(Get-ChildItem -Path (Join-Path $baseFolder $multipleArtifactFilter) -Directory)
                 if ($artifactsFolders.Count -gt 0) {
-                        $parameters[$artifactType.ToLowerInvariant() + "Folder"] = $artifactFolder[0].FullName
+                    $parameters[$artifactType.ToLowerInvariant() + "Folders"] = $artifactFolders.FullName
                 }
             }
             
