@@ -169,7 +169,6 @@ try {
             }
             
             #Calculate the folders per artifact type
-                $singleArtifactFilter = "*-$refname-$artifactType-*.*.*.*";
             
             #Calculate the folders per artifact type
             'Apps', 'TestApps', 'Dependencies' | ForEach-Object {
@@ -192,13 +191,16 @@ try {
 
                 # Add the artifact folder to the parameters
                 if ($artifactFolder.Count -ne 0) {
-                    $parameters[$artifactType.ToLower() + "Folder"] = $artifactFolder[0].FullName
+                    $parameters[$artifactType.ToLowerInvariant() + "Folder"] = $artifactFolder[0].FullName
                 }
 
                 # Get the folders holding the artifacts from all build modes
                 $multipleArtifactFilter = "*-$refname-*$artifactType-*.*.*.*";
                 $artifactsFolders = @(Get-ChildItem -Path (Join-Path $baseFolder $multipleArtifactFilter) -Directory)
-                    $parameters[$artifactType.ToLowerInvariant() + "Folder"] = $artifactFolder[0].FullName
+    
+                    if ($artifactsFolders.Count -gt 0) {
+                        $parameters[$artifactType.ToLowerInvariant() + "Folder"] = $artifactFolder[0].FullName
+                    }
                 }
             }
             
