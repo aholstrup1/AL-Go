@@ -165,6 +165,10 @@ try {
                     Write-Host "More than 250 files modified, building all projects"
                     $buildProjects = $projects
                 }
+                elseif ($ENV:GITHUB_EVENT_NAME -eq "push") {
+                    Write-Host "Push event, building all projects"
+                    $buildProjects = $projects
+                }
                 else {
                     Write-Host "Modified files:"
                     $filesChanged | Out-Host
