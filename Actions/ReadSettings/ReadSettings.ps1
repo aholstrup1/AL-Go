@@ -122,7 +122,9 @@ try {
             "Authorization" = "token $token"
             "Accept" = "application/vnd.github.baptiste-preview+json"
         }
+
         $ghEvent = Get-Content $ENV:GITHUB_EVENT_PATH -encoding UTF8 | ConvertFrom-Json
+        Write-Host "ghevent: $ghEvent"
 
         if (($ENV:GITHUB_EVENT_NAME -eq "pull_request") -or ($ENV:GITHUB_EVENT_NAME -eq "pull_request_target")) {
             $url = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/compare/$($ghEvent.pull_request.base.sha)...$($ENV:GITHUB_SHA)"
@@ -144,8 +146,8 @@ try {
         if ($settings.alwaysBuildAllProjects) {
             Write-Host "Building all projects because alwaysBuildAllProjects is set to true"
             return $projects
-        } elseif ($ENV:GITHUB_WORKFLOW -eq 'CICD') {
-            Write-Host "Building all projects because this is a CICD run"
+        } elseif ($ENV:GITHUB_WORKFLOW -eq 'Official Build') {
+            Write-Host "Building all projects because this is an official build"
             return $projects
         }
         else {
