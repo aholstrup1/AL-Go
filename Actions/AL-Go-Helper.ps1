@@ -732,7 +732,8 @@ function AnalyzeRepo {
             $enumerate = $true
 
             # Check if there are any folders matching $folder
-            if (Get-Item $folder | Where-Object { $_ -is [System.IO.DirectoryInfo] }) {
+            # Test-Path $folder -PathType Container will return false if any files matches $folder (beside folders)
+            if (-not ((Test-Path $folder) -and (Get-ChildItem $folder))) {
                 if (!$doNotIssueWarnings) { OutputWarning -message "$descr $folderName, specified in $ALGoSettingsFile, does not exist" }
             }
             elseif (-not (Test-Path $appJsonFile -PathType Leaf)) {
@@ -1444,7 +1445,7 @@ function CreateDevEnv {
                             while ($retry) {
                                 try {
                                     $authstatus = (invoke-gh -silent -returnValue auth status --show-token) -join " "
-                                    $_.authTokenSecret = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim().Split(' ')[0]
+                                    $_.authTokenSecret = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim()
                                     $retry = $false
                                 }
                                 catch {
@@ -1788,19 +1789,19 @@ Function AnalyzeProjectDependencies {
     Param(
         [string] $baseFolder,
         [string[]] $projects,
+        [ref] $buildOrder,
         [ref] $buildAlso,
         [ref] $projectDependencies
     )
 
     $appDependencies = @{}
-    Write-Host "Analyzing projects in $baseFolder"
-
+    Write-Host "Analyzing projects"
     # Loop through all projects
     # Get all apps in the project
     # Get all dependencies for the apps
     $projects | ForEach-Object {
         $project = $_
-        Write-Host "- Analyzing project: $project"
+        Write-Host "- $project"
 
         # Read project settings
         $projectSettings = ReadSettings -baseFolder $baseFolder -project $project
@@ -1836,7 +1837,6 @@ Function AnalyzeProjectDependencies {
     #     }
     # }
     $no = 1
-    $projectsOrder = @()
     Write-Host "Analyzing dependencies"
     while ($projects.Count -gt 0) {
         $thisJob = @()
@@ -1904,14 +1904,10 @@ Function AnalyzeProjectDependencies {
             throw "Circular project reference encountered, cannot determine build order"
         }
         Write-Host "#$no - build projects: $($thisJob -join ", ")"
-        
-        $projectsOrder += @{'projects' = $thisJob; 'projectsCount' = $thisJob.Count }
-        
         $projects = @($projects | Where-Object { $thisJob -notcontains $_ })
+        $buildOrder.value."$no" = @($thisJob)
         $no++
     }
-
-    return @($projectsOrder)
 }
 
 function GetBaseFolder {
@@ -1951,59 +1947,4 @@ function GetProject {
         Pop-Location
     }
     $project
-}
-
-function Get-NavSipFromArtifacts() {
-    $artifactTempFolder = Join-Path $([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
-    $navSipTempFolder = Join-Path $([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
-
-    try {
-        Download-Artifacts -artifactUrl (Get-BCArtifactUrl -type Sandbox) -includePlatform -basePath $artifactTempFolder | Out-Null
-        Write-Host "Downloaded artifacts to $artifactTempFolder"
-        $navsip = Get-ChildItem -Path $artifactTempFolder -Filter "navsip.dll" -Recurse
-        Write-Host "Found navsip at $($navsip.FullName)"
-        New-Item -Path $navSipTempFolder -ItemType Directory -Force -Verbose
-        Copy-Item -Path $navsip.FullName -Destination "$navSipTempFolder/navsip.dll" -Force -Verbose
-        Write-Host "Copied navsip to $navSipTempFolder"
-    } finally {
-        Remove-Item -Path $artifactTempFolder -Recurse -Force
-    }
-    
-    return Join-Path $navSipTempFolder "navsip.dll" -Resolve
-}
-
-function Register-NavSip() {
-    $navsipPath = Get-NavSipFromArtifacts
-    $navSip32Path = "C:\Windows\System32"
-    $navSip32DllPath = "C:\Windows\System32\navsip.dll"
-    $navSip64Path = "C:\Windows\SysWow64"
-    $navSip64DllPath = "C:\Windows\SysWow64\navsip.dll"
-
-    try {
-        Write-Host "Copy $navsipPath to $navSip64Path"
-        Copy-Item -Path $navsipPath -Destination $navSip64Path -Force
-        Write-Host "Registering $navSip64Path"
-        RegSvr32 /s $navSip64DllPath
-    }
-    catch {
-        Write-Host "Failed to copy $navsipPath to $navSip64Path"
-    }
-    
-    try {
-        Write-Host "Copy $navsipPath to $navSip32Path"
-        Copy-Item -Path $navsipPath -Destination $navSip32Path -Force
-        Write-Host "Registering $navSip32Path"
-        RegSvr32 /s $navSip32DllPath
-    }
-    catch {
-        Write-Host "Failed to copy $navsipPath to $navSip32Path"
-    }
-
-    $pathexists = Test-Path $navSip32DllPath
-    Write-Host "navsip.dll exists in $navSip32Path : $pathexists"
-
-    
-    $pathexists = Test-Path $navSip64DllPath
-    Write-Host "navsip.dll exists in $navSip64Path : $pathexists"
-
 }

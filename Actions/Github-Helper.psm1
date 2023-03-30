@@ -111,15 +111,10 @@ function Get-dependencies {
         $probingPathsJson | ForEach-Object {
             $dependency = $_
             $projects = $dependency.projects
-            
             if ($dependency.release_status -eq "thisBuild") {
                 $missingProjects = @()
                 $projects.Split(',') | ForEach-Object {
-                    $project = $_
-                    $project = $project.Replace('\','_').Replace('/','_') # sanitize project name
-                    
-                    $downloadName = Join-Path $saveToPath "thisbuild-$project-$($mask)"
-                    
+                    $downloadName = Join-Path $saveToPath "thisbuild-$($_)-$($mask)"
                     if (Test-Path $downloadName -PathType Container) {
                         $folder = Get-Item $downloadName
                         Get-ChildItem -Path $folder | ForEach-Object {
@@ -552,7 +547,7 @@ function DownloadRelease {
     Write-Host "Downloading release $($release.Name), projects $projects, type $mask"
     if ([string]::IsNullOrEmpty($token)) {
         $authstatus = (invoke-gh -silent -returnValue auth status --show-token) -join " "
-        $token = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim().Split(' ')[0]
+        $token = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim()
     }
     $headers = @{ 
         "Accept"        = "application/octet-stream"
@@ -706,7 +701,7 @@ function DownloadArtifact {
     Write-Host $artifact.archive_download_url
     if ([string]::IsNullOrEmpty($token)) {
         $authstatus = (invoke-gh -silent -returnValue auth status --show-token) -join " "
-        $token = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim().Split(' ')[0]
+        $token = $authStatus.SubString($authstatus.IndexOf('Token: ')+7).Trim()
     }
     $headers = @{ 
         "Authorization" = "token $token"

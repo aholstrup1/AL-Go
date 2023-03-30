@@ -78,12 +78,7 @@ jobs:
           shell: powershell
           parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           get: templateUrl,repoName
-
-      - name: Determine Projects
-        id: determineProjects
-        uses: microsoft/AL-Go-Actions/DetermineProjectsToBuild@main
-        with:
-          shell: powershell
+          getProjects: 'Y'
 
       - name: Check for updates to AL-Go system files
         uses: microsoft/AL-Go-Actions/CheckForUpdates@main
@@ -97,7 +92,7 @@ jobs:
         run: |
           $ErrorActionPreference = "STOP"
           Set-StrictMode -version 2.0
-          $projects = '${{ steps.determineProjects.outputs.ProjectsJson }}' | ConvertFrom-Json
+          $projects = '${{ steps.ReadSettings.outputs.ProjectsJson }}' | ConvertFrom-Json
           Write-Host "projects:"
           $projects | ForEach-Object { Write-Host "- $_" }
           $include = @()

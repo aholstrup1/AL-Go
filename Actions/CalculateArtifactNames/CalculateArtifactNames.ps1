@@ -6,9 +6,7 @@ Param(
     [Parameter(HelpMessage = "Build mode used when building the artifacts", Mandatory = $true)]
     [string] $buildMode,
     [Parameter(HelpMessage = "Name of the branch the workflow is running on", Mandatory = $true)]
-    [string] $branchName,
-    [Parameter(HelpMessage = "Suffix to add to the artifacts names", Mandatory = $false)]
-    [string] $suffix
+    [string] $branchName
 )
 
 function Set-EnvVariable([string] $name, [string] $value) {
@@ -36,26 +34,8 @@ if ($buildMode -eq 'Default') {
 }
 Set-EnvVariable -name "BuildMode" -value $buildMode
 
-if($suffix) {
-  # Add the date to the suffix 
-  $suffix = "$suffix-$([DateTime]::UtcNow.ToString('yyyyMMdd'))"
-}
-else {
-  # Default suffix is the build number
-  $suffix = "$($settings.repoVersion).$($settings.appBuild).$($settings.appRevision)"
-}
-
 'Apps','Dependencies','TestApps','TestResults','BcptTestResults','BuildOutput','ContainerEventLog' | ForEach-Object {
   $name = "$($_)ArtifactsName"
-  $value = "$($projectName)-$($branchName)-$buildMode$_-$suffix"
-
-  Set-EnvVariable -name $name -value $value
-}
-
-# Set this build artifacts name
-'Apps', 'TestApps' | ForEach-Object {
-  $name = "ThisBuild$($_)ArtifactsName"
-  $value = "thisbuild-$($projectName)-$($buildMode)$($_)"
-  
+  $value = "$($projectName)-$($branchName)-$buildMode$_-$($settings.repoVersion).$($settings.appBuild).$($settings.appRevision)"
   Set-EnvVariable -name $name -value $value
 }
