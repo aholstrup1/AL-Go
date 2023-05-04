@@ -1,11 +1,17 @@
 $script:gitHubSecrets = $env:secrets | ConvertFrom-Json
 $script:keyvaultConnectionExists = $false
 $script:azureRm210 = $false
-$script:isKeyvaultSet = $script:gitHubSecrets.PSObject.Properties.Name -eq "AZURE_CREDENTIALS"
+$script:isKeyvaultSet = $script:gitHubSecrets.PSObject.Properties.Name -eq "AZURE_KEYVAULT_URI"
 $script:escchars = @(' ','!','\"','#','$','%','\u0026','\u0027','(',')','*','+',',','-','.','/','0','1','2','3','4','5','6','7','8','9',':',';','\u003c','=','\u003e','?','@','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','[','\\',']','^','_',[char]96,'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','{','|','}','~')
 
 function IsKeyVaultSet {
     return $script:isKeyvaultSet
+}
+
+function Get-KeyVaultName {
+    $keyVaultUri = $script:gitHuBSecrets.AZURE_KEYVAULT_URI
+    $keyVaultName = $keyVaultUri.Split('.')[0].Replace("https://", "")
+    return $keyVaultName
 }
 
 function MaskValue {
@@ -57,30 +63,6 @@ function GetGithubSecret {
     return $null
 }
 	
-function Get-KeyVaultCredentials {
-    Param(
-        [switch] $dontmask
-    )
-    if ($script:isKeyvaultSet) {
-        try {
-            $json = $script:gitHuBSecrets.AZURE_CREDENTIALS
-            if ($json.contains("`n")) { 
-                throw "Secret contains line breaks"
-            }
-            $creds = $json | ConvertFrom-Json
-            if (!$dontmask) {
-                "clientId", "clientSecret", "subscriptionId", "tenantId" | ForEach-Object {
-                    MaskValue -key $_ -value $creds."$_"
-                }
-            }
-            return $creds
-        }
-        catch {
-            throw "Secret AZURE_CREDENTIALS is wrongly formatted. Needs to be formatted as compressed JSON (no line breaks) and contain at least the properties: clientId, clientSecret, tenantId and subscriptionId."
-        }
-    }
-    throw "Secret AZURE_CREDENTIALS is missing. In order to use a Keyvault, please add a secret called AZURE_CREDENTIALS like explained here: https://go.microsoft.com/fwlink/?linkid=2217318&clcid=0x409 (remember to format the json string as compressed json, i.e. no line breaks)"
-}
 
 function InstallKeyVaultModuleIfNeeded {
     if (-not $script:isKeyvaultSet) {
@@ -173,8 +155,7 @@ function GetKeyVaultSecret {
             
         InstallKeyVaultModuleIfNeeded
             
-        $credentialsJson = Get-KeyVaultCredentials
-        ConnectAzureKeyVaultIfNeeded -subscriptionId $credentialsJson.subscriptionId -tenantId $credentialsJson.tenantId -clientId $credentialsJson.clientId -clientSecret $credentialsJson.clientSecret
+        ConnectAzureKeyVaultIfNeeded -subscriptionId $script:gitHuBSecrets.AZURE_KEYVAULT_SUBSCRIPTION_ID -tenantId $script:gitHuBSecrets.AZURE_TENANT_ID -clientId $script:gitHuBSecrets.AZURE_CLIENT_ID -clientSecret $script:gitHuBSecrets.AZURE_CLIENT_SECRET
     }
 
     $value = ""
