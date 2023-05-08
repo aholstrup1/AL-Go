@@ -28,38 +28,6 @@ $bcContainerHelperPath = $null
 
 # IMPORTANT: No code that can fail should be outside the try/catch
 
-function Retry-Cmd {
-    param(
-        [Parameter(Mandatory = $true)]
-        [ScriptBlock]$Cmd,
-        [Parameter(Mandatory = $true)]
-        [int]$MaxRetries,
-        [Parameter(Mandatory = $false)]
-        [int]$RetryDelaySeconds = 5
-    )
-
-    $retryCount = 0
-    while ($retryCount -lt $MaxRetries) {
-        try {
-            & $Cmd
-            if ($LASTEXITCODE -ne 0) {
-                throw "Command failed with exit code $LASTEXITCODE"
-            }
-            break
-        }
-        catch {
-            $retryCount++
-            if ($retryCount -eq $MaxRetries) {
-                throw $_
-            }
-            else {
-                Write-Host "Retrying after $RetryDelaySeconds seconds..."
-                Start-Sleep -Seconds $RetryDelaySeconds
-            }
-        }
-    }
-}
-
 try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
     Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
@@ -78,7 +46,7 @@ try {
     }
 
     $Files | ForEach-Object {
-        Retry-Cmd -Cmd { 
+        Retry-Command -Command { 
             Register-NavSip 
             AzureSignTool sign --file-digest $FileDigest `
                 --azure-key-vault-url $AzureKeyVaultURI `
