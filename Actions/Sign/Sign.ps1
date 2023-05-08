@@ -57,7 +57,7 @@ try {
                 --timestamp-rfc3161 "$TimestampService" `
                 --timestamp-digest $TimestampDigest `
                 $Files
-        } -MaxRetries 5
+        } -MaxRetries 3
         $file = $_
     }
     
