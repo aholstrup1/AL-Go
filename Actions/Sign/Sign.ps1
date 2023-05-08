@@ -28,9 +28,42 @@ $bcContainerHelperPath = $null
 
 # IMPORTANT: No code that can fail should be outside the try/catch
 
+function Retry-Cmd {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ScriptBlock]$Cmd,
+        [Parameter(Mandatory = $true)]
+        [int]$MaxRetries,
+        [Parameter(Mandatory = $false)]
+        [int]$RetryDelaySeconds = 5
+    )
+
+    $retryCount = 0
+    while ($retryCount -lt $MaxRetries) {
+        try {
+            & $Cmd
+            if ($LASTEXITCODE -ne 0) {
+                throw "Command failed with exit code $LASTEXITCODE"
+            }
+            break
+        }
+        catch {
+            $retryCount++
+            if ($retryCount -eq $MaxRetries) {
+                throw $_
+            }
+            else {
+                Write-Host "Retrying after $RetryDelaySeconds seconds..."
+                Start-Sleep -Seconds $RetryDelaySeconds
+            }
+        }
+    }
+}
+
 try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
     Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
+    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Sign.psm1" -Resolve)
     $BcContainerHelperPath = DownloadAndImportBcContainerHelper -baseFolder $ENV:GITHUB_WORKSPACE
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
@@ -38,18 +71,16 @@ try {
     dotnet tool install --global AzureSignTool --version 4.0.1
     Write-Host "::endgroup::"
 
-    Write-Host "::group::Register NavSip"
-    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Sign.psm1" -Resolve)
-    Register-NavSip
-    Write-Host "::endgroup::"
-
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
     Write-Host "Signing files:"
     $Files | ForEach-Object { 
-        $file = $_
-        Write-Host "Signing: $file" 
-        Register-NavSip
-        AzureSignTool sign --file-digest $FileDigest `
+        Write-Host "- $_" 
+    }
+
+    $Files | ForEach-Object {
+        Retry-Cmd -Cmd { 
+            Register-NavSip 
+            AzureSignTool sign --file-digest $FileDigest `
                 --azure-key-vault-url $AzureKeyVaultURI `
                 --azure-key-vault-client-id $AzureKeyVaultClientID `
                 --azure-key-vault-tenant-id $AzureKeyVaultTenantID `
@@ -57,7 +88,9 @@ try {
                 --azure-key-vault-certificate $AzureKeyVaultCertificateName `
                 --timestamp-rfc3161 "$TimestampService" `
                 --timestamp-digest $TimestampDigest `
-                $file
+                $Files
+        } -MaxRetries 5
+        $file = $_
     }
     
     TrackTrace -telemetryScope $telemetryScope
