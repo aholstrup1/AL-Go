@@ -48,6 +48,29 @@ function MaskValue {
     Write-Host "::add-mask::$([Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($value)))"
 }
 
+function GetGithubSecret {
+    param (
+        [string] $secretName
+    )
+    $secretSplit = $secretName.Split('=')
+    $envVar = $secretSplit[0]
+    $secret = $envVar
+    if ($secretSplit.Count -gt 1) {
+        $secret = $secretSplit[1]
+    }
+    
+    if ($script:gitHubSecrets.PSObject.Properties.Name -eq $secret) {
+        $value = $script:githubSecrets."$secret"
+        if ($value) {
+            MaskValue -key $secret -value $value
+            Add-Content -Path $env:GITHUB_ENV -Value "$envVar=$value"
+            return $value
+        }
+    }
+
+    return $null
+}
+
 function Get-KeyVaultCredentials {
     Param(
         [switch] $dontmask
@@ -72,30 +95,6 @@ function Get-KeyVaultCredentials {
     }
     throw "Secret AZURE_CREDENTIALS is missing. In order to use a Keyvault, please add a secret called AZURE_CREDENTIALS like explained here: https://go.microsoft.com/fwlink/?linkid=2217318&clcid=0x409 (remember to format the json string as compressed json, i.e. no line breaks)"
 }
-
-function GetGithubSecret {
-    param (
-        [string] $secretName
-    )
-    $secretSplit = $secretName.Split('=')
-    $envVar = $secretSplit[0]
-    $secret = $envVar
-    if ($secretSplit.Count -gt 1) {
-        $secret = $secretSplit[1]
-    }
-    
-    if ($script:gitHubSecrets.PSObject.Properties.Name -eq $secret) {
-        $value = $script:githubSecrets."$secret"
-        if ($value) {
-            MaskValue -key $secret -value $value
-            Add-Content -Path $env:GITHUB_ENV -Value "$envVar=$value"
-            return $value
-        }
-    }
-
-    return $null
-}
-	
 
 function InstallKeyVaultModuleIfNeeded {
     if (-not $script:isKeyvaultSet) {
