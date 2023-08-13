@@ -32,6 +32,20 @@ function PushChanges
     }
 }
 
+function SetupBranch
+(
+    [string] $Branch,
+    [string] $CommitMessage = "Initial commit",
+    [string] $ServerUrl
+)
+{
+    invoke-git checkout -b $Branch
+    invoke-git commit --allow-empty -m $CommitMessage
+    invoke-git branch -M $Branch
+    invoke-git remote set-url origin $ServerUrl
+    invoke-git push -u origin $Branch
+}
+
 $oldPath = Get-Location
 try {
 
@@ -149,37 +163,25 @@ try {
 
         Write-Host -ForegroundColor Yellow "Deploying to $repo"
 
+        # Try to clone the repo. If it fails, create the repo using gh repo create
         try {
-            $serverUrl = "https://$($user.login):$token@github.com/$($config.githubOwner)/$repo.git"
-            if (Test-Path $repo) {
-                Remove-Item $repo -Recurse -Force
-            }
             invoke-git clone --quiet $serverUrl
-            Set-Location $repo
-            try {
-                invoke-git checkout $branch
-                Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
-            }
-            catch {
-                invoke-git checkout -b $branch
-                invoke-git commit --allow-empty -m 'init'
-                invoke-git branch -M $branch
-                invoke-git remote set-url origin $serverUrl
-                invoke-git push -u origin $branch
-            }
-        }
-        catch {
+        } catch {
             Write-Host "gh repo create $($config.githubOwner)/$repo --public --clone"
-            $ownerRepo = "$($config.githubOwner)/$repo"
-            invoke-gh repo create $ownerRepo --public --clone
+            invoke-gh repo create "$($config.githubOwner)/$repo" --public --clone
             Start-Sleep -Seconds 10
-            Set-Location $repo
-            invoke-git checkout -b $branch
-            invoke-git commit --allow-empty -m 'init'
-            invoke-git branch -M $branch
-            invoke-git remote set-url origin $serverUrl
-            invoke-git push -u origin $branch
         }
+
+        Set-Location $repo
+
+        # If the branch already exists, checkout the branch and remove all files
+        if (invoke-git ls-remote --heads origin $branch) {
+            invoke-git checkout $branch
+            Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
+        } else {
+            SetupBranch -Branch $branch -ServerUrl $serverUrl
+        }
+
 
         Get-ChildItem -Path $srcPath -Recurse -File -Force | ForEach-Object {
             $srcFile = $_.FullName
