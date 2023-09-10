@@ -62,7 +62,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Data Administration\\src\\MediaCleanupFactbox.Page.al"
+                                    "uri": "Data Administration\\src\\MediaCleanupFactbox.Page.al"
                                 },
                                 "region": {
                                     "startLine": 23,
@@ -84,7 +84,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Email\\src\\Account\\EmailAccounts.Page.al"
+                                    "uri": "Email\\src\\Account\\EmailAccounts.Page.al"
                                 },
                                 "region": {
                                     "startLine": 39,
@@ -106,7 +106,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Email\\src\\Account\\EmailAccountWizard.Page.al"
+                                    "uri": "Email\\src\\Account\\EmailAccountWizard.Page.al"
                                 },
                                 "region": {
                                     "startLine": 132,
@@ -128,7 +128,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
                                 },
                                 "region": {
                                     "startLine": 312,
@@ -150,7 +150,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
                                 },
                                 "region": {
                                     "startLine": 319,
@@ -172,7 +172,7 @@
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "C:\\Users\\LocalUser\\AppData\\Local\\Temp\\1\\jxbp4bol.oja\\Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
                                 },
                                 "region": {
                                     "startLine": 336,
