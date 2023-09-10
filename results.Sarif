@@ -10,10 +10,12 @@
                             "id": "AW0009",
                             "name": "AW0009",
                             "defaultConfiguration": {
-                                "level": "Warning"
+                                "level": "warning"
                             },
                             "properties": {
-                                "tags": "WebClient"
+                                "tags": [
+                                    "WebClient"
+                                ]
                             },
                             "help": {
                                 "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/uicop-aw0009?wt.mc_id=d365bc_inproduct_alextension"
@@ -29,10 +31,12 @@
                             "id": "AS0059",
                             "name": "AS0059",
                             "defaultConfiguration": {
-                                "level": "Error"
+                                "level": "error"
                             },
                             "properties": {
-                                "tags": "Extensibility"
+                                "tags": [
+                                    "Extensibility"
+                                ]
                             },
                             "help": {
                                 "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/appsourcecop-as0059?wt.mc_id=d365bc_inproduct_alextension"
