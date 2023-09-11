@@ -414,6 +414,8 @@ try {
         Copy-Item -Path $containerEventLogFile -Destination $destFolder -Force -ErrorAction SilentlyContinue
         Copy-Item -Path $errorLog -Destination $destFolder -Force -ErrorAction SilentlyContinue
     }
+    Copy-Item -Path $errorLog -Destination $buildArtifactFolder -Force -ErrorAction SilentlyContinue
+    
 
     TrackTrace -telemetryScope $telemetryScope
 }
