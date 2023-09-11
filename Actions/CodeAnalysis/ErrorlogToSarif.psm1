@@ -7,7 +7,7 @@ function ConvertTo-SarifLog {
     $sarif = Get-SarifLog -Path $Path
 
     if ($OutputPath) {
-        $sarif | ConvertTo-Json -Depth 100 | Out-File $OutputPath
+        $sarif | ConvertTo-Json -Depth 100 | Out-File $OutputPath -Encoding utf8
     }
     else {
         return $sarif
