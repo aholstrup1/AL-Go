@@ -431,6 +431,7 @@ finally {
             Copy-Item -Path $eventLogFile -Destination $containerEventLogFile
             $destFolder = Join-Path $ENV:GITHUB_WORKSPACE $project
             Copy-Item -Path $containerEventLogFile -Destination $destFolder
+            Copy-Item -Path $errorLog -Destination $destFolder -Force
         }
     }
     catch {
