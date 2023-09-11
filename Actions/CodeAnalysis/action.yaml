@@ -19,7 +19,7 @@ runs:
       run: |
         $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
         try {
-          ${{ github.action_path }}/CodeAnalysis.ps1 -errorLogPath $ENV:_errorLogPath -OutputPath ${{ github.workspace }}/ErrorLog.sarif
+          ${{ github.action_path }}/CodeAnalysis.ps1 -errorLogPath ${{ github.workspace }} -OutputPath ${{ github.workspace }}/ErrorLog.sarif
         }
         catch {
           Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
