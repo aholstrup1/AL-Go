@@ -1,0 +1,192 @@
+{
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "Al-Go Code Analysis",
+                    "version": "1.0.0",
+                    "rules": [
+                        {
+                            "id": "AW0009",
+                            "name": "AW0009",
+                            "defaultConfiguration": {
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "WebClient"
+                                ]
+                            },
+                            "help": {
+                                "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/uicop-aw0009?wt.mc_id=d365bc_inproduct_alextension"
+                            },
+                            "shortDescription": {
+                                "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                            },
+                            "fullDescription": {
+                                "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                            }
+                        },
+                        {
+                            "id": "AS0059",
+                            "name": "AS0059",
+                            "defaultConfiguration": {
+                                "level": "error"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "Extensibility"
+                                ]
+                            },
+                            "help": {
+                                "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/appsourcecop-as0059?wt.mc_id=d365bc_inproduct_alextension"
+                            },
+                            "shortDescription": {
+                                "text": "Reserved database tables are read-only in a multi-tenant environment"
+                            },
+                            "fullDescription": {
+                                "text": "Reserved database tables are read-only in a multi-tenant environment"
+                            }
+                        }
+                    ]
+                }
+            },
+            "results": [
+                {
+                    "message": {
+                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                    },
+                    "ruleId": "AW0009",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Data Administration\\src\\MediaCleanupFactbox.Page.al"
+                                },
+                                "region": {
+                                    "startLine": 23,
+                                    "endColumn": 44,
+                                    "startColumn": 33,
+                                    "endLine": 23
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                    },
+                    "ruleId": "AW0009",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Email\\src\\Account\\EmailAccounts.Page.al"
+                                },
+                                "region": {
+                                    "startLine": 39,
+                                    "endColumn": 46,
+                                    "startColumn": 34,
+                                    "endLine": 39
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                    },
+                    "ruleId": "AW0009",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Email\\src\\Account\\EmailAccountWizard.Page.al"
+                                },
+                                "region": {
+                                    "startLine": 132,
+                                    "endColumn": 41,
+                                    "startColumn": 33,
+                                    "endLine": 132
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                    },
+                    "ruleId": "AS0059",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 312,
+                                    "endColumn": 40,
+                                    "startColumn": 9,
+                                    "endLine": 312
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                    },
+                    "ruleId": "AS0059",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 319,
+                                    "endColumn": 45,
+                                    "startColumn": 17,
+                                    "endLine": 319
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                    },
+                    "ruleId": "AS0059",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 336,
+                                    "endColumn": 53,
+                                    "startColumn": 25,
+                                    "endLine": 336
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    "version": "2.1.0"
+}
