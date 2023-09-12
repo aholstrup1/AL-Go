@@ -7,45 +7,24 @@
                     "version": "1.0.0",
                     "rules": [
                         {
-                            "id": "AW0009",
-                            "name": "AW0009",
+                            "id": "AL0432",
+                            "name": "AL0432",
                             "defaultConfiguration": {
                                 "level": "warning"
                             },
                             "properties": {
                                 "tags": [
-                                    "WebClient"
+                                    "Compiler"
                                 ]
                             },
                             "help": {
-                                "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/uicop-aw0009?wt.mc_id=d365bc_inproduct_alextension"
+                                "text": "https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al432"
                             },
                             "shortDescription": {
-                                "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                                "text": "shortDescription: "
                             },
                             "fullDescription": {
-                                "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
-                            }
-                        },
-                        {
-                            "id": "AS0059",
-                            "name": "AS0059",
-                            "defaultConfiguration": {
-                                "level": "error"
-                            },
-                            "properties": {
-                                "tags": [
-                                    "Extensibility"
-                                ]
-                            },
-                            "help": {
-                                "text": "https://learn.microsoft.com/dynamics365/business-central/dev-itpro/developer/analyzers/appsourcecop-as0059?wt.mc_id=d365bc_inproduct_alextension"
-                            },
-                            "shortDescription": {
-                                "text": "Reserved database tables are read-only in a multi-tenant environment"
-                            },
-                            "fullDescription": {
-                                "text": "Reserved database tables are read-only in a multi-tenant environment"
+                                "text": "fullDescription: "
                             }
                         }
                     ]
@@ -54,21 +33,21 @@
             "results": [
                 {
                     "message": {
-                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                        "text": "text: "
                     },
-                    "ruleId": "AW0009",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Data Administration\\src\\MediaCleanupFactbox.Page.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 23,
-                                    "endColumn": 44,
-                                    "startColumn": 33,
-                                    "endLine": 23
+                                    "startLine": 29,
+                                    "endColumn": 67,
+                                    "startColumn": 51,
+                                    "endLine": 29
                                 }
                             }
                         }
@@ -76,21 +55,21 @@
                 },
                 {
                     "message": {
-                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                        "text": "text: "
                     },
-                    "ruleId": "AW0009",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Email\\src\\Account\\EmailAccounts.Page.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 39,
-                                    "endColumn": 46,
-                                    "startColumn": 34,
-                                    "endLine": 39
+                                    "startLine": 30,
+                                    "endColumn": 101,
+                                    "startColumn": 85,
+                                    "endLine": 30
                                 }
                             }
                         }
@@ -98,21 +77,21 @@
                 },
                 {
                     "message": {
-                        "text": "Using a Blob with subtype Bitmap on a page field is deprecated. Instead use the Media/MediaSet data types."
+                        "text": "text: "
                     },
-                    "ruleId": "AW0009",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Email\\src\\Account\\EmailAccountWizard.Page.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 132,
-                                    "endColumn": 41,
-                                    "startColumn": 33,
-                                    "endLine": 132
+                                    "startLine": 30,
+                                    "endColumn": 136,
+                                    "startColumn": 120,
+                                    "endLine": 30
                                 }
                             }
                         }
@@ -120,21 +99,21 @@
                 },
                 {
                     "message": {
-                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                        "text": "text: "
                     },
-                    "ruleId": "AS0059",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 312,
-                                    "endColumn": 40,
-                                    "startColumn": 9,
-                                    "endLine": 312
+                                    "startLine": 56,
+                                    "endColumn": 81,
+                                    "startColumn": 51,
+                                    "endLine": 56
                                 }
                             }
                         }
@@ -142,21 +121,21 @@
                 },
                 {
                     "message": {
-                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                        "text": "text: "
                     },
-                    "ruleId": "AS0059",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 319,
-                                    "endColumn": 45,
-                                    "startColumn": 17,
-                                    "endLine": 319
+                                    "startLine": 57,
+                                    "endColumn": 128,
+                                    "startColumn": 98,
+                                    "endLine": 57
                                 }
                             }
                         }
@@ -164,21 +143,505 @@
                 },
                 {
                     "message": {
-                        "text": "The table \u0027Web Service Aggregate\u0027 cannot be modified because it is part of the read-only application database or because it will result in undefined behavior."
+                        "text": "text: "
                     },
-                    "ruleId": "AS0059",
+                    "ruleId": "AL0432",
                     "level": "warning",
                     "locations": [
                         {
                             "physicalLocation": {
                                 "artifactLocation": {
-                                    "uri": "Web Service Management\\src\\WebServiceManagementImpl.Codeunit.al"
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
                                 },
                                 "region": {
-                                    "startLine": 336,
-                                    "endColumn": 53,
-                                    "startColumn": 25,
-                                    "endLine": 336
+                                    "startLine": 57,
+                                    "endColumn": 177,
+                                    "startColumn": 147,
+                                    "endLine": 57
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 65,
+                                    "endColumn": 67,
+                                    "startColumn": 51,
+                                    "endLine": 65
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 66,
+                                    "endColumn": 101,
+                                    "startColumn": 85,
+                                    "endLine": 66
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 66,
+                                    "endColumn": 136,
+                                    "startColumn": 120,
+                                    "endLine": 66
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 92,
+                                    "endColumn": 81,
+                                    "startColumn": 51,
+                                    "endLine": 92
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 93,
+                                    "endColumn": 128,
+                                    "startColumn": 98,
+                                    "endLine": 93
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 93,
+                                    "endColumn": 177,
+                                    "startColumn": 147,
+                                    "endLine": 93
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 101,
+                                    "endColumn": 67,
+                                    "startColumn": 51,
+                                    "endLine": 101
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 102,
+                                    "endColumn": 101,
+                                    "startColumn": 85,
+                                    "endLine": 102
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 128,
+                                    "endColumn": 81,
+                                    "startColumn": 51,
+                                    "endLine": 128
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 129,
+                                    "endColumn": 128,
+                                    "startColumn": 98,
+                                    "endLine": 129
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 137,
+                                    "endColumn": 67,
+                                    "startColumn": 51,
+                                    "endLine": 137
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 138,
+                                    "endColumn": 101,
+                                    "startColumn": 85,
+                                    "endLine": 138
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 164,
+                                    "endColumn": 81,
+                                    "startColumn": 51,
+                                    "endLine": 164
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 165,
+                                    "endColumn": 128,
+                                    "startColumn": 98,
+                                    "endLine": 165
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 35,
+                                    "endColumn": 70,
+                                    "startColumn": 54,
+                                    "endLine": 35
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 62,
+                                    "endColumn": 84,
+                                    "startColumn": 54,
+                                    "endLine": 62
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 71,
+                                    "endColumn": 70,
+                                    "startColumn": 54,
+                                    "endLine": 71
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 98,
+                                    "endColumn": 84,
+                                    "startColumn": 54,
+                                    "endLine": 98
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 107,
+                                    "endColumn": 70,
+                                    "startColumn": 54,
+                                    "endLine": 107
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 134,
+                                    "endColumn": 84,
+                                    "startColumn": 54,
+                                    "endLine": 134
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 143,
+                                    "endColumn": 70,
+                                    "startColumn": 54,
+                                    "endLine": 143
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "message": {
+                        "text": "text: "
+                    },
+                    "ruleId": "AL0432",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "c:\\shared\\Modules\\DevTools\\TestFramework\\TestStabilityTools\\PreventMetadataUpdates\\src\\BlockChangesToSystemTables.Codeunit.al"
+                                },
+                                "region": {
+                                    "startLine": 170,
+                                    "endColumn": 84,
+                                    "startColumn": 54,
+                                    "endLine": 170
                                 }
                             }
                         }
@@ -187,6 +650,6 @@
             ]
         }
     ],
-    "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+    "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
     "version": "2.1.0"
 }
