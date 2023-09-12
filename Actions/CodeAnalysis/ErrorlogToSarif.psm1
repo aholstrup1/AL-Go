@@ -20,6 +20,10 @@ function ConvertTo-SarifLog {
 
 function Get-SarifLog([string] $Path) {
     $errorlog = Get-Content $Path | ConvertFrom-Json
+
+    Write-Host "Converting errorlog to SARIF log"
+    Write-Host $errorlog
+
     $sarifSchema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
     $version = "2.1.0"
     $runs = Get-Runs -ErrorLog $errorlog
@@ -74,7 +78,7 @@ function Get-Locations([object] $ErrorLocation) {
         $location = @{
             physicalLocation = @{
                 artifactLocation = @{
-                    uri = $location.analysisTarget.uri
+                    uri = GetLocalPath -Path $location.analysisTarget.uri
                 }
                 region           = @{
                     startLine   = $location.analysisTarget.region.startLine
@@ -136,6 +140,11 @@ function RuleExists($ExistingRules, $RuleId) {
         }
     }
     return $false
+}
+
+function GetLocalPath($Path) {
+    $localPath = $Path.Replace("c:\\shared\\", "")
+    return $localPath
 }
 
 function Merge-Errorlogs([string] $Path, [string] $OutputPath) {
