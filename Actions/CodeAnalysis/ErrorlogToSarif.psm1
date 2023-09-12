@@ -138,4 +138,31 @@ function RuleExists($ExistingRules, $RuleId) {
     return $false
 }
 
+function Merge-Errorlogs([string] $Path, [string] $OutputPath) {
+    $errorLogFiles = Get-ChildItem -Path "$Path\*ErrorLog*.json" -Recurse
+    $mergedErrorLog = @()
+
+    $issues = @()
+    $version = ""
+    $toolInfo = @{}
+
+    foreach ($errorLogFile in $errorLogFiles) {
+        Write-Host "Merging $errorLogFile"
+        $errorLog = Get-Content $errorLogFile.FullName | ConvertFrom-Json
+
+        $issues += $errorLog.issues
+        $version = $errorLog.version
+        $toolInfo = $errorLog.toolInfo
+    }
+
+    $mergedErrorLog = @{
+        version   = $version
+        toolInfo  = $toolInfo
+        issues    = $issues
+    }
+
+    $mergedErrorLog | ConvertTo-Json -Depth 100 | Out-File $OutputPath -Encoding utf8
+}
+
+Export-ModuleMember -Function Merge-Errorlogs
 Export-ModuleMember -Function ConvertTo-SarifLog

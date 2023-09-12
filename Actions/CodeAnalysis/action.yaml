@@ -6,7 +6,7 @@ inputs:
     required: false
     default: powershell
   errorLogPath:
-    description: Path to error log file
+    description: Path to error log files
     required: false
 runs:
   using: composite
@@ -27,6 +27,7 @@ runs:
         }
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v2
+      if: steps.CodeAnalysis.outputs.SarifLogExists == 'true'
       with:
         sarif_file: ${{ github.workspace }}/ErrorLog.sarif
 branding:
