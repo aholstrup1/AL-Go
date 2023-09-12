@@ -1,61 +1,61 @@
 ﻿{
-    "runs":  [
-                 {
-                     "tool":  {
-                                  "driver":  {
-                                                 "name":  "Al-Go Code Analysis",
-                                                 "version":  "1.0.0",
-                                                 "rules":  [
-                                                               {
-                                                                   "id":  "AL0667",
-                                                                   "name":  "AL0667",
-                                                                   "defaultConfiguration":  {
-                                                                                                "level":  "warning"
-                                                                                            },
-                                                                   "properties":  {
-                                                                                      "tags":  [
-                                                                                                   "Compiler"
-                                                                                               ]
-                                                                                  },
-                                                                   "help":  {
-                                                                                "text":  "https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al667"
-                                                                            },
-                                                                   "shortDescription":  {
-                                                                                            "text":  "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
-                                                                                        },
-                                                                   "fullDescription":  {
-                                                                                           "text":  "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
-                                                                                       }
-                                                               }
-                                                           ]
-                                             }
-                              },
-                     "results":  [
-                                     {
-                                         "message":  {
-                                                         "text":  "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
-                                                     },
-                                         "ruleId":  "AL0667",
-                                         "level":  "warning",
-                                         "locations":  [
-                                                           {
-                                                               "physicalLocation":  {
-                                                                                        "artifactLocation":  {
-                                                                                                                 "uri":  "Modules\\DevTools\\TestFramework\\TestRunner\\src\\ALTestTool.Page.al"
-                                                                                                             },
-                                                                                        "region":  {
-                                                                                                       "startLine":  524,
-                                                                                                       "endColumn":  47,
-                                                                                                       "startColumn":  12,
-                                                                                                       "endLine":  524
-                                                                                                   }
-                                                                                    }
-                                                           }
-                                                       ]
-                                     }
-                                 ]
-                 }
-             ],
-    "$schema":  "https://json.schemastore.org/sarif-2.1.0.json",
-    "version":  "2.1.0"
+    "runs": [
+        {
+            "tool": {
+                "driver": {
+                    "name": "Al-Go Code Analysis",
+                    "version": "1.0.0",
+                    "rules": [
+                        {
+                            "id": "AL0667",
+                            "name": "AL0667",
+                            "defaultConfiguration": {
+                                "level": "warning"
+                            },
+                            "properties": {
+                                "tags": [
+                                    "Compiler"
+                                ]
+                            },
+                            "help": {
+                                "text": "https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/diagnostics/diagnostic-al667"
+                            },
+                            "shortDescription": {
+                                "text": "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
+                            },
+                            "fullDescription": {
+                                "text": "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
+                            }
+                        }
+                    ]
+                }
+            },
+            "results": [
+                {
+                    "message": {
+                        "text": "\u0027FindSet\u0027 is being deprecated in the versions: \u002711.0\u0027 or greater.  This warning will become an error in a future release."
+                    },
+                    "ruleId": "AL0667",
+                    "level": "warning",
+                    "locations": [
+                        {
+                            "physicalLocation": {
+                                "artifactLocation": {
+                                    "uri": "Modules\\DevTools\\TestFramework\\TestRunner\\src\\ALTestTool.Page.al"
+                                },
+                                "region": {
+                                    "startLine": 524,
+                                    "endColumn": 47,
+                                    "startColumn": 12,
+                                    "endLine": 524
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+    "version": "2.1.0"
 }
