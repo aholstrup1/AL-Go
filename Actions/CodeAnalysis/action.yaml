@@ -19,17 +19,25 @@ runs:
       run: |
         $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
         try {
-          ${{ github.action_path }}/CodeAnalysis.ps1 -Path ${{ github.workspace }} -OutputPath ${{ github.workspace }}/ErrorLog.sarif
+          ${{ github.action_path }}/CodeAnalysis.ps1 -Path ${{ github.workspace }} -OutputPath ${{ github.workspace }}/ErrorLog.Sarif
         }
         catch {
           Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
           exit 1
         }
+    - name: Publish artifacts - ErrorLog.Sarif
+      uses: actions/upload-artifact@v3
+      if: steps.CodeAnalysis.outputs.SarifLogExists == 'true'
+      with:
+        name: ErrorLog.Sarif
+        path: ${{ github.workspace }}/ErrorLog.Sarif
+        if-no-files-found: ignore
+
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v2
       if: steps.CodeAnalysis.outputs.SarifLogExists == 'true'
       with:
-        sarif_file: ${{ github.workspace }}/ErrorLog.sarif
+        sarif_file: ${{ github.workspace }}/ErrorLog.Sarif
 branding:
   icon: terminal
   color: blue
