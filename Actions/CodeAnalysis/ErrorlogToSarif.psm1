@@ -22,9 +22,9 @@ function Get-SarifLog([string] $Path) {
     $errorlog = Get-Content $Path | ConvertFrom-Json
 
     Write-Host "Converting errorlog to SARIF log"
-    Write-Host $errorlog
+    Write-Host (Get-Content $Path)
 
-    $sarifSchema = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
+    $sarifSchema = "https://json.schemastore.org/sarif-2.1.0.json"
     $version = "2.1.0"
     $runs = Get-Runs -ErrorLog $errorlog
 
