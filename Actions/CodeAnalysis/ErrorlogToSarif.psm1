@@ -151,6 +151,7 @@ function RuleExists($ExistingRules, $RuleId) {
 
 function GetLocalPath($Path) {
     $localPath = $Path.Replace("c:\shared\", "")
+    $localPath = $localPath.Replace("\", "/")
     return $localPath
 }
 
