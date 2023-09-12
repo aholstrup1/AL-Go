@@ -59,7 +59,7 @@ function Get-Results([object] $ErrorLog) {
             ruleId    = $error.ruleId
             level     = ($error.properties.severity).ToLower()
             message   = @{
-                text = $error.shortMessage
+                text = "text: $($error.shortMessage)"
             }
             locations = @(Get-Locations -ErrorLocation $error.locations)
         }
@@ -108,10 +108,10 @@ function Get-Rules([object] $ErrorLog) {
             id                   = $error.ruleId
             name                 = $error.ruleId
             shortDescription     = @{
-                text = $error.properties.title
+                text = "shortDescription: $($error.properties.title)"
             }
             fullDescription      = @{
-                text = $error.properties.title
+                text = "fullDescription: $($error.properties.title)"
             }
             defaultConfiguration = @{
                 level = ($error.properties.defaultSeverity).ToLower()
