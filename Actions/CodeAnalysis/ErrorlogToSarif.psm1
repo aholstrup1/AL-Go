@@ -63,7 +63,7 @@ function Get-Results([object] $ErrorLog) {
             ruleId    = $error.ruleId
             level     = ($error.properties.severity).ToLower()
             message   = @{
-                text = "text: $($error.shortMessage)"
+                text = "$($error.fullMessage)"
             }
             locations = @(Get-Locations -ErrorLocation $error.locations)
         }
@@ -108,14 +108,20 @@ function Get-Rules([object] $ErrorLog) {
             continue
         }
 
+        if ($error.properties.title) {
+            $message = $error.properties.title
+        } else {
+            $message = $error.fullMessage
+        }
+
         $rule = @{
             id                   = $error.ruleId
             name                 = $error.ruleId
             shortDescription     = @{
-                text = "shortDescription: $($error.properties.title)"
+                text = "$message"
             }
             fullDescription      = @{
-                text = "fullDescription: $($error.properties.title)"
+                text = "$message"
             }
             defaultConfiguration = @{
                 level = ($error.properties.defaultSeverity).ToLower()
@@ -143,7 +149,7 @@ function RuleExists($ExistingRules, $RuleId) {
 }
 
 function GetLocalPath($Path) {
-    $localPath = $Path.Replace("c:\\shared\\", "")
+    $localPath = $Path.Replace("c:\shared\", "")
     return $localPath
 }
 
@@ -156,7 +162,6 @@ function Merge-Errorlogs([string] $Path, [string] $OutputPath) {
     $toolInfo = @{}
 
     foreach ($errorLogFile in $errorLogFiles) {
-        Write-Host "Merging $errorLogFile"
         $errorLog = Get-Content $errorLogFile.FullName | ConvertFrom-Json
 
         $issues += $errorLog.issues
