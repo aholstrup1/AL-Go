@@ -10,7 +10,8 @@ function ConvertTo-SarifLog {
         $sarifTrimmed = ($sarif | ConvertTo-Json -Depth 100).Trim()
         Write-Host "Writing SARIF log to $OutputPath"
         Write-Host $sarifTrimmed
-        $sarifTrimmed | Out-File $OutputPath -Encoding utf8
+        $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding $False
+        [System.IO.File]::WriteAllLines($OutputPath, $sarifTrimmed, $Utf8NoBomEncoding)
     }
     else {
         return $sarif
