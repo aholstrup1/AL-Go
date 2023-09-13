@@ -239,6 +239,17 @@ jobs:
           projects: ${{ needs.Initialization.outputs.projects }}
           deliveryTarget: ${{ matrix.deliveryTarget }}
           artifacts: '.artifacts'
+ 
+  CodeAnalysis:
+    if: (!cancelled())
+    runs-on: [ windows-latest ]
+    needs: [ Build ]
+    steps:
+      - name: Code Analysis
+        id: CodeAnalysis
+        uses: aholstrup1/AL-Go-Actions/CodeAnalysis@main
+        with:
+          shell: powershell
 
   PostProcess:
     if: (!cancelled())

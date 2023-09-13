@@ -96,10 +96,21 @@ jobs:
       projectDependenciesJson: ${{ needs.Initialization.outputs.projectDependenciesJson }}
       secrets: 'licenseFileUrl,insiderSasToken,keyVaultCertificateUrl,*keyVaultCertificatePassword,keyVaultClientId,gitHubPackagesContext,applicationInsightsConnectionString'
       publishThisBuildArtifacts: ${{ needs.Initialization.outputs.workflowDepth > 1 }}
+  
+  CodeAnalysis:
+    if: (!cancelled())
+    runs-on: [ windows-latest ]
+    needs: [ Build ]
+    steps:
+      - name: Code Analysis
+        id: CodeAnalysis
+        uses: aholstrup1/AL-Go-Actions/CodeAnalysis@main
+        with:
+          shell: powershell
 
   StatusCheck:
     runs-on: [ windows-latest ]
-    needs: [ Initialization, Build ]
+    needs: [ Initialization, Build, CodeAnalysis ]
     if: (!cancelled())
     name: Pull Request Status Check
     steps:
