@@ -388,9 +388,9 @@ function DownloadAndImportBcContainerHelper([string] $baseFolder = $ENV:GITHUB_W
         if ($repoSettings.Keys -contains "BcContainerHelperVersion") {
             $bcContainerHelperVersion = $repoSettings.BcContainerHelperVersion
             Write-Host "Using BcContainerHelper $bcContainerHelperVersion version"
-            #if ($bcContainerHelperVersion -like "https://*") {
-            #    throw "Setting BcContainerHelperVersion to a URL in settings is not allowed. Fork the AL-Go repository and use direct AL-Go development instead."
-            #}
+            if ($bcContainerHelperVersion -like "https://*") {
+                throw "Setting BcContainerHelperVersion to a URL in settings is not allowed. Fork the AL-Go repository and use direct AL-Go development instead."
+            }
         }
         $params += @{ "bcContainerHelperConfigFile" = $repoSettingsPath }
     }
