@@ -8,6 +8,9 @@ inputs:
   errorLogPath:
     description: Path to error log files
     required: false
+  ref:
+    description: "The ref where results will be uploaded. If not provided, the Action will use the GITHUB_REF environment variable. If provided, the sha input must be provided as well. This input is not available in pull requests from forks."
+    required: false
 runs:
   using: composite
   steps:
@@ -38,6 +41,7 @@ runs:
       if: steps.CodeAnalysis.outputs.SarifLogExists == 'true'
       with:
         sarif_file: ${{ github.workspace }}/ErrorLog.Sarif
+        ref: ${{ inputs.ref }}
 branding:
   icon: terminal
   color: blue
