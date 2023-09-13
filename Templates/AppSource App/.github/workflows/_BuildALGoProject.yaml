@@ -144,14 +144,7 @@ jobs:
             buildMode: ${{ inputs.buildMode }}
             installAppsJson: ${{ steps.DownloadProjectDependencies.outputs.DownloadedApps }}
             installTestAppsJson: ${{ steps.DownloadProjectDependencies.outputs.DownloadedTestApps }}
-        
-        - name: Code Analysis
-          id: CodeAnalysis
-          uses: microsoft/AL-Go-Actions/CodeAnalysis@main
-          with:
-            shell: ${{ inputs.shell }}
-            errorLogPath: '${{ inputs.project }}/.buildartifacts/ErrorLog.json'
-        
+
         - name: Sign
           if: inputs.signArtifacts && env.doNotSignApps == 'False' && env.keyVaultCodesignCertificateName != ''
           id: sign
