@@ -22,7 +22,7 @@ try {
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
     Write-Host "::group::Install AzureSignTool"
-    dotnet tool install --global AzureSignTool --version 4.0.1
+    dotnet tool install --tool-path . sign --version 0.9.0-beta.23127.3 # TODO: Update version
     Write-Host "::endgroup::"
 
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
@@ -42,13 +42,12 @@ try {
     else {
         throw "KeyVaultName is not specified in AzureCredentials nor in settings. Please specify it in one of them."
     }
+    
+    $description = "Signed with AL-Go for GitHub"
+    $descriptionUrl = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
 
     RetryCommand -Command { Param( $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Certificate, $Files)
-        Write-Host "::group::Register NavSip"
-        Register-NavSip
-        Write-Host "::endgroup::"
-
-        AzureSignTool sign --file-digest $digestAlgorithm `
+        ./sign code azure-key-vault --file-digest $digestAlgorithm `
             --azure-key-vault-url "https://$AzureKeyVaultName.vault.azure.net/" `
             --azure-key-vault-client-id $AzureCredentials.clientId `
             --azure-key-vault-tenant-id $AzureCredentials.tenantId `
@@ -56,6 +55,8 @@ try {
             --azure-key-vault-certificate $Certificate `
             --timestamp-rfc3161 "$TimestampService" `
             --timestamp-digest $digestAlgorithm `
+            --description $description `
+            --description-url $descriptionUrl `
             $Files
     } -MaxRetries 3 -ArgumentList $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Settings.keyVaultCodesignCertificateName, $Files
 
