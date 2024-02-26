@@ -20,7 +20,7 @@ try {
     DownloadAndImportBcContainerHelper
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
-    Write-Host "::group::Install AzureSignTool"
+    Write-Host "::group::Install DotNet signing tool"
     dotnet tool install --tool-path . sign --version 0.9.1-beta.24123.2 # TODO: Update version
     Write-Host "::endgroup::"
 
