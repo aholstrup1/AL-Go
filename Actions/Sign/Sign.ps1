@@ -22,7 +22,7 @@ try {
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
     Write-Host "::group::Install AzureSignTool"
-    dotnet tool install --tool-path . sign --version 0.9.0-beta.23127.3 # TODO: Update version
+    dotnet tool install --tool-path . sign --version 0.9.1-beta.24123.2 # TODO: Update version
     Write-Host "::endgroup::"
 
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
@@ -47,17 +47,20 @@ try {
     $descriptionUrl = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
 
     RetryCommand -Command { Param( $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Certificate, $Files)
-        ./sign code azure-key-vault --file-digest $digestAlgorithm `
+        ./sign code azure-key-vault `
             --azure-key-vault-url "https://$AzureKeyVaultName.vault.azure.net/" `
             --azure-key-vault-client-id $AzureCredentials.clientId `
             --azure-key-vault-tenant-id $AzureCredentials.tenantId `
             --azure-key-vault-client-secret $AzureCredentials.clientSecret `
             --azure-key-vault-certificate $Certificate `
-            --timestamp-rfc3161 "$TimestampService" `
+            --timestamp-url "$TimestampService" `
             --timestamp-digest $digestAlgorithm `
+            --file-digest $digestAlgorithm `
             --description $description `
             --description-url $descriptionUrl `
-            $Files
+            --verbosity "Information" `
+            --base-directory $PathToFiles `
+            '**/*.app'
     } -MaxRetries 3 -ArgumentList $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Settings.keyVaultCodesignCertificateName, $Files
 
     TrackTrace -telemetryScope $telemetryScope
