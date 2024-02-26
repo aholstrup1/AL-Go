@@ -58,8 +58,7 @@ try {
             --description $description `
             --description-url $descriptionUrl `
             --verbosity "Information" `
-            --base-directory $PathToFiles `
-            '**/*.app'
+            $PathToFiles
     } -MaxRetries 3 -ArgumentList $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Settings.keyVaultCodesignCertificateName, $Files
 
     TrackTrace -telemetryScope $telemetryScope
