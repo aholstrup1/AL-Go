@@ -15,21 +15,25 @@ param(
 $telemetryScope = $null
 
 try {
+    # Imports 
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
     Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
     DownloadAndImportBcContainerHelper
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
+    # Install DotNet signing tool
     Write-Host "::group::Install DotNet signing tool"
     dotnet tool install --tool-path . sign --version 0.9.1-beta.24123.2 # TODO: Update version
     Write-Host "::endgroup::"
 
+    # Log files to be signed
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
     Write-Host "Signing files:"
     $Files | ForEach-Object {
         Write-Host "- $_"
     }
 
+    # Get parameters for signing
     $AzureCredentials = ConvertFrom-Json $AzureCredentialsJson
     $settings = $env:Settings | ConvertFrom-Json
     if ($settings.keyVaultName) {
@@ -41,25 +45,23 @@ try {
     else {
         throw "KeyVaultName is not specified in AzureCredentials nor in settings. Please specify it in one of them."
     }
-    
     $description = "Signed with AL-Go for GitHub"
     $descriptionUrl = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
 
-    RetryCommand -Command { Param( $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Certificate, $Files)
-        ./sign code azure-key-vault `
-            --azure-key-vault-url "https://$AzureKeyVaultName.vault.azure.net/" `
-            --azure-key-vault-client-id $AzureCredentials.clientId `
-            --azure-key-vault-tenant-id $AzureCredentials.tenantId `
-            --azure-key-vault-client-secret $AzureCredentials.clientSecret `
-            --azure-key-vault-certificate $Certificate `
-            --timestamp-url "$TimestampService" `
-            --timestamp-digest $digestAlgorithm `
-            --file-digest $digestAlgorithm `
-            --description $description `
-            --description-url $descriptionUrl `
-            --verbosity "Information" `
-            $PathToFiles
-    } -MaxRetries 3 -ArgumentList $AzureKeyVaultName, $AzureCredentials, $digestAlgorithm, $TimestampService, $Settings.keyVaultCodesignCertificateName, $Files
+    # Sign files
+    ./sign code azure-key-vault `
+        --azure-key-vault-url "https://$AzureKeyVaultName.vault.azure.net/" `
+        --azure-key-vault-client-id $AzureCredentials.clientId `
+        --azure-key-vault-tenant-id $AzureCredentials.tenantId `
+        --azure-key-vault-client-secret $AzureCredentials.clientSecret `
+        --azure-key-vault-certificate $settings.keyVaultCodesignCertificateName `
+        --timestamp-url "$TimestampService" `
+        --timestamp-digest $digestAlgorithm `
+        --file-digest $digestAlgorithm `
+        --description $description `
+        --description-url $descriptionUrl `
+        --verbosity "Information" `
+        $PathToFiles
 
     TrackTrace -telemetryScope $telemetryScope
 }
