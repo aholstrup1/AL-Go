@@ -15,14 +15,12 @@ param(
 $telemetryScope = $null
 
 try {
-    # Imports 
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
     Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
     Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Sign.psm1" -Resolve)
     DownloadAndImportBcContainerHelper
     $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
-    # Log files to be signed
     Write-Host "::group::Files to be signed"
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
     Write-Host "Signing files:"
@@ -53,7 +51,7 @@ try {
         -ClientId $AzureCredentials.clientId `
         -ClientSecret $AzureCredentials.clientSecret `
         -TenantId $AzureCredentials.tenantId `
-        -PathToFiles $PathToFiles `
+        -FilesToSign $PathToFiles `
         -Description $description `
         -DescriptionUrl $descriptionUrl `
         -TimestampService $TimestampService `

@@ -12,8 +12,7 @@ function Install-SignTool() {
             [string] $Version = "0.9.1-beta.24123.2"
         )
 
-        $signTool = Get-Command -Name "sign" -ErrorAction SilentlyContinue
-        if ($signTool) {
+        if (Get-Command -Name "sign" -ErrorAction SilentlyContinue) {
             Write-Host "Found signing tool at '$($signTool.Source)' and version $($signTool.Version) installed."
         } else {
             Write-Host "Signing tool not found. Installing version $Version."
@@ -36,8 +35,8 @@ function Install-SignTool() {
     The client secret of the service principal used to authenticate with Azure Key Vault.
     .PARAMETER TenantId
     The tenant ID of the service principal used to authenticate with Azure Key Vault.
-    .PARAMETER PathToFiles
-    The path to the files to be signed.
+    .PARAMETER FilesToSign
+    The path to the file(s) to be signed. Supports wildcards.
     .PARAMETER Description
     The description to be included in the signature.
     .PARAMETER DescriptionUrl
@@ -48,6 +47,9 @@ function Install-SignTool() {
     The digest algorithm to use for signing and timestamping.
     .PARAMETER Verbosity
     The verbosity level of the signing tool.
+    .EXAMPLE
+    SignFilesInPath -KeyVaultName "my-key-vault" -CertificateName "my-certificatename" -ClientId "my-client-id" -ClientSecret "my-client-secret" -TenantId "my-tenant-id" 
+                    -FilesToSign "C:\path\to\files\*.app" -Description "Signed with AL-Go for GitHub" -DescriptionUrl "github.com/myorg/myrepo"
 #>
 function SignFilesInPath() {
     param(
@@ -60,9 +62,9 @@ function SignFilesInPath() {
         [Parameter(Mandatory = $true)]
         [string] $ClientSecret,
         [Parameter(Mandatory = $true)]
-        [string] $TenantId,
+        [string] $TenantId, 
         [Parameter(Mandatory = $true)]
-        [string] $PathToFiles,
+        [string] $FilesToSign,
         [Parameter(Mandatory = $true)]
         [string] $Description,
         [Parameter(Mandatory = $true)]
@@ -90,7 +92,7 @@ function SignFilesInPath() {
         --timestamp-digest $DigestAlgorithm `
         --timestamp-url $TimestampService `
         --verbosity $Verbosity `
-        $PathToFiles
+        $FilesToSign
 }
 
 Export-ModuleMember -Function SignFilesInPath
