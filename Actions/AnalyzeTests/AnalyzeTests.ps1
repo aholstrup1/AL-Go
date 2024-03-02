@@ -17,8 +17,10 @@ try {
     $testResultFiles = Get-ChildItem -Path $ENV:GITHUB_WORKSPACE -Filter "TestResults.xml" -File -Recurse
     # Get PR Number from github context
     $prNumber = $ENV:GITHUB_REF -replace 'refs/pull/(\d+)/merge', '$1'
+
+    $prefix = "<!-- AL-Go Test Results Summary -->"
     $title = "# Test Results Summary"
-    $summary = $title + "`n"
+    $summary = $prefix + "`n" + $title + "`n"
 
     foreach ($testResultFile in $testResultFiles) {
         $testResults = [xml](Get-Content $testResultFile.FullName)
@@ -48,7 +50,22 @@ try {
     $summary += "Workflow run: $linkToWorkflowRun`n"
     $summary += "Last updated: $lastUpdated`n"
     Add-Content -path $ENV:GITHUB_STEP_SUMMARY -value $summary
-    gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$ENV:GITHUB_REPOSITORY/issues/$prNumber/comments -f body=$summary
+    
+    # Update existing comment if it exists
+    $commentCreated = $false
+    $existingComments = gh api --method GET -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$ENV:GITHUB_REPOSITORY/issues/$prNumber/comments | ConvertFrom-Json
+    if ($existingComments) {
+        $existingComment = $existingComments | Where-Object { $_.body -like "$prefix*" } | Select-Object -First 1
+        if ($existingComment) {
+            $existingCommentId = $existingComment.id
+            gh api --method PATCH -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$ENV:GITHUB_REPOSITORY/issues/comments/$existingCommentId -f body=$summary
+            $commentCreated = $true
+        }
+    }
+
+    if (-not $commentCreated) {
+        gh api --method POST -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$ENV:GITHUB_REPOSITORY/issues/$prNumber/comments -f body=$summary
+    }
 
     <#$bcptTestResultsFile = Join-Path $ENV:GITHUB_WORKSPACE "$project\BCPTTestResults.json"
     if (Test-Path $bcptTestResultsFile) {
