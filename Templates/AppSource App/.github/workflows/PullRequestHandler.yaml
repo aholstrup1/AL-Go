@@ -116,3 +116,22 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
+
+  ReportBuildSummary:
+    needs: [ Initialization, Build ]
+    if: (!cancelled())
+    runs-on: [ windows-latest ]
+    name: Pull Request Status Check
+    steps: 
+      - name: Download Test Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*TestResults*'
+          path: ${{ github.workspace }}/TestResults
+
+      - name: Analyze Test Results
+        id: analyzeTestResults
+        if: (success() || failure()) && env.doNotRunTests == 'False'
+        uses: microsoft/AL-Go-Actions/AnalyzeTests@main
+        with:
+          shell: powershell
