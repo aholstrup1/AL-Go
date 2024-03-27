@@ -13,7 +13,11 @@ updates:
   directory: "/Templates/Per Tenant Extension/.github/workflows/"
   schedule:
     interval: weekly
+  ignore:
+    - dependency-name: "microsoft/AL-Go-Actions/*"
 - package-ecosystem: github-actions
   directory: "/Templates/AppSource App/.github/workflows/"
   schedule:
     interval: weekly
+  ignore:
+    - dependency-name: "microsoft/AL-Go-Actions/*"
