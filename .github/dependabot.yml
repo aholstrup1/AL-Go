@@ -6,6 +6,11 @@
 version: 2
 updates:
 - package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: github-actions
   directory: "/Templates/Per Tenant Extension/.github/workflows/"
   schedule:
     interval: daily
