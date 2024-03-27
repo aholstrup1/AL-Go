@@ -417,6 +417,14 @@ try {
         Copy-Item -Path $containerEventLogFile -Destination $destFolder -Force -ErrorAction SilentlyContinue
     }
 
+    # Create json object containing the build mode and save it to a file
+    $buildModeJson = @{
+        "BuildMode" = $buildMode
+        "ProjectName" = $settings.projectName
+    } | ConvertTo-Json
+    $buildModeFile = Join-Path $projectPath "TestResults.json"
+    Set-Content -Path $buildModeFile -Value $buildModeJson -Encoding UTF8
+
     TrackTrace -telemetryScope $telemetryScope
 }
 catch {
