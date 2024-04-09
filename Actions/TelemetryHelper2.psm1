@@ -43,24 +43,16 @@ function Add-TelemetryEvent()
         $Data.Add('PowerShellVersion', $PSVersionTable.PSVersion.ToString())
     }
 
-    Write-Host "Action: $ENV:GITHUB_ACTION"
-    Write-Host "Action Path: $ENV:GITHUB_ACTION_PATH"
-    Write-Host "GitHub Workflow: $ENV:GITHUB_WORKFLOW"
-
-    # Print all env variables (name + value)
-    Write-Host "ENV:"
-    Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name)=$($_.Value)" }
-
     ### Add GitHub Actions information
     if ((-not $Data.ContainsKey('ActionName')) -and ($ENV:GITHUB_ACTION -ne $null))
     {
         $Data.Add('ActionName', $ENV:GITHUB_ACTION)
     }
 
-    if ((-not $Data.ContainsKey('ActionVersion')) -and ($ENV:GITHUB_ACTION_PATH -ne $null))
+    if ((-not $Data.ContainsKey('ActionPath')) -and ($ENV:GITHUB_ACTION_PATH -ne $null))
     {
-        # Get action version from action path
-        $Data.Add('ActionVersion', $ENV:GITHUB_ACTION_PATH.Split('/')[-1])
+        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
+        $Data.Add('ActionPath', $actionPath)
     }
 
     ### Add GitHub Workflow information
@@ -70,6 +62,11 @@ function Add-TelemetryEvent()
     }
 
     ### Add GitHub Run information
+    if ((-not $Data.ContainsKey('RefName')) -and ($ENV:GITHUB_REF_NAME -ne $null))
+    {
+        $Data.Add('RefName', $ENV:GITHUB_REF_NAME)
+    }
+
     if ((-not $Data.ContainsKey('RunnerOs')) -and ($ENV:RUNNER_OS -ne $null))
     {
         $Data.Add('RunnerOs', $ENV:RUNNER_OS)
@@ -99,7 +96,6 @@ function Add-TelemetryEvent()
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
     $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-
     $TelemetryClient.Flush()
 }
 
