@@ -13,6 +13,16 @@ function Get-ApplicationInsightsTelemetryClient
     return $Global:TelemetryClient
 }
 
+function Trace-Exception() {
+    param(
+        [String] $StackTrace
+    )
+
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+    $Data.Add('StackTrace', $StackTrace)
+
+    Add-TelemetryEvent -Severity 'Error' -Data $Data
+}
 
 function Add-TelemetryEvent()
 {
@@ -21,6 +31,10 @@ function Add-TelemetryEvent()
         [String] $Message = 'aholstrupTest',
         [String] $Severity = 'Information'
     )
+
+    Write-Host "Add-TelemetryEvent: $Message"
+
+    # Check if the repository has opted out of telemetry before continuing
 
     $TelemetryClient = Get-ApplicationInsightsTelemetryClient
     
@@ -75,5 +89,9 @@ function Add-TelemetryEvent()
         $Data.Add('Repository', $ENV:GITHUB_REPOSITORY)
     }
 
+    Write-Host "Tracking trace with severity $Severity and message $Message"
+
     $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
 }
+
+Export-ModuleMember -Function Add-TelemetryEvent, Trace-Exception
