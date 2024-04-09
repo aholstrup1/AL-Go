@@ -1,7 +1,5 @@
 function Get-ApplicationInsightsTelemetryClient
 {
-    [CmdletBinding()]
-    param()
     
     if ($null -eq $Global:TelemetryClient)
     {
@@ -19,7 +17,7 @@ function Get-ApplicationInsightsTelemetryClient
 function Add-TelemetryEvent()
 {
     param(
-        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{},
         [String] $Message = 'aholstrupTest',
         [String] $Severity = 'Information'
     )
