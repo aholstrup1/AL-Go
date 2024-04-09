@@ -23,6 +23,15 @@ function Trace-Exception() {
     Add-TelemetryEvent -Severity 'Error' -Data $Data
 }
 
+function Trace-Information() {
+    param(
+        [String] $Message
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+    )
+
+    Add-TelemetryEvent -Message $Message -Severity 'Information'
+}
+
 function Add-TelemetryEvent()
 {
     param(
@@ -41,6 +50,10 @@ function Add-TelemetryEvent()
     if (-not $Data.ContainsKey('PowerShellVersion'))
     {
         $Data.Add('PowerShellVersion', $PSVersionTable.PSVersion.ToString())
+    }
+
+    if ((-not $Data.ContainsKey('ContainerHelperVersion')) -and Get-Module BcContainerHelper) {
+        $Data.Add('ContainerHelperVersion', (Get-Module BcContainerHelper).Version.ToString())
     }
 
     ### Add GitHub Actions information
@@ -99,4 +112,4 @@ function Add-TelemetryEvent()
     $TelemetryClient.Flush()
 }
 
-Export-ModuleMember -Function Add-TelemetryEvent, Trace-Exception
+Export-ModuleMember -Function Trace-Exception, Trace-Information

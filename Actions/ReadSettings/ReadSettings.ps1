@@ -79,4 +79,4 @@ $gitHubRunnerShell = $settings.githubRunnerShell
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerShell=$githubRunnerShell"
 Write-Host "GitHubRunnerShell=$githubRunnerShell"
 
-Add-TelemetryEvent
+Trace-Information

@@ -67,7 +67,7 @@ try {
     #endregion
 
     TrackTrace -telemetryScope $telemetryScope
-    Add-TelemetryEvent
+    Trace-Information
 }
 catch {
     if (Get-Module BcContainerHelper) {
