@@ -44,14 +44,23 @@ function Add-TelemetryEvent()
     }
 
     Write-Host "Action: $ENV:GITHUB_ACTION"
-    Write-Host "Action Repository: $ENV:GITHUB_ACTION_REPOSITORY"
     Write-Host "Action Path: $ENV:GITHUB_ACTION_PATH"
     Write-Host "GitHub Workflow: $ENV:GITHUB_WORKFLOW"
 
+    # Print all env variables
+    Write-Host "ENV:"
+    Get-ChildItem Env: | Get-Content | Write-Host
+
+    # Print all github env variables
+    Write-Host "GitHub ENV:"
+    $GITHUB_ENV | Get-Content | Write-Host
+
+
+
     ### Add GitHub Actions information
-    if ((-not $Data.ContainsKey('ActionName')) -and ($ENV:GITHUB_ACTION_REPOSITORY -ne $null))
+    if ((-not $Data.ContainsKey('ActionName')) -and ($ENV:GITHUB_ACTION -ne $null))
     {
-        $Data.Add('ActionName', $ENV:GITHUB_ACTION_REPOSITORY)
+        $Data.Add('ActionName', $ENV:GITHUB_ACTION)
     }
 
     if ((-not $Data.ContainsKey('ActionVersion')) -and ($ENV:GITHUB_ACTION_PATH -ne $null))
