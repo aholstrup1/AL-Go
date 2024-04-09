@@ -5,9 +5,8 @@ function Get-ApplicationInsightsTelemetryClient
     {
         $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
         [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
-        $InstrumentationKey = '403ba4d3-ad2b-4ca1-8602-b7746de4c048'
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $TelemetryClient.InstrumentationKey = $InstrumentationKey
+        $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
         $Global:TelemetryClient = $TelemetryClient
     }
     return $Global:TelemetryClient
@@ -92,6 +91,8 @@ function Add-TelemetryEvent()
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
     $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+
+    $TelemetryClient.Flush()
 }
 
 Export-ModuleMember -Function Add-TelemetryEvent, Trace-Exception
