@@ -6,6 +6,7 @@
 )
 
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
 
 $settings = ReadSettings -project $project
 if ($get) {
@@ -77,3 +78,5 @@ Write-Host "GitHubRunnerJson=$githubRunner"
 $gitHubRunnerShell = $settings.githubRunnerShell
 Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerShell=$githubRunnerShell"
 Write-Host "GitHubRunnerShell=$githubRunnerShell"
+
+Add-TelemetryEvent
