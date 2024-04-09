@@ -43,6 +43,7 @@ function Add-TelemetryEvent()
         $Data.Add('PowerShellVersion', $PSVersionTable.PSVersion.ToString())
     }
 
+    Write-Host "Action: $ENV:GITHUB_ACTION"
     Write-Host "Action Repository: $ENV:GITHUB_ACTION_REPOSITORY"
     Write-Host "Action Path: $ENV:GITHUB_ACTION_PATH"
     Write-Host "GitHub Workflow: $ENV:GITHUB_WORKFLOW"
