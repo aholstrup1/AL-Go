@@ -47,15 +47,9 @@ function Add-TelemetryEvent()
     Write-Host "Action Path: $ENV:GITHUB_ACTION_PATH"
     Write-Host "GitHub Workflow: $ENV:GITHUB_WORKFLOW"
 
-    # Print all env variables
+    # Print all env variables (name + value)
     Write-Host "ENV:"
-    Get-ChildItem Env: | Get-Content | Write-Host
-
-    # Print all github env variables
-    Write-Host "GitHub ENV:"
-    $GITHUB_ENV | Get-Content | Write-Host
-
-
+    Get-ChildItem Env: | ForEach-Object { Write-Host "$($_.Name)=$($_.Value)" }
 
     ### Add GitHub Actions information
     if ((-not $Data.ContainsKey('ActionName')) -and ($ENV:GITHUB_ACTION -ne $null))
