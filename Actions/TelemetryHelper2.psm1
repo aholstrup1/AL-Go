@@ -8,7 +8,7 @@ function LoadApplicationInsightsDll() {
 function Get-ApplicationInsightsTelemetryClient
 {
     # Check if the telemetry clients have already been created
-    if ($null -ne $Global:TelemetryClients)
+    if ($Global:TelemetryClients)
     {
         return $Global:TelemetryClients
     }
