@@ -13,28 +13,46 @@ function Get-ApplicationInsightsTelemetryClient
 }
 
 function Trace-WorkflowStart() {
-    # Calculate the AL-Go Version
-    $alGoVersion = "main"
-    
-    # Calculate the repo type
-    $repoType = "PTE"
-
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
-    $Data.Add('ALGoVersion', $alGoVersion)
-    $Data.Add('RepoType', $repoType)
+
+    $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
+    if (Test-Path -Path $alGoSettingsPath) {
+        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-HashTable
+        
+        # Log the repository type
+        if ($repoSettings.Keys -contains 'type') {
+            $Data.Add('RepoType', $repoType)
+        } else {
+            $Data.Add('RepoType', '')
+        }
+
+        # Log the template URL
+        if ($repoSettings.Keys -contains 'templateUrl') {
+            $Data.Add('templateUrl', $repoSettings['templateUrl'])
+        } else {
+            $Data.Add('templateUrl', '')
+        }
+
+        # Log the Al-Go version
+        $alGoVersion = "main"
+        $Data.Add('AlGoVersion', $alGoVersion)
+    }
+
     
     Trace-Information -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
 }
 
 function Trace-WorkflowEnd() {
-    # Calculate the workflow conclusion
-    $workflowConclusion = "Success"
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
 
-    # Calculate the workflow duration
+    # Calculate the workflow conclusion using the github api
+    $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
+    $workflowConclusion = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
+    $Data.Add('WorkflowConclusion', $workflowConclusion)
+
+    # Calculate the workflow duration using the github api
     $workflowDuration = 0
 
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
-    $Data.Add('WorkflowConclusion', $workflowConclusion)
     $Data.Add('WorkflowDuration', $workflowDuration)
 
     Trace-Information -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
@@ -57,7 +75,7 @@ function Trace-Information() {
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
 
-    Add-TelemetryEvent -Message $Message -Severity 'Information'
+    Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
 }
 
 function Add-TelemetryEvent()
