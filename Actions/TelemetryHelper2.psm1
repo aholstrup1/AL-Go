@@ -18,7 +18,8 @@ function Get-ApplicationInsightsTelemetryClient
     # Load the Application Insights DLL
     LoadApplicationInsightsDll
 
-    $TelemetryClients = @()
+    # Initialize the telemetry clients array
+    [Microsoft.ApplicationInsights.TelemetryClient[]] $TelemetryClients = @()
 
     # Check if the repository has opted out of microsoft telemetry before continuing
     if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
@@ -26,24 +27,23 @@ function Get-ApplicationInsightsTelemetryClient
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
-        $TelemetryClients = $TelemetryClient
-        return $TelemetryClient
+        $TelemetryClients += $TelemetryClient
     }
 
     # Set up a custom telemetry client if a connection string is provided
-    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+    <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling sending telemetry to partner..."
         $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
         $TelemetryClients += $CustomTelemetryClient
-    }
+    }#>
 
     Write-Host "Telemetry clients: $($TelemetryClients.Count)"
 
     if ($TelemetryClients.Count -eq 0) {
         return $null
     } else {
-        $Env:TelemetryClients = $CustomTelemetryClient # $TelemetryClients
+        $Env:TelemetryClients = $TelemetryClients
         return $Env:TelemetryClients
     
     }
@@ -192,13 +192,11 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    $TelemetryClients.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-
-    <#foreach ($TelemetryClient in $TelemetryClients) {
+    foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemertry client: $TelemetryClient"
         Write-Host "Telemetry Configuration: $($TelemetryClient.TelemetryConfiguration)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    }#>
+    }
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
