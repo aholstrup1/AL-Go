@@ -32,7 +32,7 @@ function Get-ApplicationInsightsTelemetryClient
     # Set up a custom telemetry client if a connection string is provided
     Write-Host "Enabling partner telemetry..."
     $PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-    $PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" 
+    $PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;ApplicationId=3043c303-76e5-4a39-b1fc-320123b012b4" 
     <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
