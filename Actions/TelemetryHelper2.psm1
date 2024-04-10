@@ -191,7 +191,7 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    foreach ([Microsoft.ApplicationInsights.TelemetryClient] $TelemetryClient in $TelemetryClients) {
+    foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
     }
