@@ -19,10 +19,9 @@ function Trace-WorkflowStart() {
     # Calculate the repo type
     $repoType = "PTE"
 
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{
-        'AL-GoVersion' = $alGoVersion
-        'RepoType' = $repoType
-    }
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+    $Data.Add('ALGoVersion', $alGoVersion)
+    $Data.Add('RepoType', $repoType)
     
     Trace-Information -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
 }
@@ -34,10 +33,9 @@ function Trace-WorkflowEnd() {
     # Calculate the workflow duration
     $workflowDuration = 0
 
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{
-        'WorkflowConclusion' = $workflowConclusion
-        'WorkflowDuration' = $workflowDuration
-    }
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+    $Data.Add('WorkflowConclusion', $workflowConclusion)
+    $Data.Add('WorkflowDuration', $workflowDuration)
 
     Trace-Information -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
 }
