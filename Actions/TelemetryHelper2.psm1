@@ -8,9 +8,9 @@ function LoadApplicationInsightsDll() {
 function Get-ApplicationInsightsTelemetryClient
 {
     # Check if the telemetry clients have already been created
-    if ($Global:TelemetryClients)
+    if ($Env:TelemetryClients)
     {
-        return $Global:TelemetryClients
+        return $Env:TelemetryClients
     }
 
     $repoSettings = ReadSettings
@@ -39,8 +39,8 @@ function Get-ApplicationInsightsTelemetryClient
     if ($TelemetryClients.Count -eq 0) {
         return $null
     } else {
-        $Global:TelemetryClients = $TelemetryClients
-        return $Global:TelemetryClients
+        $Env:TelemetryClients = $TelemetryClients
+        return $Env:TelemetryClients
     
     }
 }
