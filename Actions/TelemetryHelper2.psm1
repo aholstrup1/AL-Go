@@ -21,7 +21,7 @@ function Get-ApplicationInsightsTelemetryClient
     $TelemetryClients = @()
 
     # Check if the repository has opted out of microsoft telemetry before continuing
-    if (($repoSettings.PSObject.Properties.Name -contains 'sendExtendedTelemetryToMicrosoft') -and ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true)) {
+    if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
         Write-Host "Enabling sending telemetry to Microsoft..."
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
@@ -30,7 +30,7 @@ function Get-ApplicationInsightsTelemetryClient
     }
 
     # Set up a custom telemetry client if a connection string is provided
-    if (($repoSettings.PSObject.Properties.Name -contains 'partnerTelemetryConnectionString') -and ($repoSettings.partnerTelemetryConnectionString -ne '')) {
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling sending telemetry to partner..."
         $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
