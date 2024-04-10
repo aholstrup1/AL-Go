@@ -31,8 +31,8 @@ function Get-ApplicationInsightsTelemetryClient
 
     # Set up a custom telemetry client if a connection string is provided
     Write-Host "Enabling partner telemetry..."
-    $Global:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-    $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" 
+    $PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+    $PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" 
     <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
@@ -40,7 +40,7 @@ function Get-ApplicationInsightsTelemetryClient
         $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" #$repoSettings.partnerTelemetryConnectionString
     }#>
 
-    return $Global:PartnerTelemetryClient
+    return $PartnerTelemetryClient
 }
 
 function Trace-WorkflowStart() {
@@ -125,10 +125,10 @@ function Add-TelemetryEvent()
 
     $TelemetryClient = Get-ApplicationInsightsTelemetryClient
 
-    if (($Global:MicrosoftTelemetryClient -eq $null) -and ($Global:PartnerTelemetryClient -eq $null)) {
+    <#if (($Global:MicrosoftTelemetryClient -eq $null) -and ($Global:PartnerTelemetryClient -eq $null)) {
         Write-Host "No telemetry clients found. Skipping telemetry."
         return
-    }
+    }#>
     
     # Add powershell version
     if (-not $Data.ContainsKey('PowerShellVersion'))
