@@ -60,14 +60,14 @@ function Get-ApplicationInsightsTelemetryClient
             $Global:TelemetryClient = $TelemetryClient
         }
 
-        if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
+        <#if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
             Write-Host "Enabling Microsoft telemetry..."
             Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
             # Create a new TelemetryClient for Microsoft telemetry
             $MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
             $MicrosoftTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
             $Global:MicrosoftTelemetryClient = $MicrosoftTelemetryClient
-        }
+        }#>
     }
 
     return $Global:TelemetryClient
