@@ -17,18 +17,18 @@ function Trace-WorkflowStart() {
 
     $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
     if (Test-Path -Path $alGoSettingsPath) {
-        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-HashTable
+        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
         
         # Log the repository type
-        if ($repoSettings.Keys -contains 'type') {
-            $Data.Add('RepoType', $repoType)
+        if ($repoSettings.PSObject.Properties.Name -contains 'type') {
+            $Data.Add('RepoType', $repoSettings.type)
         } else {
             $Data.Add('RepoType', '')
         }
 
         # Log the template URL
-        if ($repoSettings.Keys -contains 'templateUrl') {
-            $Data.Add('templateUrl', $repoSettings['templateUrl'])
+        if ($repoSettings.PSObject.Properties.Name -contains 'templateUrl') {
+            $Data.Add('templateUrl', $repoSettings.templateUrl)
         } else {
             $Data.Add('templateUrl', '')
         }
