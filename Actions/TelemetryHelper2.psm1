@@ -43,34 +43,15 @@ function LoadApplicationInsightsDll() {
     return $PartnerTelemetryClient
 }#>
 
-function Get-ApplicationInsightsTelemetryClient
+function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 {
-    
-    if ($null -eq $Global:TelemetryClient)
-    {
-        # Load the Application Insights DLL
-        LoadApplicationInsightsDll
+    # Load the Application Insights DLL
+    LoadApplicationInsightsDll
 
-        $repoSettings = ReadSettings
+    $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+    $TelemetryClient.TelemetryConfiguration.ConnectionString = $TelemetryConnectionString
 
-        if ($repoSettings.partnerTelemetryConnectionString -ne '') {
-            Write-Host "Enabling partner telemetry..."
-            $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-            $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
-            $Global:TelemetryClient = $TelemetryClient
-        }
-
-        <#if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
-            Write-Host "Enabling Microsoft telemetry..."
-            Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
-            # Create a new TelemetryClient for Microsoft telemetry
-            $MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-            $MicrosoftTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
-            $Global:MicrosoftTelemetryClient = $MicrosoftTelemetryClient
-        }#>
-    }
-
-    return $Global:TelemetryClient
+    return $TelemetryClient
 }
 
 function Trace-WorkflowStart() {
@@ -151,15 +132,6 @@ function Add-TelemetryEvent()
         [String] $Severity = 'Information'
     )
 
-    Write-Host "Add-TelemetryEvent: $Message"
-
-    $TelemetryClient = Get-ApplicationInsightsTelemetryClient
-
-    <#if (($Global:MicrosoftTelemetryClient -eq $null) -and ($Global:PartnerTelemetryClient -eq $null)) {
-        Write-Host "No telemetry clients found. Skipping telemetry."
-        return
-    }#>
-    
     # Add powershell version
     if (-not $Data.ContainsKey('PowerShellVersion'))
     {
@@ -217,13 +189,13 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    $TelemetryClient.Flush()
+    $repoSettings = ReadSettings
 
-    <#foreach ($TelemetryClient in $TelemetryClients) {
-        Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
-        $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    }#>
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+        $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
+        $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+        $PartnerTelemetryClient.Flush()
+    }
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd, Get-ApplicationInsightsTelemetryClient
