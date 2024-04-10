@@ -20,16 +20,13 @@ function Get-ApplicationInsightsTelemetryClient
     # Load the Application Insights DLL
     LoadApplicationInsightsDll
 
-    # Initialize the telemetry clients array
-    [Microsoft.ApplicationInsights.TelemetryClient[]] $TelemetryClients = @()
-
     # Check if the repository has opted out of microsoft telemetry before continuing
     if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
         Write-Host "Enabling Microsoft telemetry..."
         Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
         # Create a new TelemetryClient for Microsoft telemetry
         $Script:MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
+        $Script:MicrosoftTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
     }
 
     # Set up a custom telemetry client if a connection string is provided
@@ -37,7 +34,7 @@ function Get-ApplicationInsightsTelemetryClient
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
         $Script:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
+        $Script:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
     }
 }
 
