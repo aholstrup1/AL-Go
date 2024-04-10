@@ -1,4 +1,5 @@
 $Global:TelemetryClient = $null
+$Global:MicrosoftTelemetryClient = $null
 
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
@@ -56,10 +57,19 @@ function Get-ApplicationInsightsTelemetryClient
             Write-Host "Enabling partner telemetry..."
             $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
             $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
+            $Global:TelemetryClient = $TelemetryClient
         }
-        $Global:TelemetryClient = $TelemetryClient
+
+        if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
+            Write-Host "Enabling Microsoft telemetry..."
+            Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
+            # Create a new TelemetryClient for Microsoft telemetry
+            $MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+            $MicrosoftTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
+            $Global:MicrosoftTelemetryClient = $MicrosoftTelemetryClient
+        }
     }
-    
+
     return $Global:TelemetryClient
 }
 
