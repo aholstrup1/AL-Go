@@ -22,10 +22,14 @@ function LogAlGoVersion() {
     Write-Big -str "a$verstr"
 }
 
+import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
+
 try {
+    Trace-WorkflowStart
+
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-TestRepoHelper.ps1" -Resolve)
-    import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
+    
 
     # Log the version of AL-Go that is being used in the workflow 
     LogAlGoVersion
@@ -36,18 +40,6 @@ try {
     # Test the prerequisites for the test runner
     TestRunnerPrerequisites
 
-    # Log telemetry
-    $telemetryData = @{}
-    $repoSettings = Get-Content -Path (Join-Path $ENV:GITHUB_WORKSPACE '.github/AL-Go-Settings.json') -Raw -Encoding UTF8 | ConvertFrom-Json | ConvertTo-HashTable
-    if ($repoSettings.Keys -contains 'type') {
-        $telemetryData.Add('RepoType', $repoSettings.type)
-    }
-
-    if ($repoSettings.Keys -contains 'templateUrl') {
-        $telemetryData.Add('RepoTemplateUrl', $templateUrl)
-    }
-
-    Trace-Information -AdditionalData $telemetryData
 
     $scopeJson = '7b7d'
     $correlationId = [guid]::Empty.ToString()

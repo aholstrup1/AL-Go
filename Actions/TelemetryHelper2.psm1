@@ -12,6 +12,36 @@ function Get-ApplicationInsightsTelemetryClient
     return $Global:TelemetryClient
 }
 
+function Trace-WorkflowStart() {
+    # Calculate the AL-Go Version
+    $alGoVersion = "main"
+    
+    # Calculate the repo type
+    $repoType = "PTE"
+
+    $Data = @{
+        'AL-GoVersion' = $alGoVersion
+        'RepoType' = $repoType
+    }
+    
+    Trace-Information -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
+}
+
+function Trace-WorkflowEnd() {
+    # Calculate the workflow conclusion
+    $workflowConclusion = "Success"
+
+    # Calculate the workflow duration
+    $workflowDuration = 0
+
+    $Data = @{
+        'WorkflowConclusion' = $workflowConclusion
+        'WorkflowDuration' = $workflowDuration
+    }
+
+    Trace-Information -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
+}
+
 function Trace-Exception() {
     param(
         [String] $StackTrace
@@ -112,4 +142,4 @@ function Add-TelemetryEvent()
     $TelemetryClient.Flush()
 }
 
-Export-ModuleMember -Function Trace-Exception, Trace-Information
+Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
