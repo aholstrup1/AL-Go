@@ -38,8 +38,7 @@ function Trace-WorkflowStart() {
         $Data.Add('AlGoVersion', $alGoVersion)
     }
 
-    
-    Trace-Information -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
+    Add-TelemetryEvent -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $Data
 }
 
 function Trace-WorkflowEnd() {
@@ -55,7 +54,7 @@ function Trace-WorkflowEnd() {
 
     $Data.Add('WorkflowDuration', $workflowDuration)
 
-    Trace-Information -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -AdditionalData $Data
+    Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $Data
 }
 
 function Trace-Exception() {
@@ -75,6 +74,11 @@ function Trace-Information() {
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
 
+    if ($null -eq $Message) {
+        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
+        $Message = "AL-Go Action Ran: $actionPath"
+    }
+
     Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
 }
 
@@ -82,7 +86,7 @@ function Add-TelemetryEvent()
 {
     param(
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{},
-        [String] $Message = 'aholstrupTest',
+        [String] $Message = '',
         [String] $Severity = 'Information'
     )
 
@@ -103,11 +107,6 @@ function Add-TelemetryEvent()
     }
 
     ### Add GitHub Actions information
-    if ((-not $Data.ContainsKey('ActionName')) -and ($ENV:GITHUB_ACTION -ne $null))
-    {
-        $Data.Add('ActionName', $ENV:GITHUB_ACTION)
-    }
-
     if ((-not $Data.ContainsKey('ActionPath')) -and ($ENV:GITHUB_ACTION_PATH -ne $null))
     {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'

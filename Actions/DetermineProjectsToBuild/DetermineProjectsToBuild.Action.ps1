@@ -66,7 +66,6 @@ try {
     Write-Host "BaselineWorkflowRunId=$baselineWorkflowRunId"
     #endregion
 
-    TrackTrace -telemetryScope $telemetryScope
     Trace-Information
 }
 catch {
