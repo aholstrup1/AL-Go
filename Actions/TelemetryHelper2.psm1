@@ -47,12 +47,19 @@ function Get-ApplicationInsightsTelemetryClient
     
     if ($null -eq $Global:TelemetryClient)
     {
-        $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
-        [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
-        $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
+        # Load the Application Insights DLL
+        LoadApplicationInsightsDll
+
+        $repoSettings = ReadSettings
+
+        if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+            Write-Host "Enabling partner telemetry..."
+            $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+            $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
+        }
         $Global:TelemetryClient = $TelemetryClient
     }
+    
     return $Global:TelemetryClient
 }
 
