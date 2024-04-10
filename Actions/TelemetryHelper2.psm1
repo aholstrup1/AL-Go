@@ -70,11 +70,11 @@ function Trace-Exception() {
 
 function Trace-Information() {
     param(
-        [String] $Message,
+        [String] $Message = "",
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
 
-    if ($null -eq $Message) {
+    if ($Message -eq "") {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
         $Message = "AL-Go Action Ran: $actionPath"
     }
