@@ -42,7 +42,7 @@ function Get-ApplicationInsightsTelemetryClient
     if ($TelemetryClients.Count -eq 0) {
         return $null
     } else {
-        $Env:TelemetryClients = $TelemetryClients
+        $Env:TelemetryClients = $CustomTelemetryClient # $TelemetryClients
         return $Env:TelemetryClients
     
     }
@@ -191,11 +191,13 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    foreach ($TelemetryClient in $TelemetryClients) {
+    $TelemetryClients.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+
+    <#foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemertry client: $TelemetryClient"
         Write-Host "Telemetry Configuration: $($TelemetryClient.TelemetryConfiguration)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    }
+    }#>
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
