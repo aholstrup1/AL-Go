@@ -22,22 +22,20 @@ function Get-ApplicationInsightsTelemetryClient
 
     # Check if the repository has opted out of microsoft telemetry before continuing
     if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
-        Write-Host "Enabling sending telemetry to Microsoft..."
+        Write-Host "Enabling Microsoft telemetry..."
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
+        $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
         $TelemetryClients += @($TelemetryClient)
     }
 
     # Set up a custom telemetry client if a connection string is provided
     if ($repoSettings.partnerTelemetryConnectionString -ne '') {
-        Write-Host "Enabling sending telemetry to partner..."
+        Write-Host "Enabling partner telemetry..."
         $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
         $TelemetryClients += @($CustomTelemetryClient)
     }
-
-    Write-Host "Telemetry clients: $($TelemetryClients.Count)"
 
     if ($TelemetryClients.Count -eq 0) {
         return $null
@@ -45,7 +43,6 @@ function Get-ApplicationInsightsTelemetryClient
         [Microsoft.ApplicationInsights.TelemetryClient[]] $Script:TelemetryClients = $TelemetryClients
         $Env:TelemertryClientsInitialized = $true
         return $TelemetryClients
-    
     }
 }
 
@@ -195,6 +192,7 @@ function Add-TelemetryEvent()
     foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemertry client: $TelemetryClient"
         Write-Host "Telemetry Configuration: $($TelemetryClient.TelemetryConfiguration)"
+        Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
     }
 }
