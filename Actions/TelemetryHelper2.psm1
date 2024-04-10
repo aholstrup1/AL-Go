@@ -26,7 +26,8 @@ function Get-ApplicationInsightsTelemetryClient
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
-        $TelemetryClients += $TelemetryClient
+        $TelemetryClients = $TelemetryClient
+        return $TelemetryClient
     }
 
     # Set up a custom telemetry client if a connection string is provided
