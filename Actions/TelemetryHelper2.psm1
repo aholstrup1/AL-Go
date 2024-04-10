@@ -55,7 +55,7 @@ function Trace-Exception() {
 
 function Trace-Information() {
     param(
-        [String] $Message
+        [String] $Message,
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
 
@@ -82,7 +82,7 @@ function Add-TelemetryEvent()
         $Data.Add('PowerShellVersion', $PSVersionTable.PSVersion.ToString())
     }
 
-    if ((-not $Data.ContainsKey('ContainerHelperVersion')) -and Get-Module BcContainerHelper) {
+    if ((-not $Data.ContainsKey('ContainerHelperVersion')) -and (Get-Module BcContainerHelper)) {
         $Data.Add('ContainerHelperVersion', (Get-Module BcContainerHelper).Version.ToString())
     }
 
