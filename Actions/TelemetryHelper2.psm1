@@ -1,3 +1,6 @@
+$Script:MicrosoftTelemetryClient = $null
+$Script:PartnerTelemetryClient = $null
+
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
 function LoadApplicationInsightsDll() {
@@ -8,8 +11,8 @@ function LoadApplicationInsightsDll() {
 function Get-ApplicationInsightsTelemetryClient
 {
     # Check if the telemetry clients have already been created
-    if ($Env:TelemertryClientsInitialized) {
-        return $Script:TelemetryClients
+    if ($Env:TelemetryClientsInitialized) {
+        return
     }
 
     $repoSettings = ReadSettings
@@ -25,26 +28,16 @@ function Get-ApplicationInsightsTelemetryClient
         Write-Host "Enabling Microsoft telemetry..."
         Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
         # Create a new TelemetryClient for Microsoft telemetry
-        $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+        $Script:MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
-        $TelemetryClients += @($TelemetryClient)
     }
 
     # Set up a custom telemetry client if a connection string is provided
     if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
-        $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+        $Script:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
-        $TelemetryClients += @($CustomTelemetryClient)
-    }
-
-    if ($TelemetryClients.Count -eq 0) {
-        return $null
-    } else {
-        [Microsoft.ApplicationInsights.TelemetryClient[]] $Script:TelemetryClients = $TelemetryClients
-        $Env:TelemertryClientsInitialized = $true
-        return $TelemetryClients
     }
 }
 
@@ -128,9 +121,10 @@ function Add-TelemetryEvent()
 
     Write-Host "Add-TelemetryEvent: $Message"
 
-    $TelemetryClients = Get-ApplicationInsightsTelemetryClient
+    Get-ApplicationInsightsTelemetryClient
 
-    if ($null -eq $TelemetryClients) {
+    if (($Script:MicrosoftTelemetryClient -eq $null) -and ($Script:PartnerTelemetryClient -eq $null)) {
+        Write-Host "No telemetry clients found. Skipping telemetry."
         return
     }
     
@@ -191,10 +185,12 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    foreach ($TelemetryClient in $TelemetryClients) {
+    $Script:PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+
+    <#foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    }
+    }#>
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd, Get-ApplicationInsightsTelemetryClient
