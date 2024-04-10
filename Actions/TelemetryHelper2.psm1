@@ -15,7 +15,7 @@ function Get-ApplicationInsightsTelemetryClient
         return
     }
 
-    $repoSettings = ReadSettings
+    #$repoSettings = ReadSettings
 
     # Load the Application Insights DLL
     LoadApplicationInsightsDll
@@ -30,12 +30,17 @@ function Get-ApplicationInsightsTelemetryClient
     }#>
 
     # Set up a custom telemetry client if a connection string is provided
-    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+    Write-Host "Enabling partner telemetry..."
+    $Global:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+    $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" 
+    <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
         $Global:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
-        $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
-    }
+        $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" #$repoSettings.partnerTelemetryConnectionString
+    }#>
+
+    return $Global:PartnerTelemetryClient
 }
 
 function Trace-WorkflowStart() {
@@ -118,7 +123,7 @@ function Add-TelemetryEvent()
 
     Write-Host "Add-TelemetryEvent: $Message"
 
-    Get-ApplicationInsightsTelemetryClient
+    $TelemetryClient = Get-ApplicationInsightsTelemetryClient
 
     if (($Global:MicrosoftTelemetryClient -eq $null) -and ($Global:PartnerTelemetryClient -eq $null)) {
         Write-Host "No telemetry clients found. Skipping telemetry."
@@ -182,7 +187,7 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    $Global:PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+    $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
 
     <#foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
