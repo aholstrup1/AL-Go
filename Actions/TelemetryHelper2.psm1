@@ -1,5 +1,4 @@
-$Global:MicrosoftTelemetryClient = $null
-$Global:PartnerTelemetryClient = $null
+$Global:TelemetryClient = $null
 
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
