@@ -19,7 +19,7 @@ function Trace-WorkflowStart() {
     # Calculate the repo type
     $repoType = "PTE"
 
-    $Data = @{
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{
         'AL-GoVersion' = $alGoVersion
         'RepoType' = $repoType
     }
@@ -34,7 +34,7 @@ function Trace-WorkflowEnd() {
     # Calculate the workflow duration
     $workflowDuration = 0
 
-    $Data = @{
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{
         'WorkflowConclusion' = $workflowConclusion
         'WorkflowDuration' = $workflowDuration
     }
