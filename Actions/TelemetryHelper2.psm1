@@ -191,18 +191,18 @@ function Add-TelemetryEvent()
 
     $repoSettings = ReadSettings
 
-    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
-        Write-Host "Enabling partner telemetry..."
-        $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
-        $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-        $PartnerTelemetryClient.Flush()
-    }
-
     if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
         Write-Host "Enabling Microsoft telemetry..."
         $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
         $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
         $MicrosoftTelemetryClient.Flush()
+    }
+
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+        Write-Host "Enabling partner telemetry..."
+        $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
+        $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+        $PartnerTelemetryClient.Flush()
     }
 }
 
