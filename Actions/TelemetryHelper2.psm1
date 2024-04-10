@@ -1,15 +1,48 @@
+. (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
+
+function LoadApplicationInsightsDll() {
+    $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
+    [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
+}
+
 function Get-ApplicationInsightsTelemetryClient
 {
-    
-    if ($null -eq $Global:TelemetryClient)
+    # Check if the telemetry clients have already been created
+    if ($null -ne $Global:TelemetryClients)
     {
-        $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
-        [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
+        return $Global:TelemetryClients
+    }
+
+    $repoSettings = ReadSettings
+
+    # Load the Application Insights DLL
+    LoadApplicationInsightsDll
+
+    $TelemetryClients = @()
+
+    # Check if the repository has opted out of microsoft telemetry before continuing
+    if (($repoSettings.PSObject.Properties.Name -contains 'sendExtendedTelemetryToMicrosoft') -and ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true)) {
+
+        # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
-        $Global:TelemetryClient = $TelemetryClient
+        $TelemetryClients += @($TelemetryClient)
     }
-    return $Global:TelemetryClient
+
+    # Set up a custom telemetry client if a connection string is provided
+    if (($repoSettings.PSObject.Properties.Name -contains 'partnerTelemetryConnectionString') -and ($repoSettings.partnerTelemetryConnectionString -ne '')) {
+        $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+        $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
+        $TelemetryClients += @($CustomTelemetryClient)
+    }
+
+    if ($TelemetryClients.Count -eq 0) {
+        return $null
+    } else {
+        $Global:TelemetryClients = $TelemetryClients
+        return $Global:TelemetryClients
+    
+    }
 }
 
 function Trace-WorkflowStart() {
@@ -92,9 +125,11 @@ function Add-TelemetryEvent()
 
     Write-Host "Add-TelemetryEvent: $Message"
 
-    # Check if the repository has opted out of telemetry before continuing
+    $TelemetryClients = Get-ApplicationInsightsTelemetryClient
 
-    $TelemetryClient = Get-ApplicationInsightsTelemetryClient
+    if ($null -eq $TelemetryClients) {
+        return
+    }
     
     # Add powershell version
     if (-not $Data.ContainsKey('PowerShellVersion'))
@@ -153,8 +188,9 @@ function Add-TelemetryEvent()
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
-    $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-    $TelemetryClient.Flush()
+    foreach ($TelemetryClient in $TelemetryClients) {
+        $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+    }
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd

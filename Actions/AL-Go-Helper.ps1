@@ -627,7 +627,7 @@ function ReadSettings {
         "alwaysBuildAllProjects"                        = $false
         "microsoftTelemetryConnectionString"            = $microsoftTelemetryConnectionString
         "partnerTelemetryConnectionString"              = ""
-        "sendExtendedTelemetryToMicrosoft"              = $false
+        "sendExtendedTelemetryToMicrosoft"              = $true
         "environments"                                  = @()
         "buildModes"                                    = @()
         "useCompilerFolder"                             = $false
@@ -2313,5 +2313,15 @@ function Get-PackageVersion($PackageName) {
     }
     else {
         throw "Package $PackageName is not in the list of packages"
+    }
+}
+
+function Get-RepositorySetting($SettingName) {
+    $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
+    if (Test-Path $alGoSettingsPath) {
+        $alGoSettings = Get-Content -Path $alGoSettingsPath | ConvertFrom-Json
+        if ($alGoSettings.PSobject.Properties.name -eq $SettingName) {
+            return $alGoSettings.$SettingName
+        }
     }
 }
