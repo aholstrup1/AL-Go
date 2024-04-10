@@ -8,7 +8,7 @@ function LoadApplicationInsightsDll() {
     [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
 }
 
-function Get-ApplicationInsightsTelemetryClient
+<#function Get-ApplicationInsightsTelemetryClient
 {
     # Check if the telemetry clients have already been created
     if ($Env:TelemetryClientsInitialized) {
@@ -21,26 +21,40 @@ function Get-ApplicationInsightsTelemetryClient
     LoadApplicationInsightsDll
 
     # Check if the repository has opted out of microsoft telemetry before continuing
-    <#if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
+    if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
         Write-Host "Enabling Microsoft telemetry..."
         Write-Host "Connection String: $($repoSettings.microsoftTelemetryConnectionString)"
         # Create a new TelemetryClient for Microsoft telemetry
         $Global:MicrosoftTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $Global:MicrosoftTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.microsoftTelemetryConnectionString
-    }#>
+    }
 
     # Set up a custom telemetry client if a connection string is provided
     Write-Host "Enabling partner telemetry..."
     $PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
     $PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/;ApplicationId=3043c303-76e5-4a39-b1fc-320123b012b4" 
-    <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling partner telemetry..."
         Write-Host "Connection String: $($repoSettings.partnerTelemetryConnectionString)"
         $Global:PartnerTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $Global:PartnerTelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/" #$repoSettings.partnerTelemetryConnectionString
-    }#>
+    }
 
     return $PartnerTelemetryClient
+}#>
+
+function Get-ApplicationInsightsTelemetryClient
+{
+    
+    if ($null -eq $Global:TelemetryClient)
+    {
+        $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
+        [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
+        $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+        $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
+        $Global:TelemetryClient = $TelemetryClient
+    }
+    return $Global:TelemetryClient
 }
 
 function Trace-WorkflowStart() {
@@ -188,6 +202,7 @@ function Add-TelemetryEvent()
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
     $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+    $TelemetryClient.Flush()
 
     <#foreach ($TelemetryClient in $TelemetryClients) {
         Write-Host "Telemetry Configuration Connection String: $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
