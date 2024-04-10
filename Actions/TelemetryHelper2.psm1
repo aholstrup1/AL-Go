@@ -22,18 +22,19 @@ function Get-ApplicationInsightsTelemetryClient
 
     # Check if the repository has opted out of microsoft telemetry before continuing
     if (($repoSettings.PSObject.Properties.Name -contains 'sendExtendedTelemetryToMicrosoft') -and ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true)) {
-
+        Write-Host "Enabling sending telemetry to Microsoft..."
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
-        $TelemetryClients += @($TelemetryClient)
+        $TelemetryClients += $TelemetryClient
     }
 
     # Set up a custom telemetry client if a connection string is provided
     if (($repoSettings.PSObject.Properties.Name -contains 'partnerTelemetryConnectionString') -and ($repoSettings.partnerTelemetryConnectionString -ne '')) {
+        Write-Host "Enabling sending telemetry to partner..."
         $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
-        $TelemetryClients += @($CustomTelemetryClient)
+        $TelemetryClients += $CustomTelemetryClient
     }
 
     if ($TelemetryClients.Count -eq 0) {
@@ -189,6 +190,7 @@ function Add-TelemetryEvent()
     Write-Host "Tracking trace with severity $Severity and message $Message"
 
     foreach ($TelemetryClient in $TelemetryClients) {
+        Write-Host "Sending telemetry to $($TelemetryClient.TelemetryConfiguration.ConnectionString)"
         $TelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
     }
 }
