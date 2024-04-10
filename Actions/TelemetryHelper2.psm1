@@ -8,9 +8,8 @@ function LoadApplicationInsightsDll() {
 function Get-ApplicationInsightsTelemetryClient
 {
     # Check if the telemetry clients have already been created
-    if ($Env:TelemetryClients)
-    {
-        return $Env:TelemetryClients
+    if ($Env:TelemertryClientsInitialized) {
+        return $Script:TelemetryClients
     }
 
     $repoSettings = ReadSettings
@@ -27,24 +26,25 @@ function Get-ApplicationInsightsTelemetryClient
         # Create a new TelemetryClient for Microsoft telemetry
         $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $TelemetryClient.TelemetryConfiguration.ConnectionString = "InstrumentationKey=403ba4d3-ad2b-4ca1-8602-b7746de4c048;IngestionEndpoint=https://swedencentral-0.in.applicationinsights.azure.com/"
-        $TelemetryClients += $TelemetryClient
+        $TelemetryClients += @($TelemetryClient)
     }
 
     # Set up a custom telemetry client if a connection string is provided
-    <#if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
         Write-Host "Enabling sending telemetry to partner..."
         $CustomTelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
         $CustomTelemetryClient.TelemetryConfiguration.ConnectionString = $repoSettings.partnerTelemetryConnectionString
-        $TelemetryClients += $CustomTelemetryClient
-    }#>
+        $TelemetryClients += @($CustomTelemetryClient)
+    }
 
     Write-Host "Telemetry clients: $($TelemetryClients.Count)"
 
     if ($TelemetryClients.Count -eq 0) {
         return $null
     } else {
-        $Env:TelemetryClients = $TelemetryClients
-        return $Env:TelemetryClients
+        [Microsoft.ApplicationInsights.TelemetryClient[]] $Script:TelemetryClients = $TelemetryClients
+        $Env:TelemertryClientsInitialized = $true
+        return $TelemetryClients
     
     }
 }
@@ -199,4 +199,4 @@ function Add-TelemetryEvent()
     }
 }
 
-Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
+Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd, Get-ApplicationInsightsTelemetryClient
