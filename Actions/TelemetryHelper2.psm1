@@ -45,6 +45,7 @@ function LoadApplicationInsightsDll() {
 
 function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 {
+    Write-Host "Creating telemetry client with connection string: $TelemetryConnectionString"
     # Load the Application Insights DLL
     LoadApplicationInsightsDll
 
