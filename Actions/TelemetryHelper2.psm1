@@ -37,6 +37,8 @@ function Get-ApplicationInsightsTelemetryClient
         $TelemetryClients += $CustomTelemetryClient
     }
 
+    Write-Host "Telemetry clients: $($TelemetryClients.Count)"
+
     if ($TelemetryClients.Count -eq 0) {
         return $null
     } else {
