@@ -2,8 +2,6 @@
 Import-Module (Join-Path $PSScriptRoot '..\Actions\Github-Helper.psm1' -Resolve)
 Get-Module TestActionsHelper | Remove-Module -Force
 Import-Module (Join-Path $PSScriptRoot 'TestActionsHelper.psm1')
-Get-Module TelemetryHelper | Remove-Module -Force
-Import-Module (Join-Path $PSScriptRoot '..\Actions\TelemetryHelper.psm1')
 
 Describe 'CreateReleaseNotes Tests' {
     BeforeAll {
@@ -44,7 +42,6 @@ Describe 'CreateReleaseNotes Tests' {
             ""body"": ""Mocked notes""
         }" }
         Mock DownloadAndImportBcContainerHelper  {}
-        Mock CreateScope  {}
 
         . $scriptPath -token "" -tag_name "1.0.5" -parentTelemetryScopeJson "{}"
 
@@ -61,7 +58,6 @@ Describe 'CreateReleaseNotes Tests' {
             ""body"": ""Mocked notes""
         }"}
         Mock DownloadAndImportBcContainerHelper  {}
-        Mock CreateScope  {}
 
         . $scriptPath -token "" -tag_name "1.0.5" -parentTelemetryScopeJson "{}"
 

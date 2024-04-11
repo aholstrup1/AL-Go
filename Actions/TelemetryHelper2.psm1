@@ -143,6 +143,11 @@ function Add-TelemetryEvent()
         $Data.Add('RunAttempt', $ENV:GITHUB_RUN_ATTEMPT)
     }
 
+    if ((-not $Data.ContainsKey('JobId')) -and ($ENV:GITHUB_JOB -ne $null))
+    {
+        $Data.Add('JobId', $ENV:GITHUB_JOB)
+    }
+
     ### Add GitHub Repository information
     if ((-not $Data.ContainsKey('Repository')) -and ($ENV:GITHUB_REPOSITORY -ne $null))
     {

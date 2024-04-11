@@ -18,11 +18,8 @@ try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 
     DownloadAndImportBcContainerHelper -baseFolder $baseFolder
-    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve) -DisableNameChecking
     Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "DetermineProjectsToBuild.psm1" -Resolve) -DisableNameChecking
     #endregion
-
-    $telemetryScope = CreateScope -eventId 'DO0085' -parentTelemetryScopeJson $parentTelemetryScopeJson
 
     #region Action: Determine projects to build
     Write-Host "::group::Get Modified Files"
@@ -43,7 +40,6 @@ try {
 
     Write-Host "::group::Get Projects To Build"
     $allProjects, $projectsToBuild, $projectDependencies, $buildOrder = Get-ProjectsToBuild -baseFolder $baseFolder -buildAllProjects $buildAllProjects -modifiedFiles $modifiedFiles -maxBuildDepth $maxBuildDepth
-    AddTelemetryProperty -telemetryScope $telemetryScope -key "projects" -value "$($allProjects -join ', ')"
     Write-Host "::endgroup::"
     #endregion
 
