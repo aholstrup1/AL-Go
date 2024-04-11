@@ -29,37 +29,46 @@ function IncludeDeliveryTarget([string] $deliveryTarget) {
     return (IncludeBranch -deliveryTarget $deliveryTarget)
 }
 
-. (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
 
-$settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
-$deliveryTargets = @('GitHubPackages','NuGet','Storage')
-if ($settings.type -eq "AppSource App") {
-    # For multi-project repositories, we will add deliveryTarget AppSource if any project has AppSourceContinuousDelivery set to true
-    ($projectsJson | ConvertFrom-Json) | ForEach-Object {
-        $projectSettings = ReadSettings -project $_
-        if ($projectSettings.Contains('AppSourceContinuousDelivery') -and $projectSettings.AppSourceContinuousDelivery) {
-            Write-Host "Project $_ is setup for Continuous Delivery"
-            $deliveryTargets += @("AppSource")
+try {
+    . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+
+    $settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
+    $deliveryTargets = @('GitHubPackages','NuGet','Storage')
+    if ($settings.type -eq "AppSource App") {
+        # For multi-project repositories, we will add deliveryTarget AppSource if any project has AppSourceContinuousDelivery set to true
+        ($projectsJson | ConvertFrom-Json) | ForEach-Object {
+            $projectSettings = ReadSettings -project $_
+            if ($projectSettings.Contains('AppSourceContinuousDelivery') -and $projectSettings.AppSourceContinuousDelivery) {
+                Write-Host "Project $_ is setup for Continuous Delivery"
+                $deliveryTargets += @("AppSource")
+            }
         }
     }
-}
-# Include custom delivery targets
-$namePrefix = 'DeliverTo'
-Get-Item -Path (Join-Path $ENV:GITHUB_WORKSPACE ".github/$($namePrefix)*.ps1") | ForEach-Object {
-    $deliveryTarget = [System.IO.Path]::GetFileNameWithoutExtension($_.Name.SubString($namePrefix.Length))
-    $deliveryTargets += @($deliveryTarget)
-}
-$deliveryTargets = @($deliveryTargets | Select-Object -unique)
-if ($checkContextSecrets) {
-    # Check all delivery targets and include only the ones needed
-    $deliveryTargets = @($deliveryTargets | Where-Object { IncludeDeliveryTarget -deliveryTarget $_ })
-}
-$contextSecrets = @($deliveryTargets | ForEach-Object { "$($_)Context" })
+    # Include custom delivery targets
+    $namePrefix = 'DeliverTo'
+    Get-Item -Path (Join-Path $ENV:GITHUB_WORKSPACE ".github/$($namePrefix)*.ps1") | ForEach-Object {
+        $deliveryTarget = [System.IO.Path]::GetFileNameWithoutExtension($_.Name.SubString($namePrefix.Length))
+        $deliveryTargets += @($deliveryTarget)
+    }
+    $deliveryTargets = @($deliveryTargets | Select-Object -unique)
+    if ($checkContextSecrets) {
+        # Check all delivery targets and include only the ones needed
+        $deliveryTargets = @($deliveryTargets | Where-Object { IncludeDeliveryTarget -deliveryTarget $_ })
+    }
+    $contextSecrets = @($deliveryTargets | ForEach-Object { "$($_)Context" })
 
-#region Action: Output
-$deliveryTargetsJson = ConvertTo-Json -InputObject $deliveryTargets -compress
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DeliveryTargetsJson=$deliveryTargetsJson"
-Write-Host "DeliveryTargetsJson=$deliveryTargetsJson"
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "ContextSecrets=$($contextSecrets -join ',')"
-Write-Host "ContextSecrets=$($contextSecrets -join ',')"
-#endregion
+    #region Action: Output
+    $deliveryTargetsJson = ConvertTo-Json -InputObject $deliveryTargets -compress
+    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DeliveryTargetsJson=$deliveryTargetsJson"
+    Write-Host "DeliveryTargetsJson=$deliveryTargetsJson"
+    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "ContextSecrets=$($contextSecrets -join ',')"
+    Write-Host "ContextSecrets=$($contextSecrets -join ',')"
+    #endregion
+
+    Trace-Information
+} catch {
+    Trace-Exception -StackTrace $_.Exception.StackTrace
+    throw
+}

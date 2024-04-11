@@ -12,14 +12,11 @@ param(
     [string] $ParentTelemetryScopeJson = '7b7d'
 )
 
-$telemetryScope = $null
+Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
 
 try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
-    Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
     Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Sign.psm1" -Resolve)
-    DownloadAndImportBcContainerHelper
-    $telemetryScope = CreateScope -eventId 'DO0083' -parentTelemetryScopeJson $ParentTelemetryScopeJson
 
     $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
     if (-not $Files) {
@@ -61,11 +58,10 @@ try {
         -DigestAlgorithm $digestAlgorithm `
         -Verbosity "Information"
     Write-Host "::endgroup::"
-    TrackTrace -telemetryScope $telemetryScope
+    
+    Trace-Information
 }
 catch {
-    if (Get-Module BcContainerHelper) {
-        TrackException -telemetryScope $telemetryScope -errorRecord $_
-    }
+    Trace-Exception -StackTrace $_.Exception.StackTrace
     throw
 }

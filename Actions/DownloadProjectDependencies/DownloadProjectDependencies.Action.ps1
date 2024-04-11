@@ -101,42 +101,51 @@ function DownloadDependenciesFromCurrentBuild {
     return $downloadedDependencies
 }
 
-. (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
 
-Write-Host "Downloading dependencies for project '$project'. BuildMode: $buildMode, Base Folder: $baseFolder, Destination Path: $destinationPath"
+try {
+    . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 
-$downloadedDependencies = @()
+    Write-Host "Downloading dependencies for project '$project'. BuildMode: $buildMode, Base Folder: $baseFolder, Destination Path: $destinationPath"
 
-Write-Host "::group::Downloading project dependencies from current build"
-$projectsDependencies = $projectsDependenciesJson | ConvertFrom-Json | ConvertTo-HashTable
-$downloadedDependencies += DownloadDependenciesFromCurrentBuild -baseFolder $baseFolder -project $project -projectsDependencies $projectsDependencies -buildMode $buildMode -baselineWorkflowRunID $baselineWorkflowRunID -destinationPath $destinationPath -token $token
-Write-Host "::endgroup::"
+    $downloadedDependencies = @()
 
-Write-Host "::group::Downloading project dependencies from probing paths"
-$downloadedDependencies += DownloadDependenciesFromProbingPaths -baseFolder $baseFolder -project $project -destinationPath $destinationPath -token $token
-Write-Host "::endgroup::"
+    Write-Host "::group::Downloading project dependencies from current build"
+    $projectsDependencies = $projectsDependenciesJson | ConvertFrom-Json | ConvertTo-HashTable
+    $downloadedDependencies += DownloadDependenciesFromCurrentBuild -baseFolder $baseFolder -project $project -projectsDependencies $projectsDependencies -buildMode $buildMode -baselineWorkflowRunID $baselineWorkflowRunID -destinationPath $destinationPath -token $token
+    Write-Host "::endgroup::"
 
-Write-Host "Downloaded dependencies: $($downloadedDependencies -join ', ')"
+    Write-Host "::group::Downloading project dependencies from probing paths"
+    $downloadedDependencies += DownloadDependenciesFromProbingPaths -baseFolder $baseFolder -project $project -destinationPath $destinationPath -token $token
+    Write-Host "::endgroup::"
 
-$downloadedApps = @()
-$downloadedTestApps = @()
+    Write-Host "Downloaded dependencies: $($downloadedDependencies -join ', ')"
 
-# Split the downloaded dependencies into apps and test apps
-$downloadedDependencies | ForEach-Object {
-    # naming convention: app, (testapp)
-    if ($_.startswith('(')) {
-        $DownloadedTestApps += $_
+    $downloadedApps = @()
+    $downloadedTestApps = @()
+
+    # Split the downloaded dependencies into apps and test apps
+    $downloadedDependencies | ForEach-Object {
+        # naming convention: app, (testapp)
+        if ($_.startswith('(')) {
+            $DownloadedTestApps += $_
+        }
+        else {
+            $DownloadedApps += $_
+        }
     }
-    else {
-        $DownloadedApps += $_
-    }
+
+    Write-Host "Downloaded dependencies apps: $($DownloadedApps -join ', ')"
+    Write-Host "Downloaded dependencies test apps: $($DownloadedTestApps -join ', ')"
+
+    $DownloadedAppsJson = ConvertTo-Json $DownloadedApps -Depth 99 -Compress
+    $DownloadedTestAppsJson = ConvertTo-Json $DownloadedTestApps -Depth 99 -Compress
+
+    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DownloadedApps=$DownloadedAppsJson"
+    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DownloadedTestApps=$DownloadedTestAppsJson"
+
+    Trace-Information
+} catch {
+    Trace-Exception -StackTrace $_.Exception.StackTrace
+    throw
 }
-
-Write-Host "Downloaded dependencies apps: $($DownloadedApps -join ', ')"
-Write-Host "Downloaded dependencies test apps: $($DownloadedTestApps -join ', ')"
-
-$DownloadedAppsJson = ConvertTo-Json $DownloadedApps -Depth 99 -Compress
-$DownloadedTestAppsJson = ConvertTo-Json $DownloadedTestApps -Depth 99 -Compress
-
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DownloadedApps=$DownloadedAppsJson"
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DownloadedTestApps=$DownloadedTestAppsJson"

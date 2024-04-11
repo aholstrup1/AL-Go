@@ -1,6 +1,3 @@
-$Global:TelemetryClient = $null
-$Global:MicrosoftTelemetryClient = $null
-
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
 function LoadApplicationInsightsDll() {

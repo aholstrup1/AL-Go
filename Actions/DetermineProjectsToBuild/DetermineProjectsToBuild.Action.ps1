@@ -11,13 +11,14 @@
 
 $telemetryScope = $null
 
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve) -DisableNameChecking
+
 try {
     #region Action: Setup
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 
     DownloadAndImportBcContainerHelper -baseFolder $baseFolder
     Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve) -DisableNameChecking
-    Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve) -DisableNameChecking
     Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "DetermineProjectsToBuild.psm1" -Resolve) -DisableNameChecking
     #endregion
 
@@ -69,8 +70,6 @@ try {
     Trace-Information
 }
 catch {
-    if (Get-Module BcContainerHelper) {
-        TrackException -telemetryScope $telemetryScope -errorRecord $_
-    }
+    Trace-Exception -StackTrace $_.Exception.StackTrace
     throw
 }

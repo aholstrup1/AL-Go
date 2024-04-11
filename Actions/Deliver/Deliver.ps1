@@ -20,8 +20,6 @@
     [bool] $goLive
 )
 
-$telemetryScope = $null
-
 function EnsureAzStorageModule() {
     if (get-command New-AzStorageContext -ErrorAction SilentlyContinue) {
         Write-Host "Using Az.Storage PowerShell module"
@@ -45,12 +43,11 @@ function EnsureAzStorageModule() {
     }
 }
 
+import-module (Join-Path -path $PSScriptRoot -ChildPath "../TelemetryHelper2.psm1" -Resolve)
+
 try {
     . (Join-Path -Path $PSScriptRoot -ChildPath "../AL-Go-Helper.ps1" -Resolve)
     DownloadAndImportBcContainerHelper
-
-    import-module (Join-Path -path $PSScriptRoot -ChildPath "../TelemetryHelper.psm1" -Resolve)
-    $telemetryScope = CreateScope -eventId 'DO0081' -parentTelemetryScopeJson $parentTelemetryScopeJson
 
     $refname = "$ENV:GITHUB_REF_NAME".Replace('/','_')
 
@@ -459,11 +456,9 @@ try {
         }
     }
 
-    TrackTrace -telemetryScope $telemetryScope
+    Trace-Information
 }
 catch {
-    if (Get-Module BcContainerHelper) {
-        TrackException -telemetryScope $telemetryScope -errorRecord $_
-    }
+    Trace-Exception -StackTrace $_.Exception.StackTrace
     throw
 }
