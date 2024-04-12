@@ -415,7 +415,7 @@ try {
     Trace-Information
 }
 catch {
-    Trace-Exception -StackTrace $_.ScriptStackTrace
+    Trace-Exception -ErrorRecord $_
     throw
 }
 finally {

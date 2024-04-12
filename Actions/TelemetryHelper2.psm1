@@ -64,11 +64,12 @@ function Trace-WorkflowEnd() {
 function Trace-Exception() {
     param(
         [String] $Message = "",
-        [String] $StackTrace
+        [ErrorRecord] $ErrorRecord = $null
     )
 
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
-    $Data.Add('StackTrace', $StackTrace)
+    $Data.Add('ErrorMessage', $ErrorRecord.Exception.Message)
+    $Data.Add('ErrorStackTrace', $ErrorRecord.ScriptStackTrace)
 
     if ($Message -eq "") {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'

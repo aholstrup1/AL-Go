@@ -51,6 +51,6 @@ try {
     Write-Host "correlationId=$correlationId"
 }
 catch {
-    Trace-Exception -StackTrace $_.ScriptStackTrace
+    Trace-Exception -ErrorRecord $_
     throw
 }
