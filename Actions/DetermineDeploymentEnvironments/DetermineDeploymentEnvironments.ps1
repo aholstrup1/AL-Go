@@ -224,6 +224,6 @@ try {
 
     Trace-Information
 } catch {
-    Trace-Exception -StackTrace $_.Exception.StackTrace
+    Trace-Exception -StackTrace $_.ScriptStackTrace
     throw
 }
