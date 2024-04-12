@@ -65,7 +65,6 @@ jobs:
     needs: [ ]
     runs-on: [ windows-latest ]
     outputs:
-      telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       artifacts: ${{ steps.analyzeartifacts.outputs.artifacts }}
       releaseId: ${{ steps.createrelease.outputs.releaseId }}
       commitish: ${{ steps.analyzeartifacts.outputs.commitish }}
@@ -188,7 +187,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/CreateReleaseNotes@main
         with:
           shell: powershell
-          parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           tag_name: ${{ github.event.inputs.tag }}
           target_commitish: ${{ steps.analyzeartifacts.outputs.commitish }}
 
@@ -346,7 +344,6 @@ jobs:
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
-          parentTelemetryScopeJson: ${{ needs.CreateRelease.outputs.telemetryScopeJson }}
           versionNumber: ${{ github.event.inputs.updateVersionNumber }}
           directCommit: ${{ github.event.inputs.directCommit }}
 
@@ -364,4 +361,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0094"
-          telemetryScopeJson: ${{ needs.CreateRelease.outputs.telemetryScopeJson }}

@@ -88,7 +88,6 @@ jobs:
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
-          parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           project: ${{ github.event.inputs.project }}
           type: 'Performance Test App'
           name: ${{ github.event.inputs.name }}
@@ -104,4 +103,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0102"
-          telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}

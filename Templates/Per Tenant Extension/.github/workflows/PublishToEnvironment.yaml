@@ -28,7 +28,6 @@ jobs:
     needs: [ ]
     runs-on: [ windows-latest ]
     outputs:
-      telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environmentsMatrixJson: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentsMatrixJson }}
       environmentCount: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentCount }}
       deploymentEnvironmentsJson: ${{ steps.DetermineDeploymentEnvironments.outputs.DeploymentEnvironmentsJson }}
@@ -176,4 +175,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0097"
-          telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}

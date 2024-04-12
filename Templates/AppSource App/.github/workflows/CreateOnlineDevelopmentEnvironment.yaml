@@ -43,7 +43,6 @@ jobs:
     runs-on: [ windows-latest ]
     outputs:
       deviceCode: ${{ steps.authenticate.outputs.deviceCode }}
-      telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       githubRunner: ${{ steps.ReadSettings.outputs.GitHubRunnerJson }}
       githubRunnerShell: ${{ steps.ReadSettings.outputs.GitHubRunnerShell }}
     steps:
@@ -140,7 +139,6 @@ jobs:
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
-          parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
           environmentName: ${{ github.event.inputs.environmentName }}
           project: ${{ github.event.inputs.project }}
           reUseExistingEnvironment: ${{ github.event.inputs.reUseExistingEnvironment }}
@@ -153,4 +151,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0093"
-          telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}

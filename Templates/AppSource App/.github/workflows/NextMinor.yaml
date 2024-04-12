@@ -20,7 +20,6 @@ jobs:
     needs: [ ]
     runs-on: [ windows-latest ]
     outputs:
-      telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       githubRunner: ${{ steps.ReadSettings.outputs.GitHubRunnerJson }}
       githubRunnerShell: ${{ steps.ReadSettings.outputs.GitHubRunnerShell }}
       projects: ${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}
@@ -76,7 +75,6 @@ jobs:
     with:
       shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
       runsOn: ${{ needs.Initialization.outputs.githubRunner }}
-      parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
       project: ${{ matrix.project }}
       projectName: ${{ matrix.projectName }}
       buildMode: ${{ matrix.buildMode }}
@@ -99,4 +97,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0100"
-          telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}

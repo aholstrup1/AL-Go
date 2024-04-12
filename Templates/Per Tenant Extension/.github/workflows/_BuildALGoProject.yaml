@@ -67,10 +67,6 @@ on:
         description: Flag determining whether to use the Artifacts Cache
         type: boolean
         default: false
-      parentTelemetryScopeJson:
-        description: Specifies the telemetry scope for the telemetry signal
-        required: false
-        type: string
 
 env:
   ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
@@ -112,7 +108,6 @@ jobs:
         id: determineArtifactUrl
         with:
           shell: ${{ inputs.shell }}
-          parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
           project: ${{ inputs.project }}
 
       - name: Cache Business Central Artifacts
@@ -141,7 +136,6 @@ jobs:
           BuildMode: ${{ inputs.buildMode }}
         with:
           shell: ${{ inputs.shell }}
-          parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
           artifact: ${{ env.artifact }}
           project: ${{ inputs.project }}
           buildMode: ${{ inputs.buildMode }}
@@ -156,7 +150,6 @@ jobs:
           shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
           azureCredentialsJson: ${{ secrets.AZURE_CREDENTIALS }}
           pathToFiles: '${{ inputs.project }}/.buildartifacts/Apps/*.app'
-          parentTelemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
 
       - name: Calculate Artifact names
         id: calculateArtifactsNames
@@ -257,7 +250,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/AnalyzeTests@main
         with:
           shell: ${{ inputs.shell }}
-          parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
           project: ${{ inputs.project }}
 
       - name: Cleanup
@@ -265,5 +257,4 @@ jobs:
         uses: microsoft/AL-Go-Actions/PipelineCleanup@main
         with:
           shell: ${{ inputs.shell }}
-          parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
           project: ${{ inputs.project }}

@@ -72,7 +72,6 @@ jobs:
         with:
           shell: powershell
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
-          parentTelemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
           project: ${{ github.event.inputs.project }}
           url: ${{ github.event.inputs.url }}
           directCommit: ${{ github.event.inputs.directCommit }}
@@ -83,4 +82,3 @@ jobs:
         with:
           shell: powershell
           eventId: "DO0090"
-          telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
