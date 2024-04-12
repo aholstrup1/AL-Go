@@ -1,8 +1,34 @@
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
+function DownloadNugetPackage($PackageName, $PackageVersion) {
+    $nugetPackagePath = Join-Path "$ENV:GITHUB_WORKSPACE" "/.nuget/packages/$PackageName/$PackageVersion/"
+
+    if (-not (Test-Path -Path $nugetPackagePath)) {
+        $url = "https://www.nuget.org/api/v2/package/$PackageName/$PackageVersion"
+
+        Write-Host "Downloading Nuget package $PackageName $PackageVersion..."
+        New-Item -ItemType Directory -Path $nugetPackagePath | Out-Null
+        Invoke-WebRequest -Uri $Url -OutFile "$nugetPackagePath/$PackageName.$PackageVersion.zip"
+
+        # Unzip the package
+        Expand-Archive -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip" -DestinationPath "$nugetPackagePath"
+
+        # Remove the zip file
+        Remove-Item -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip"
+    }
+
+    return $nugetPackagePath
+}
+
 function LoadApplicationInsightsDll() {
-    $AIPath = "$PSScriptRoot/Microsoft.ApplicationInsights.dll"
-    [Reflection.Assembly]::LoadFile($AIPath) | Out-Null
+    $packagePath = DownloadNugetPackage -PackageName "Microsoft.ApplicationInsights" -PackageVersion "2.20.0"
+    $AppInsightsDllPath = "$packagePath/lib/net46/Microsoft.ApplicationInsights.dll"
+
+    if (-not (Test-Path -Path $AppInsightsDllPath)) {
+        throw "Failed to download Application Insights DLL"
+    }
+
+    [Reflection.Assembly]::LoadFile($AppInsightsDllPath) | Out-Null
 }
 
 function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
