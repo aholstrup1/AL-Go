@@ -43,7 +43,7 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 }
 
 function Trace-WorkflowStart() {
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
 
     $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
     if (Test-Path -Path $alGoSettingsPath) {
@@ -51,70 +51,57 @@ function Trace-WorkflowStart() {
         
         # Log the repository type
         if ($repoSettings.PSObject.Properties.Name -contains 'type') {
-            $Data.Add('RepoType', $repoSettings.type)
-        } else {
-            $Data.Add('RepoType', '')
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value $repoSettings.type
         }
 
         # Log the template URL
         if ($repoSettings.PSObject.Properties.Name -contains 'templateUrl') {
-            $Data.Add('templateUrl', $repoSettings.templateUrl)
-        } else {
-            $Data.Add('templateUrl', '')
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'TemplateUrl' -Value $repoSettings.templateUrl
         }
 
         # Log the Al-Go version
         $alGoVersion = "main"
-        $Data.Add('AlGoVersion', $alGoVersion)
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'AlGoVersion' -Value $alGoVersion
     }
 
-    Add-TelemetryEvent -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $Data
+    Add-TelemetryEvent -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-WorkflowEnd() {
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
 
     # Calculate the workflow conclusion using the github api
     $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
     $workflowConclusion = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
-    $Data.Add('WorkflowConclusion', $workflowConclusion)
 
     # Calculate the workflow duration using the github api
     $workflowTiming = 0
 
-    $Data.Add('WorkflowDuration', $workflowDuration)
-
-    Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $Data
+    Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
+    Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
+    Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-Exception() {
     param(
-        [String] $Message = "",
+        [String] $Message = "AL-Go Action Failed",
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{},
         [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
     )
 
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
-    $Data.Add('ErrorMessage', $ErrorRecord.Exception.Message)
-    $Data.Add('ErrorStackTrace', $ErrorRecord.ScriptStackTrace)
-
-    if ($Message -eq "") {
-        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
-        $Message = "AL-Go Action Failed: $actionPath"
+    if ($ErrorRecord -ne $null) {
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage', -Value $ErrorRecord.Exception.Message
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace', -Value $ErrorRecord.ScriptStackTrace
     }
 
-    Add-TelemetryEvent -Severity 'Error' -Data $Data
+    Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
 }
 
 function Trace-Information() {
     param(
-        [String] $Message = "",
+        [String] $Message = "AL-Go Action Ran",
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
-
-    if ($Message -eq "") {
-        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
-        $Message = "AL-Go Action Ran: $actionPath"
-    }
 
     Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
 }
@@ -128,67 +115,34 @@ function Add-TelemetryEvent()
     )
 
     # Add powershell version
-    if (-not $Data.ContainsKey('PowerShellVersion'))
-    {
-        $Data.Add('PowerShellVersion', $PSVersionTable.PSVersion.ToString())
-    }
+    Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
 
-    if ((-not $Data.ContainsKey('ContainerHelperVersion')) -and (Get-Module BcContainerHelper)) {
-        $Data.Add('ContainerHelperVersion', (Get-Module BcContainerHelper).Version.ToString())
+    if ((Get-Module BcContainerHelper)) {
+        Add-TelemetryData -Hashtable $Data -Key 'BcContainerHelperVersion' -Value ((Get-Module BcContainerHelper).Version.ToString())
     }
 
     ### Add GitHub Actions information
-    if ((-not $Data.ContainsKey('ActionPath')) -and ($ENV:GITHUB_ACTION_PATH -ne $null))
+    if ($ENV:GITHUB_ACTION_PATH -ne $null)
     {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
-        $Data.Add('ActionPath', $actionPath)
+        Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath
     }
 
     ### Add GitHub Workflow information
-    if ((-not $Data.ContainsKey('WorkflowName')) -and ($ENV:GITHUB_WORKFLOW -ne $null))
-    {
-        $Data.Add('WorkflowName', $ENV:GITHUB_WORKFLOW)
-    }
+    Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
 
     ### Add GitHub Run information
-    if ((-not $Data.ContainsKey('RefName')) -and ($ENV:GITHUB_REF_NAME -ne $null))
-    {
-        $Data.Add('RefName', $ENV:GITHUB_REF_NAME)
-    }
-
-    if ((-not $Data.ContainsKey('RunnerOs')) -and ($ENV:RUNNER_OS -ne $null))
-    {
-        $Data.Add('RunnerOs', $ENV:RUNNER_OS)
-    }
-
-    if ((-not $Data.ContainsKey('RunId')) -and ($ENV:GITHUB_RUN_ID -ne $null))
-    {
-        $Data.Add('RunId', $ENV:GITHUB_RUN_ID)
-    }
-
-    if ((-not $Data.ContainsKey('RunNumber')) -and ($ENV:GITHUB_RUN_NUMBER -ne $null))
-    {
-        $Data.Add('RunNumber', $ENV:GITHUB_RUN_NUMBER)
-    }
-
-    if ((-not $Data.ContainsKey('RunAttempt')) -and ($ENV:GITHUB_RUN_ATTEMPT -ne $null))
-    {
-        $Data.Add('RunAttempt', $ENV:GITHUB_RUN_ATTEMPT)
-    }
-
-    if ((-not $Data.ContainsKey('JobId')) -and ($ENV:GITHUB_JOB -ne $null))
-    {
-        $Data.Add('JobId', $ENV:GITHUB_JOB)
-    }
+    Add-TelemetryData -Hashtable $Data -Key 'RefName' -Value $ENV:GITHUB_REF_NAME
+    Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
+    Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
+    Add-TelemetryData -Hashtable $Data -Key 'RunNumber' -Value $ENV:GITHUB_RUN_NUMBER
+    Add-TelemetryData -Hashtable $Data -Key 'RunAttempt' -Value $ENV:GITHUB_RUN_ATTEMPT
+    Add-TelemetryData -Hashtable $Data -Key 'JobId' -Value $ENV:GITHUB_JOB
 
     ### Add GitHub Repository information
-    if ((-not $Data.ContainsKey('Repository')) -and ($ENV:GITHUB_REPOSITORY -ne $null))
-    {
-        $Data.Add('Repository', $ENV:GITHUB_REPOSITORY)
-    }
+    Add-TelemetryData -Hashtable $Data -Key 'Repository' -Value $ENV:GITHUB_REPOSITORY
 
     Write-Host "Tracking trace with severity $Severity and message $Message"
-
     $repoSettings = ReadSettings
 
     if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
@@ -204,6 +158,19 @@ function Add-TelemetryEvent()
         $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
         $PartnerTelemetryClient.Flush()
     }
+}
+
+function Add-TelemetryData() {
+    param(
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Hashtable,
+        [String] $Key,
+        [String] $Value
+    )
+
+    if (-not $Hashtable.ContainsKey($Key) -and ($Value -ne '')) {
+        $Hashtable.Add($Key, $Value)
+    }
+
 }
 
 Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
