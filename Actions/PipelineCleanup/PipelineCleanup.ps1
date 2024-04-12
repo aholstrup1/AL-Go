@@ -1,8 +1,6 @@
 ﻿Param(
     [Parameter(HelpMessage = "Project folder", Mandatory = $false)]
-    [string] $project = ".",
-    [Parameter(HelpMessage = "Specifies the parent telemetry scope for the telemetry signal", Mandatory = $false)]
-    [string] $parentTelemetryScopeJson = '7b7d'
+    [string] $project = "."
 )
 
 Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)

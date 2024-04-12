@@ -7,9 +7,7 @@ param(
     [Parameter(HelpMessage = "The URI of the timestamp server", Mandatory = $false)]
     [string] $TimestampService = "http://timestamp.digicert.com",
     [Parameter(HelpMessage = "The digest algorithm to use for signing and timestamping", Mandatory = $false)]
-    [string] $digestAlgorithm = "sha256",
-    [Parameter(HelpMessage = "Specifies the parent telemetry scope for the telemetry signal", Mandatory = $false)]
-    [string] $ParentTelemetryScopeJson = '7b7d'
+    [string] $digestAlgorithm = "sha256"
 )
 
 Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)

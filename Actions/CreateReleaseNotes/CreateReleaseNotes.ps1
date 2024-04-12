@@ -1,8 +1,6 @@
 ﻿Param(
     [Parameter(HelpMessage = "The GitHub token running the action", Mandatory = $false)]
     [string] $token,
-    [Parameter(HelpMessage = "Specifies the parent telemetry scope for the telemetry signal", Mandatory = $false)]
-    [string] $parentTelemetryScopeJson = '7b7d',
     [Parameter(HelpMessage = "Tag name", Mandatory = $true)]
     [string] $tag_name,
     [Parameter(HelpMessage = "Last commit to include in release notes", Mandatory = $false)]

@@ -37,7 +37,7 @@ runs:
       run: |
         $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
         try {
-          ${{ github.action_path }}/Sign.ps1 -AzureCredentialsJson $ENV:_azureCredentialsJson -PathToFiles $ENV:_pathToFiles -TimestampService $ENV:_timestampService -digestAlgorithm $ENV:_digestAlgorithm -ParentTelemetryScopeJson $ENV:_parentTelemetryScopeJson
+          ${{ github.action_path }}/Sign.ps1 -AzureCredentialsJson $ENV:_azureCredentialsJson -PathToFiles $ENV:_pathToFiles -TimestampService $ENV:_timestampService -digestAlgorithm $ENV:_digestAlgorithm
         }
         catch {
           Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
