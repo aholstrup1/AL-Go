@@ -63,11 +63,17 @@ function Trace-WorkflowEnd() {
 
 function Trace-Exception() {
     param(
+        [String] $Message = "",
         [String] $StackTrace
     )
 
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
     $Data.Add('StackTrace', $StackTrace)
+
+    if ($Message -eq "") {
+        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
+        $Message = "AL-Go Action Failed: $actionPath"
+    }
 
     Add-TelemetryEvent -Severity 'Error' -Data $Data
 }
