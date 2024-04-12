@@ -64,7 +64,7 @@ function Trace-WorkflowEnd() {
 function Trace-Exception() {
     param(
         [String] $Message = "",
-        [ErrorRecord] $ErrorRecord = $null
+        [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
     )
 
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{}
