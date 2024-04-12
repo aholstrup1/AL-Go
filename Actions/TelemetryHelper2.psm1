@@ -54,8 +54,7 @@ function Trace-WorkflowEnd() {
     $Data.Add('WorkflowConclusion', $workflowConclusion)
 
     # Calculate the workflow duration using the github api
-    $workflowTiming = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/timing -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
-    $workflowDuration = $workflowTiming.run_duration_ms
+    $workflowTiming = 0
 
     $Data.Add('WorkflowDuration', $workflowDuration)
 
