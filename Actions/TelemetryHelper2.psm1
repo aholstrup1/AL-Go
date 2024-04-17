@@ -77,15 +77,20 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
 
     # Calculate the workflow conclusion using the github api
     $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
-    Write-Host "Workflow Jobs: $workflowJobs"
-    
-    $workflowConclusion = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
-    Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
+    if ($workflowJobs -ne $null) {
+        $failedJobs = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
+        if ($failedJobs -eq $null) {
+            $workflowConclusion = "Success"
+        } else {
+            $workflowConclusion = "Failure"
+        }
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
+    }
 
     # Calculate the workflow duration using the github api
     if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
         Write-Host "Calculating workflow duration..."
-        [DateTime]::UtcNow.Subtract([DateTime]::Parse($telemetryScope.workflowStartTime)).TotalSeconds
+        $workflowTiming= [DateTime]::UtcNow.Subtract([DateTime]::Parse($telemetryScope.workflowStartTime)).TotalSeconds
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
