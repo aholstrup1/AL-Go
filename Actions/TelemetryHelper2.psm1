@@ -80,7 +80,7 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
     Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
 
     # Calculate the workflow duration using the github api
-    if ($telemetryScope.workflowStartTime -ne $null) {
+    if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
         $workflowTiming = [DateTime]::UtcNow - [DateTime]::Parse($telemetryScope.workflowStartTime)
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
