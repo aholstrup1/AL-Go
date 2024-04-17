@@ -94,8 +94,6 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
-    Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowFinsihed' -Value "true"
-
     Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
 }
 
