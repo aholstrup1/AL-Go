@@ -28,6 +28,7 @@ jobs:
     needs: [ ]
     runs-on: [ windows-latest ]
     outputs:
+      telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
       environmentsMatrixJson: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentsMatrixJson }}
       environmentCount: ${{ steps.DetermineDeploymentEnvironments.outputs.EnvironmentCount }}
       deploymentEnvironmentsJson: ${{ steps.DetermineDeploymentEnvironments.outputs.DeploymentEnvironmentsJson }}
@@ -309,3 +310,4 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
+          telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
