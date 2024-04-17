@@ -20,5 +20,4 @@ none
 ### OUTPUT variables
 | Name | Description |
 | :-- | :-- |
-| correlationId | A correlation Id for the workflow |
 | telemetryScopeJson | A telemetryScope that covers the workflow |

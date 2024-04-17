@@ -41,14 +41,12 @@ try {
     TestRunnerPrerequisites
 
 
-    $scopeJson = '7b7d'
-    $correlationId = [guid]::Empty.ToString()
+    # Create a json object that contains an entry for the workflowstarttime
+    $scopeJson = @{
+        "workflowStartTime" = [DateTime]::UtcNow
+    } | ConvertTo-Json -Compress
 
     Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "telemetryScopeJson=$scopeJson"
-    Write-Host "telemetryScopeJson=$scopeJson"
-
-    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "correlationId=$correlationId"
-    Write-Host "correlationId=$correlationId"
 }
 catch {
     Trace-Exception -ErrorRecord $_
