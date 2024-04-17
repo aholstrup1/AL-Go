@@ -56,7 +56,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowInitialize@main
         with:
           shell: powershell
-          eventId: "DO0091"
 
       - name: Read settings
         id: ReadSettings
@@ -310,4 +309,3 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
-          eventId: "DO0091"

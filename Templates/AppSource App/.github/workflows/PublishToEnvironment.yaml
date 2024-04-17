@@ -46,7 +46,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowInitialize@main
         with:
           shell: powershell
-          eventId: "DO0097"
 
       - name: Read settings
         id: ReadSettings
@@ -177,4 +176,3 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
         with:
           shell: powershell
-          eventId: "DO0097"

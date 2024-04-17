@@ -33,7 +33,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowInitialize@main
         with:
           shell: powershell
-          eventId: "DO0097"
         
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@main

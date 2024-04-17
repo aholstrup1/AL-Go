@@ -47,7 +47,6 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowInitialize@main
         with:
           shell: powershell
-          eventId: "DO0103"
 
   Deliver:
     needs: [ Initialization ]
@@ -95,4 +94,3 @@ jobs:
         uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
         with:
           shell: powershell
-          eventId: "DO0103"
