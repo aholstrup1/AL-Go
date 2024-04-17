@@ -29,7 +29,8 @@ function IncludeDeliveryTarget([string] $deliveryTarget) {
     return (IncludeBranch -deliveryTarget $deliveryTarget)
 }
 
-import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
+. (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+#TODO: Log telemetry in this task
 
 $settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
 $deliveryTargets = @('GitHubPackages','NuGet','Storage')
@@ -42,29 +43,24 @@ if ($settings.type -eq "AppSource App") {
             $deliveryTargets += @("AppSource")
         }
     }
-    # Include custom delivery targets
-    $namePrefix = 'DeliverTo'
-    Get-Item -Path (Join-Path $ENV:GITHUB_WORKSPACE ".github/$($namePrefix)*.ps1") | ForEach-Object {
-        $deliveryTarget = [System.IO.Path]::GetFileNameWithoutExtension($_.Name.SubString($namePrefix.Length))
-        $deliveryTargets += @($deliveryTarget)
-    }
-    $deliveryTargets = @($deliveryTargets | Select-Object -unique)
-    if ($checkContextSecrets) {
-        # Check all delivery targets and include only the ones needed
-        $deliveryTargets = @($deliveryTargets | Where-Object { IncludeDeliveryTarget -deliveryTarget $_ })
-    }
-    $contextSecrets = @($deliveryTargets | ForEach-Object { "$($_)Context" })
-
-    #region Action: Output
-    $deliveryTargetsJson = ConvertTo-Json -InputObject $deliveryTargets -compress
-    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DeliveryTargetsJson=$deliveryTargetsJson"
-    Write-Host "DeliveryTargetsJson=$deliveryTargetsJson"
-    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "ContextSecrets=$($contextSecrets -join ',')"
-    Write-Host "ContextSecrets=$($contextSecrets -join ',')"
-    #endregion
-
-    Trace-Information
-} catch {
-    Trace-Exception -ErrorRecord $_
-    throw
 }
+# Include custom delivery targets
+$namePrefix = 'DeliverTo'
+Get-Item -Path (Join-Path $ENV:GITHUB_WORKSPACE ".github/$($namePrefix)*.ps1") | ForEach-Object {
+    $deliveryTarget = [System.IO.Path]::GetFileNameWithoutExtension($_.Name.SubString($namePrefix.Length))
+    $deliveryTargets += @($deliveryTarget)
+}
+$deliveryTargets = @($deliveryTargets | Select-Object -unique)
+if ($checkContextSecrets) {
+    # Check all delivery targets and include only the ones needed
+    $deliveryTargets = @($deliveryTargets | Where-Object { IncludeDeliveryTarget -deliveryTarget $_ })
+}
+$contextSecrets = @($deliveryTargets | ForEach-Object { "$($_)Context" })
+
+#region Action: Output
+$deliveryTargetsJson = ConvertTo-Json -InputObject $deliveryTargets -compress
+Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DeliveryTargetsJson=$deliveryTargetsJson"
+Write-Host "DeliveryTargetsJson=$deliveryTargetsJson"
+Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "ContextSecrets=$($contextSecrets -join ',')"
+Write-Host "ContextSecrets=$($contextSecrets -join ',')"
+#endregion
