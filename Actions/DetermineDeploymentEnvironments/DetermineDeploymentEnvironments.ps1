@@ -11,7 +11,7 @@ function IsGitHubPagesAvailable() {
     $url = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/pages"
     try {
         Write-Host "Requesting GitHub Pages settings from GitHub"
-        $ghPages = InvokeWebRequest -Headers $headers -Uri $url -ignoreErrors | ConvertFrom-Json
+        $ghPages = (InvokeWebRequest -Headers $headers -Uri $url).Content | ConvertFrom-Json
         return ($ghPages.build_type -eq 'workflow')
     }
     catch {
@@ -24,7 +24,7 @@ function GetGitHubEnvironments() {
     $url = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/environments"
     try {
         Write-Host "Requesting environments from GitHub"
-        $ghEnvironments = @((InvokeWebRequest -Headers $headers -Uri $url -ignoreErrors | ConvertFrom-Json).environments)
+        $ghEnvironments = @(((InvokeWebRequest -Headers $headers -Uri $url).Content | ConvertFrom-Json).environments)
     }
     catch {
         $ghEnvironments = @()
@@ -42,12 +42,12 @@ function Get-BranchesFromPolicy($ghEnvironment) {
             if ($ghEnvironment.deployment_branch_policy.protected_branches) {
                 Write-Host "GitHub Environment $($ghEnvironment.name) only allows protected branches, getting protected branches from GitHub API"
                 $branchesUrl = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/branches"
-                return (InvokeWebRequest -Headers $headers -Uri $branchesUrl -ignoreErrors | ConvertFrom-Json) | Where-Object { $_.protected } | ForEach-Object { $_.name }
+                return ((InvokeWebRequest -Headers $headers -Uri $branchesUrl).Content | ConvertFrom-Json) | Where-Object { $_.protected } | ForEach-Object { $_.name }
             }
             elseif ($ghEnvironment.deployment_branch_policy.custom_branch_policies) {
                 Write-Host "GitHub Environment $($ghEnvironment.name) has custom deployment branch policies, getting branches from GitHub API"
                 $branchesUrl = "$($ENV:GITHUB_API_URL)/repos/$($ENV:GITHUB_REPOSITORY)/environments/$([Uri]::EscapeDataString($ghEnvironment.name))/deployment-branch-policies"
-                return (InvokeWebRequest -Headers $headers -Uri $branchesUrl -ignoreErrors | ConvertFrom-Json).branch_policies | ForEach-Object { $_.name }
+                return ((InvokeWebRequest -Headers $headers -Uri $branchesUrl).Content | ConvertFrom-Json).branch_policies | ForEach-Object { $_.name }
             }
         }
         else {
@@ -142,19 +142,49 @@ try {
                 "SyncMode" = $null
                 "continuousDeployment" = $null
                 "runs-on" = @($settings."runs-on".Split(',').Trim())
+                "shell" = $settings."shell"
             }
 
-            # Check DeployTo<environmentName> setting
-            $settingsName = "DeployTo$envName"
-            if ($settings.ContainsKey($settingsName)) {
-                # If a DeployTo<environmentName> setting exists - use values from this (over the defaults)
-                $deployTo = $settings."$settingsName"
-                foreach($key in 'EnvironmentType','EnvironmentName','Branches','Projects','SyncMode','ContinuousDeployment','runs-on') {
-                    if ($deployTo.ContainsKey($key)) {
-                        $deploymentSettings."$key" = $deployTo."$key"
-                    }
+        # Check Obsolete Settings
+        foreach($obsoleteSetting in "$($envName)-Projects","$($envName)_Projects") {
+            if ($settings.Contains($obsoleteSetting)) {
+                throw "The setting $obsoleteSetting is obsolete and should be replaced by using the Projects property in the DeployTo$envName setting in .github/AL-Go-Settings.json instead"
+            }
+        }
+
+        # Default Deployment settings are:
+        # - environment name: same
+        # - branches: main
+        # - projects: all
+        # - continuous deployment: only for environments not tagged with PROD or FAT
+        # - runs-on: same as settings."runs-on"
+        # - shell: same as settings."shell"
+        $deploymentSettings = @{
+            "EnvironmentType" = "SaaS"
+            "EnvironmentName" = $envName
+            "Branches" = @()
+            "BranchesFromPolicy" = @()
+            "Projects" = '*'
+            "SyncMode" = $null
+            "continuousDeployment" = $null
+            "runs-on" = @($settings."runs-on".Split(',').Trim())
+            "shell" = $settings."shell"
+        }
+
+        # Check DeployTo<environmentName> setting
+        $settingsName = "DeployTo$envName"
+        if ($settings.ContainsKey($settingsName)) {
+            # If a DeployTo<environmentName> setting exists - use values from this (over the defaults)
+            $deployTo = $settings."$settingsName"
+            foreach($key in 'EnvironmentType','EnvironmentName','Branches','Projects','SyncMode','ContinuousDeployment','runs-on','shell') {
+                if ($deployTo.ContainsKey($key)) {
+                    $deploymentSettings."$key" = $deployTo."$key"
                 }
             }
+            if ($deploymentSettings."shell" -ne 'pwsh' -and $deploymentSettings."shell" -ne 'powershell') {
+                throw "The shell setting in $settingsName must be either 'pwsh' or 'powershell'"
+            }
+        }
 
             # Get Branch policies on GitHub Environment
             $ghEnvironment = $ghEnvironments | Where-Object { $_.name -eq $environmentName }
@@ -202,15 +232,15 @@ try {
         }
     }
 
-    # Calculate deployment matrix
-    $json = @{"matrix" = @{ "include" = @() }; "fail-fast" = $false }
-    $deploymentEnvironments.Keys | Sort-Object | ForEach-Object {
-        $deploymentEnvironment = $deploymentEnvironments."$_"
-        $json.matrix.include += @{ "environment" = $_; "os" = "$(ConvertTo-Json -InputObject $deploymentEnvironment."runs-on" -compress)" }
-    }
-    $environmentsMatrixJson = $json | ConvertTo-Json -Depth 99 -compress
-    Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "EnvironmentsMatrixJson=$environmentsMatrixJson"
-    Write-Host "EnvironmentsMatrixJson=$environmentsMatrixJson"
+# Calculate deployment matrix
+$json = @{"matrix" = @{ "include" = @() }; "fail-fast" = $false }
+$deploymentEnvironments.Keys | Sort-Object | ForEach-Object {
+    $deploymentEnvironment = $deploymentEnvironments."$_"
+    $json.matrix.include += @{ "environment" = $_; "os" = "$(ConvertTo-Json -InputObject $deploymentEnvironment."runs-on" -compress)"; "shell" = $deploymentEnvironment."shell" }
+}
+$environmentsMatrixJson = $json | ConvertTo-Json -Depth 99 -compress
+Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "EnvironmentsMatrixJson=$environmentsMatrixJson"
+Write-Host "EnvironmentsMatrixJson=$environmentsMatrixJson"
 
     $deploymentEnvironmentsJson = ConvertTo-Json -InputObject $deploymentEnvironments -Depth 99 -Compress
     Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "DeploymentEnvironmentsJson=$deploymentEnvironmentsJson"

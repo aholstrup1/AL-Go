@@ -31,19 +31,15 @@ function IncludeDeliveryTarget([string] $deliveryTarget) {
 
 import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
 
-try {
-    . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
-
-    $settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
-    $deliveryTargets = @('GitHubPackages','NuGet','Storage')
-    if ($settings.type -eq "AppSource App") {
-        # For multi-project repositories, we will add deliveryTarget AppSource if any project has AppSourceContinuousDelivery set to true
-        ($projectsJson | ConvertFrom-Json) | ForEach-Object {
-            $projectSettings = ReadSettings -project $_
-            if ($projectSettings.Contains('AppSourceContinuousDelivery') -and $projectSettings.AppSourceContinuousDelivery) {
-                Write-Host "Project $_ is setup for Continuous Delivery"
-                $deliveryTargets += @("AppSource")
-            }
+$settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
+$deliveryTargets = @('GitHubPackages','NuGet','Storage')
+if ($settings.type -eq "AppSource App") {
+    # For multi-project repositories, we will add deliveryTarget AppSource if any project has AppSourceContinuousDelivery set to true
+    ($projectsJson | ConvertFrom-Json) | ForEach-Object {
+        $projectSettings = ReadSettings -project $_
+        if ($projectSettings.deliverToAppSource.ContinuousDelivery -or ($projectSettings.Contains('AppSourceContinuousDelivery') -and $projectSettings.AppSourceContinuousDelivery)) {
+            Write-Host "Project $_ is setup for Continuous Delivery"
+            $deliveryTargets += @("AppSource")
         }
     }
     # Include custom delivery targets
