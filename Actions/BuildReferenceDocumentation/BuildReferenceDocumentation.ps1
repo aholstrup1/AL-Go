@@ -9,8 +9,9 @@
 . (Join-Path -Path $PSScriptRoot -ChildPath "BuildReferenceDocumentation.HelperFunctions.ps1" -Resolve)
 import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
 
-DownloadAndImportBcContainerHelper
 try {
+    DownloadAndImportBcContainerHelper
+
     $settings = $env:Settings | ConvertFrom-Json
     $includeProjects = $settings.alDoc.includeProjects
     $excludeProjects = $settings.alDoc.excludeProjects
@@ -21,35 +22,19 @@ try {
         New-Item $artifactsFolder -ItemType Directory | Out-Null
         $artifactsFolderCreated = $true
     }
-    Write-Host "::endgroup::"
-}
-
-$header = $settings.alDoc.header
-$footer = $settings.alDoc.footer
-$defaultIndexMD = $settings.alDoc.defaultIndexMD.Replace('\n',"`n")
-$defaultReleaseMD = $settings.alDoc.defaultReleaseMD.Replace('\n',"`n")
-
-$releases = @()
-if ($maxReleases -gt 0) {
-    $releases = GetReleases -token $token -api_url $ENV:GITHUB_API_URL -repository $ENV:GITHUB_REPOSITORY | Where-Object { $_ } | Where-Object { -not ($_.prerelease -or $_.draft) } | Select-Object -First $maxReleases
-}
-
-$docsPath = Join-Path $ENV:GITHUB_WORKSPACE ".aldoc"
-if (!(Test-Path -path $docsPath)) {
-    New-Item $docsPath -ItemType Directory | Out-Null
-}
-$loglevel = 'Info'
-
-$versions = @($releases | ForEach-Object { $_.Name })
-$latestReleaseTag = $releases | Select-Object -First 1 -ExpandProperty tag_name
-
-foreach($release in $releases) {
-    $tempFolder = Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString())
-    New-Item -Path $tempFolder -ItemType Directory | Out-Null
-    try {
-        Write-Host "::group::Release $($release.Name)"
-        foreach($mask in 'Apps', 'Dependencies') {
-            DownloadRelease -token $token -projects "$($includeProjects -join ',')" -api_url $ENV:GITHUB_API_URL -repository $ENV:GITHUB_REPOSITORY -release $release -path $tempFolder -mask $mask -unpack
+    if ($artifacts -ne ".artifacts") {
+        Write-Host "::group::Downloading artifacts"
+        $allArtifacts = @(GetArtifacts -token $token -api_url $ENV:GITHUB_API_URL -repository $ENV:GITHUB_REPOSITORY -mask "Apps" -projects '*' -Version $artifacts -branch $ENV:GITHUB_REF_NAME)
+        if ($allArtifacts) {
+            $allArtifacts | ForEach-Object {
+                $filename = DownloadArtifact -token $token -artifact $_ -path $artifactsFolder
+                if (!(Test-Path $filename)) {
+                    throw "Unable to download artifact $($_.name)"
+                }
+                $destFolder = Join-Path $artifactsFolder ([System.IO.Path]::GetFileNameWithoutExtension($filename))
+                Expand-Archive -Path $filename -DestinationPath $destFolder -Force
+                Remove-Item -Path $filename -Force
+            }
         }
         Write-Host "::endgroup::"
     }
@@ -65,7 +50,9 @@ foreach($release in $releases) {
     }
 
     $docsPath = Join-Path $ENV:GITHUB_WORKSPACE ".aldoc"
-    New-Item $docsPath -ItemType Directory | Out-Null
+    if (!(Test-Path -path $docsPath)) {
+        New-Item $docsPath -ItemType Directory | Out-Null
+    }
     $loglevel = 'Info'
 
     $versions = @($releases | ForEach-Object { $_.Name })
@@ -130,7 +117,6 @@ foreach($release in $releases) {
     if ($artifactsFolderCreated) {
         Remove-Item $artifactsFolder -Recurse -Force
     }
-
     Trace-Information
 } catch {
     Trace-Exception -ErrorRecord $_
