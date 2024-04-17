@@ -29,7 +29,7 @@ function IncludeDeliveryTarget([string] $deliveryTarget) {
     return (IncludeBranch -deliveryTarget $deliveryTarget)
 }
 
-import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve)
+import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
 
 $settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
 $deliveryTargets = @('GitHubPackages','NuGet','Storage')

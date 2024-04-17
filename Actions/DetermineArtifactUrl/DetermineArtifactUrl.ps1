@@ -3,7 +3,7 @@
     [string] $project = "."
 )
 
-Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper2.psm1" -Resolve) -DisableNameChecking
+Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve) -DisableNameChecking
 
 try {
     #region Action: Setup

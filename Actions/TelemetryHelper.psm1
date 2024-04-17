@@ -1,87 +1,194 @@
-$signals = @{
-    "DO0070" = "AL-Go action ran: AddExistingApp"
-    "DO0071" = "AL-Go action ran: CheckForUpdates"
-    "DO0072" = "AL-Go action ran: CreateApp"
-    "DO0073" = "AL-Go action ran: CreateDevelopmentEnvironment"
-    "DO0074" = "AL-Go action ran: CreateReleaseNotes"
-    "DO0075" = "AL-Go action ran: Deploy"
-    "DO0076" = "AL-Go action ran: IncrementVersionNumber"
-    "DO0077" = "AL-Go action ran: PipelineCleanup"
-    "DO0078" = "AL-Go action ran: ReadSecrets"
-    "DO0079" = "AL-Go action ran: ReadSettings"
-    "DO0080" = "AL-Go action ran: RunPipeline"
-    "DO0081" = "AL-Go action ran: Deliver"
-    "DO0082" = "AL-Go action ran: AnalyzeTests"
-    "DO0083" = "AL-Go action ran: Sign"
+. (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
-    "DO0084" = "AL-Go action ran: DetermineArtifactUrl"
-    "DO0085" = "AL-Go action ran: DetermineProjectsToBuild"
+function DownloadNugetPackage($PackageName, $PackageVersion) {
+    $nugetPackagePath = Join-Path "$ENV:GITHUB_WORKSPACE" "/.nuget/packages/$PackageName/$PackageVersion/"
 
-    "DO0090" = "AL-Go workflow ran: AddExistingAppOrTestApp"
-    "DO0091" = "AL-Go workflow ran: CICD"
-    "DO0092" = "AL-Go workflow ran: CreateApp"
-    "DO0093" = "AL-Go workflow ran: CreateOnlineDevelopmentEnvironment"
-    "DO0094" = "AL-Go workflow ran: CreateRelease"
-    "DO0095" = "AL-Go workflow ran: CreateTestApp"
-    "DO0096" = "AL-Go workflow ran: IncrementVersionNumber"
-    "DO0097" = "AL-Go workflow ran: PublishToEnvironment"
-    "DO0098" = "AL-Go workflow ran: UpdateGitHubGoSystemFiles"
-    "DO0099" = "AL-Go workflow ran: NextMajor"
-    "DO0100" = "AL-Go workflow ran: NextMinor"
-    "DO0101" = "AL-Go workflow ran: Current"
-    "DO0102" = "AL-Go workflow ran: CreatePerformanceTestApp"
-    "DO0103" = "AL-Go workflow ran: PublishToAppSource"
-    "DO0104" = "AL-Go workflow ran: PullRequestHandler"
-}
+    if (-not (Test-Path -Path $nugetPackagePath)) {
+        $url = "https://www.nuget.org/api/v2/package/$PackageName/$PackageVersion"
 
-Function strToHexStr {
-    Param(
-        [string] $str
-    )
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($str)
-    $hexStr = [System.Text.StringBuilder]::new($Bytes.Length * 2)
-    ForEach($byte in $Bytes){
-        $hexStr.AppendFormat("{0:x2}", $byte) | Out-Null
-    }
-    $hexStr.ToString()
-}
+        Write-Host "Downloading Nuget package $PackageName $PackageVersion..."
+        New-Item -ItemType Directory -Path $nugetPackagePath | Out-Null
+        Invoke-WebRequest -Uri $Url -OutFile "$nugetPackagePath/$PackageName.$PackageVersion.zip"
 
-Function hexStrToStr {
-    Param(
-        [String] $hexStr
-    )
-    $Bytes = [byte[]]::new($hexStr.Length / 2)
-    For($i=0; $i -lt $hexStr.Length; $i+=2){
-        $Bytes[$i/2] = [convert]::ToByte($hexStr.Substring($i, 2), 16)
-    }
-    [System.Text.Encoding]::UTF8.GetString($Bytes)
-}
+        # Unzip the package
+        Expand-Archive -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip" -DestinationPath "$nugetPackagePath"
 
-function CreateScope {
-    param (
-        [string] $eventId,
-        [string] $parentTelemetryScopeJson = '7b7d'
-    )
-
-    $signalName = $signals[$eventId]
-    if (-not $signalName) {
-        throw "Invalid event id ($eventId) is enountered."
+        # Remove the zip file
+        Remove-Item -Path "$nugetPackagePath/$PackageName.$PackageVersion.zip"
     }
 
-    if ($parentTelemetryScopeJson -and $parentTelemetryScopeJson -ne '7b7d') {
-        RegisterTelemetryScope (hexStrToStr -hexStr $parentTelemetryScopeJson) | Out-Null
-    }
-
-    $telemetryScope = InitTelemetryScope -name $signalName -eventId $eventId  -parameterValues @()  -includeParameters @()
-
-    return $telemetryScope
+    return $nugetPackagePath
 }
 
-function GetHash {
+function LoadApplicationInsightsDll() {
+    $packagePath = DownloadNugetPackage -PackageName "Microsoft.ApplicationInsights" -PackageVersion (Get-PackageVersion -PackageName "Microsoft.ApplicationInsights")
+    $AppInsightsDllPath = "$packagePath/lib/net46/Microsoft.ApplicationInsights.dll"
+
+    if (-not (Test-Path -Path $AppInsightsDllPath)) {
+        throw "Failed to download Application Insights DLL"
+    }
+
+    [Reflection.Assembly]::LoadFile($AppInsightsDllPath) | Out-Null
+}
+
+function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
+{
+    # Load the Application Insights DLL
+    LoadApplicationInsightsDll
+
+    $TelemetryClient = [Microsoft.ApplicationInsights.TelemetryClient]::new()
+    $TelemetryClient.TelemetryConfiguration.ConnectionString = $TelemetryConnectionString
+
+    return $TelemetryClient
+}
+
+function Trace-WorkflowStart() {
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+
+    $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
+    if (Test-Path -Path $alGoSettingsPath) {
+        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        
+        # Log the repository type
+        if ($repoSettings.PSObject.Properties.Name -contains 'type') {
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value $repoSettings.type
+        }
+
+        # Log the template URL
+        if ($repoSettings.PSObject.Properties.Name -contains 'templateUrl') {
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'TemplateUrl' -Value $repoSettings.templateUrl
+        }
+
+        # Log the Al-Go version
+        $alGoVersion = "main"
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'AlGoVersion' -Value $alGoVersion
+    }
+
+    Add-TelemetryEvent -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
+}
+
+function Trace-WorkflowEnd($TelemetryScopeJson) {
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+
+    $telemetryScope = $null
+    if ($TelemetryScopeJson -ne '') {
+        $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
+    }
+
+    # Calculate the workflow conclusion using the github api
+    $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
+    if ($workflowJobs -ne $null) {
+        $failedJobs = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
+        if ($failedJobs -eq $null) {
+            $workflowConclusion = "Success"
+        } else {
+            $workflowConclusion = "Failure"
+        }
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
+    }
+
+    # Calculate the workflow duration using the github api
+    if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
+        Write-Host "Calculating workflow duration..."
+        $workflowTiming= [DateTime]::UtcNow.Subtract([DateTime]::Parse($telemetryScope.workflowStartTime)).TotalSeconds
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
+    }
+
+    Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
+}
+
+function Trace-Exception() {
     param(
-        [string] $str
+        [String] $Message = "AL-Go Action Failed",
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{},
+        [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
     )
 
-    $stream = [IO.MemoryStream]::new([Text.Encoding]::UTF8.GetBytes($str))
-    (Get-FileHash -InputStream $stream -Algorithm SHA256).Hash
+    if ($ErrorRecord -ne $null) {
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage', -Value $ErrorRecord.Exception.Message
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace', -Value $ErrorRecord.ScriptStackTrace
+    }
+
+    Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
 }
+
+function Trace-Information() {
+    param(
+        [String] $Message = "AL-Go Action Ran",
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+    )
+
+    Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
+}
+
+function Add-TelemetryEvent()
+{
+    param(
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{},
+        [String] $Message = '',
+        [String] $Severity = 'Information'
+    )
+
+    Write-Host "Additional Data: "
+    $Data.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
+
+    # Add powershell version
+    Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
+
+    if ((Get-Module BcContainerHelper)) {
+        Add-TelemetryData -Hashtable $Data -Key 'BcContainerHelperVersion' -Value ((Get-Module BcContainerHelper).Version.ToString())
+    }
+
+    ### Add GitHub Actions information
+    if ($ENV:GITHUB_ACTION_PATH -ne $null)
+    {
+        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
+        Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath
+    }
+
+    ### Add GitHub Workflow information
+    Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
+
+    ### Add GitHub Run information
+    Add-TelemetryData -Hashtable $Data -Key 'RefName' -Value $ENV:GITHUB_REF_NAME
+    Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
+    Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
+    Add-TelemetryData -Hashtable $Data -Key 'RunNumber' -Value $ENV:GITHUB_RUN_NUMBER
+    Add-TelemetryData -Hashtable $Data -Key 'RunAttempt' -Value $ENV:GITHUB_RUN_ATTEMPT
+    Add-TelemetryData -Hashtable $Data -Key 'JobId' -Value $ENV:GITHUB_JOB
+
+    ### Add GitHub Repository information
+    Add-TelemetryData -Hashtable $Data -Key 'Repository' -Value $ENV:GITHUB_REPOSITORY
+
+    Write-Host "Tracking trace with severity $Severity and message $Message"
+    $repoSettings = ReadSettings
+
+    if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
+        Write-Host "Enabling Microsoft telemetry..."
+        $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
+        $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+        $MicrosoftTelemetryClient.Flush()
+    }
+
+    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+        Write-Host "Enabling partner telemetry..."
+        $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
+        $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+        $PartnerTelemetryClient.Flush()
+    }
+}
+
+function Add-TelemetryData() {
+    param(
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Hashtable,
+        [String] $Key,
+        [String] $Value
+    )
+
+    if (-not $Hashtable.ContainsKey($Key) -and ($Value -ne '')) {
+        $Hashtable.Add($Key, $Value)
+    }
+
+}
+
+Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
