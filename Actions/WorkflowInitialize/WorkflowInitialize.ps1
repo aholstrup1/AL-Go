@@ -1,9 +1,4 @@
-﻿Param(
-    [Parameter(HelpMessage = "The event id of the initiating workflow", Mandatory = $true)]
-    [string] $eventId
-)
-
-$telemetryScope = $null
+﻿$telemetryScope = $null
 
 function LogAlGoVersion() {
     $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
