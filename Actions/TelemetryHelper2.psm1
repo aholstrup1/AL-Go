@@ -70,6 +70,7 @@ function Trace-WorkflowStart() {
 function Trace-WorkflowEnd($TelemetryScopeJson) {
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
 
+    $telemetryScope = $null
     if ($TelemetryScopeJson -ne '') {
         $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
     }
