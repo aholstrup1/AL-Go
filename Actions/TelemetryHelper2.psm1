@@ -121,6 +121,9 @@ function Add-TelemetryEvent()
         [String] $Severity = 'Information'
     )
 
+    Write-Host "Additional Data: "
+    $Data.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
+
     # Add powershell version
     Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
 
