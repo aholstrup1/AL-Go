@@ -71,9 +71,11 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
 
     $telemetryScope = $null
+    Write-Host "Telemetry Scope: $TelemetryScopeJson"
     if ($TelemetryScopeJson -ne '') {
         $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
     }
+    Write-Host "Telemetry Scope: $telemetryScope"
 
     # Calculate the workflow conclusion using the github api
     $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
