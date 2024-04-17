@@ -64,7 +64,7 @@ function Trace-WorkflowStart() {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'AlGoVersion' -Value $alGoVersion
     }
 
-    Add-TelemetryEvent -Message "Workflow Started: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
+    Add-TelemetryEvent -Message "AL-Go workflow started: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-WorkflowEnd($TelemetryScopeJson) {
@@ -94,15 +94,20 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
-    Add-TelemetryEvent -Message "Workflow Ended: $ENV:GITHUB_WORKFLOW" -Severity 'Information' -Data $AdditionalData
+    Add-TelemetryEvent -Message "AL-Go workflow ran: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-Exception() {
     param(
-        [String] $Message = "AL-Go Action Failed",
+        [String] $Message,
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{},
         [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
     )
+
+    if (-not $Message) {
+        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
+        $Message = "AL-Go action failed: $actionName"
+    }
 
     if ($ErrorRecord -ne $null) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage', -Value $ErrorRecord.Exception.Message
@@ -114,9 +119,14 @@ function Trace-Exception() {
 
 function Trace-Information() {
     param(
-        [String] $Message = "AL-Go Action Ran",
+        [String] $Message,
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     )
+
+    if (-not $Message) {
+        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
+        $Message = "AL-Go action ran: $actionName"
+    }
 
     Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
 }
@@ -146,11 +156,7 @@ function Add-TelemetryEvent()
         Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath
     }
 
-    ### Add GitHub Workflow information
     Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
-
-    ### Add GitHub Run information
-    Add-TelemetryData -Hashtable $Data -Key 'RefName' -Value $ENV:GITHUB_REF_NAME
     Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
     Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
     Add-TelemetryData -Hashtable $Data -Key 'RunNumber' -Value $ENV:GITHUB_RUN_NUMBER
@@ -163,7 +169,7 @@ function Add-TelemetryEvent()
     Write-Host "Tracking trace with severity $Severity and message $Message"
     $repoSettings = ReadSettings
 
-    if ($repoSettings.sendExtendedTelemetryToMicrosoft -eq $true) {
+    if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
         Write-Host "Enabling Microsoft telemetry..."
         $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
         $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
