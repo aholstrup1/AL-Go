@@ -70,6 +70,7 @@ function Trace-WorkflowStart() {
 function Trace-WorkflowEnd($TelemetryScopeJson) {
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
 
+    <#
     $telemetryScope = $null
     if ($TelemetryScopeJson -ne '') {
         $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
@@ -88,15 +89,16 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
     }
 
     # Calculate the workflow duration using the github api
-    <#if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
+    if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
         Write-Host "Calculating workflow duration..."
         $workflowTiming= [DateTime]::UtcNow.Subtract([DateTime]::Parse($telemetryScope.workflowStartTime)).TotalSeconds
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
-    }#>
+    }
+    #>
 
     $workFlowName = $ENV:GITHUB_WORKFLOW.Trim().Replace("/", "")
 
-    Add-TelemetryEvent -Message "AL-Go workflow ran: $workFlowName" -Severity 'Information' -Data $AdditionalData
+    Add-TelemetryEvent -Message "AL-Go workflow ran: workFlowName" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-Exception() {
