@@ -139,9 +139,6 @@ function Add-TelemetryEvent()
         [String] $Severity = 'Information'
     )
 
-    Write-Host "Additional Data: "
-    $Data.GetEnumerator() | ForEach-Object { Write-Host "$($_.Key): $($_.Value)" }
-
     # Add powershell version
     Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
 
@@ -171,6 +168,7 @@ function Add-TelemetryEvent()
 
     if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
         Write-Host "Enabling Microsoft telemetry..."
+        Write-Host "Logging telemetry with message: $Message"
         $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
         $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
         $MicrosoftTelemetryClient.Flush()
