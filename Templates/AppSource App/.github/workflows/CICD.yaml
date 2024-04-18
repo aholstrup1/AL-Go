@@ -303,6 +303,9 @@ jobs:
     if: (!cancelled())
     runs-on: [ windows-latest ]
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Finalize the workflow
         id: PostProcess
         uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
