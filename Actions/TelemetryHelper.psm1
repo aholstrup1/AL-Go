@@ -94,7 +94,9 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
-    Add-TelemetryEvent -Message "AL-Go workflow ran: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
+    $workFlowName = $ENV:GITHUB_WORKFLOW.Trim().Replace("/", "")
+
+    Add-TelemetryEvent -Message "AL-Go workflow ran: $workFlowName" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-Exception() {
