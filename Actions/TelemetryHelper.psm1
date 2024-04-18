@@ -168,8 +168,13 @@ function Add-TelemetryEvent()
 
     if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
         Write-Host "Enabling Microsoft telemetry..."
-        Write-Host "Logging telemetry with message: $Message"
         $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
+        Write-Host "Logging telemetry with message: $Message, severity: $Severity"
+        # Log key and value pairs in data hashtab
+        $data.GetEnumerator() | ForEach-Object {
+            Write-Host "Key: $($_.Key), Value: $($_.Value)"
+        }
+
         $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
         $MicrosoftTelemetryClient.Flush()
     }
