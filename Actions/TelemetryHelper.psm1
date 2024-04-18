@@ -94,9 +94,7 @@ function Trace-WorkflowEnd($TelemetryScopeJson) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
-    $workFlowName = $ENV:GITHUB_WORKFLOW.Trim().Replace("/", "")
-
-    Add-TelemetryEvent -Message "AL-Go workflow ran: $workFlowName" -Severity 'Information' -Data $AdditionalData
+    Add-TelemetryEvent -Message "AL-Go workflow ran: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
 }
 
 function Trace-Exception() {
@@ -165,18 +163,10 @@ function Add-TelemetryEvent()
     ### Add GitHub Repository information
     Add-TelemetryData -Hashtable $Data -Key 'Repository' -Value $ENV:GITHUB_REPOSITORY
 
-    Write-Host "Tracking trace with severity $Severity and message $Message"
     $repoSettings = ReadSettings
-
     if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
         Write-Host "Enabling Microsoft telemetry..."
         $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
-        Write-Host "Logging telemetry with message: $Message, severity: $Severity"
-        # Log key and value pairs in data hashtab
-        $data.GetEnumerator() | ForEach-Object {
-            Write-Host "Key: $($_.Key), Value: $($_.Value)"
-        }
-
         $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
         $MicrosoftTelemetryClient.Flush()
     }
