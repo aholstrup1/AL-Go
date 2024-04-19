@@ -81,7 +81,7 @@ function Add-TelemetryEvent()
     }
 
     ### Add GitHub Actions information
-    if ($ENV:GITHUB_ACTION_PATH -ne $null)
+    if ($null -ne $ENV:GITHUB_ACTION_PATH)
     {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
         Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath

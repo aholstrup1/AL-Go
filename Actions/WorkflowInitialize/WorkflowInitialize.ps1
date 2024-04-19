@@ -21,7 +21,7 @@ function LogWorkflowStart() {
     $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
     if (Test-Path -Path $alGoSettingsPath) {
         $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        
+
         # Log the repository type
         if ($repoSettings.PSObject.Properties.Name -contains 'type') {
             Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value $repoSettings.type
