@@ -68,3 +68,10 @@ jobs:
         if: steps.DetermineDeploymentEnvironments.outputs.deployALDocArtifact == 1
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Finalize the workflow
+        if: always()
+        uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
+        with:
+          shell: powershell
+          telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
