@@ -56,7 +56,7 @@ try {
         -DigestAlgorithm $digestAlgorithm `
         -Verbosity "Information"
     Write-Host "::endgroup::"
-    
+
     Trace-Information
 }
 catch {

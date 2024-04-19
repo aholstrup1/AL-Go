@@ -42,100 +42,34 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
     return $TelemetryClient
 }
 
-function Trace-WorkflowStart() {
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+<#
+    .SYNOPSIS
+    Adds a telemetry event to the telemetry client
 
-    $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
-    if (Test-Path -Path $alGoSettingsPath) {
-        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
-        
-        # Log the repository type
-        if ($repoSettings.PSObject.Properties.Name -contains 'type') {
-            Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value $repoSettings.type
-        }
+    .DESCRIPTION
+    Adds a telemetry event to the telemetry client
 
-        # Log the template URL
-        if ($repoSettings.PSObject.Properties.Name -contains 'templateUrl') {
-            Add-TelemetryData -Hashtable $AdditionalData -Key 'TemplateUrl' -Value $repoSettings.templateUrl
-        }
+    .PARAMETER Message
+    The message to log to telemetry
 
-        # Log the Al-Go version
-        $alGoVersion = "main"
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'AlGoVersion' -Value $alGoVersion
-    }
+    .PARAMETER Data
+    Additional data to log to telemetry
 
-    Add-TelemetryEvent -Message "AL-Go workflow started: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
-}
+    .PARAMETER Severity
+    The severity of the telemetry event
 
-function Trace-WorkflowEnd($TelemetryScopeJson) {
-    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
-
-    $telemetryScope = $null
-    if ($TelemetryScopeJson -ne '') {
-        $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
-    }
-
-    # Calculate the workflow conclusion using the github api
-    $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
-    if ($workflowJobs -ne $null) {
-        $failedJobs = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
-        if ($failedJobs -eq $null) {
-            $workflowConclusion = "Success"
-        } else {
-            $workflowConclusion = "Failure"
-        }
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
-    }
-
-    # Calculate the workflow duration using the github api
-    if ($telemetryScope -and ($telemetryScope.workflowStartTime -ne $null)) {
-        Write-Host "Calculating workflow duration..."
-        $workflowTiming= [DateTime]::UtcNow.Subtract([DateTime]::Parse($telemetryScope.workflowStartTime)).TotalSeconds
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
-    }
-
-    Add-TelemetryEvent -Message "AL-Go workflow ran: $($ENV:GITHUB_WORKFLOW.Trim())" -Severity 'Information' -Data $AdditionalData
-}
-
-function Trace-Exception() {
-    param(
-        [String] $Message,
-        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{},
-        [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
-    )
-
-    if (-not $Message) {
-        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
-        $Message = "AL-Go action failed: $actionName"
-    }
-
-    if ($ErrorRecord -ne $null) {
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage' -Value $ErrorRecord.Exception.Message
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace' -Value $ErrorRecord.ScriptStackTrace
-    }
-
-    Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
-}
-
-function Trace-Information() {
-    param(
-        [String] $Message,
-        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
-    )
-
-    if (-not $Message) {
-        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
-        $Message = "AL-Go action ran: $actionName"
-    }
-
-    Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
-}
-
+    .EXAMPLE
+    Add-TelemetryEvent -Message "AL-Go action ran" -Severity 'Information' -Data @{'WorkflowName' = 'CI/CD'}
+#>
 function Add-TelemetryEvent()
 {
     param(
+        [Parameter(Mandatory = $true)]
+        [String] $Message,
+        [Parameter(Mandatory = $false)]
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Data = @{},
-        [String] $Message = '',
+        [Parameter(Mandatory = $false)]
+        [ValidateSet("Information", "Error")]
         [String] $Severity = 'Information'
     )
 
@@ -179,17 +113,94 @@ function Add-TelemetryEvent()
     }
 }
 
+<#
+    .SYNOPSIS
+    Logs an information message to telemetry
+
+    .DESCRIPTION
+    Logs an information message to telemetry
+
+    .PARAMETER Message
+    The message to log to telemetry
+
+    .PARAMETER AdditionalData
+    Additional data to log to telemetry
+
+    .EXAMPLE
+    Trace-Information -Message "AL-Go action ran: $actionName"
+#>
+function Trace-Information() {
+    param(
+        [String] $Message,
+        [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+    )
+
+    if (-not $Message) {
+        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
+        $Message = "AL-Go action ran: $actionName"
+    }
+
+    Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
+}
+
+<#
+    .SYNOPSIS
+    Logs an exception message to telemetry
+
+    .DESCRIPTION
+    Logs an exception message to telemetry
+
+    .PARAMETER ErrorRecord
+    The error record to log to telemetry
+
+    .EXAMPLE
+    Trace-Exception -ErrorRecord $ErrorRecord
+#>
+function Trace-Exception() {
+    param(
+        [System.Management.Automation.ErrorRecord] $ErrorRecord = $null
+    )
+
+    [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
+    if ($ErrorRecord -ne $null) {
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage' -Value $ErrorRecord.Exception.Message
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace' -Value $ErrorRecord.ScriptStackTrace
+    }
+
+    $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
+    $Message = "AL-Go action failed: $actionName"
+
+    Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
+}
+
+<#
+    .SYNOPSIS
+    Adds a key-value pair to a hashtable if the key does not already exist
+
+    .DESCRIPTION
+    Adds a key-value pair to a hashtable if the key does not already exist
+
+    .PARAMETER Hashtable
+    The hashtable to add the key-value pair to
+
+    .PARAMETER Key
+    The key to add to the hashtable
+
+    .PARAMETER Value
+    The value to add to the hashtable
+
+    .EXAMPLE
+    Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value 'PTE'
+#>
 function Add-TelemetryData() {
     param(
         [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $Hashtable,
         [String] $Key,
         [String] $Value
     )
-
     if (-not $Hashtable.ContainsKey($Key) -and ($Value -ne '')) {
         $Hashtable.Add($Key, $Value)
     }
-
 }
 
-Export-ModuleMember -Function Trace-Exception, Trace-Information, Trace-WorkflowStart, Trace-WorkflowEnd
+Export-ModuleMember -Function Trace-Information, Trace-Exception, Add-TelemetryData
