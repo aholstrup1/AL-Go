@@ -110,8 +110,8 @@ function Trace-Exception() {
     }
 
     if ($ErrorRecord -ne $null) {
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage', -Value $ErrorRecord.Exception.Message
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace', -Value $ErrorRecord.ScriptStackTrace
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorMessage' -Value $ErrorRecord.Exception.Message
+        Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace' -Value $ErrorRecord.ScriptStackTrace
     }
 
     Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
