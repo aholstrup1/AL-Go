@@ -631,7 +631,7 @@ function ReadSettings {
         "alwaysBuildAllProjects"                        = $false
         "microsoftTelemetryConnectionString"            = "InstrumentationKey=84bd9223-67d4-4378-8590-9e4a46023be2;IngestionEndpoint=https://westeurope-1.in.applicationinsights.azure.com/"
         "partnerTelemetryConnectionString"              = ""
-        "sendExtendedTelemetryToMicrosoft"              = $true
+        "sendExtendedTelemetryToMicrosoft"              = $false
         "environments"                                  = @()
         "buildModes"                                    = @()
         "useCompilerFolder"                             = $false
