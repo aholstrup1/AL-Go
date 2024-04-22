@@ -29,6 +29,21 @@ function LogWorkflowEnd($TelemetryScopeJson) {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowDuration' -Value $workflowTiming
     }
 
+    $alGoSettingsPath = "$ENV:GITHUB_WORKSPACE/.github/AL-Go-Settings.json"
+    if (Test-Path -Path $alGoSettingsPath) {
+        $repoSettings = Get-Content -Path $alGoSettingsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+
+        # Log the repository type
+        if ($repoSettings.PSObject.Properties.Name -contains 'type') {
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'RepoType' -Value $repoSettings.type
+        }
+
+        # Log the template URL
+        if ($repoSettings.PSObject.Properties.Name -contains 'templateUrl') {
+            Add-TelemetryData -Hashtable $AdditionalData -Key 'TemplateUrl' -Value $repoSettings.templateUrl
+        }
+    }
+
     Trace-Information -Message "AL-Go workflow ran: $($ENV:GITHUB_WORKFLOW.Trim())" -AdditionalData $AdditionalData
 }
 
