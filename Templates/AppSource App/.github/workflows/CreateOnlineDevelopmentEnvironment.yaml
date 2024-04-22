@@ -148,6 +148,8 @@ jobs:
       - name: Finalize the workflow
         if: always()
         uses: microsoft/AL-Go-Actions/WorkflowPostProcess@main
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           shell: powershell
           telemetryScopeJson: ${{ needs.Initialization.outputs.telemetryScopeJson }}
