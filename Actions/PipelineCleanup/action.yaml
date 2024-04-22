@@ -9,10 +9,6 @@ inputs:
     description: Project folder
     required: false
     default: '.'
-  parentTelemetryScopeJson:
-    description: Specifies the parent telemetry scope for the telemetry signal
-    required: false
-    default: '7b7d'
 runs:
   using: composite
   steps:
@@ -20,7 +16,6 @@ runs:
       shell: ${{ inputs.shell }}
       env:
         _project: ${{ inputs.project }}
-        _parentTelemetryScopeJson: ${{ inputs.parentTelemetryScopeJson }}
       run: |
         $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
         try {

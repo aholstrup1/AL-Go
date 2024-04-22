@@ -42,6 +42,13 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
     return $TelemetryClient
 }
 
+function GetActionName() {
+    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
+        return ""
+    }
+    return $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
+}
+
 <#
     .SYNOPSIS
     Adds a telemetry event to the telemetry client
@@ -136,8 +143,7 @@ function Trace-Information() {
     )
 
     if (-not $Message) {
-        $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
-        $Message = "AL-Go action ran: $actionName"
+        $Message = "AL-Go action ran: $(GetActionName)"
     }
 
     Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
@@ -167,9 +173,7 @@ function Trace-Exception() {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'ErrorStackTrace' -Value $ErrorRecord.ScriptStackTrace
     }
 
-    $actionName = $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
-    $Message = "AL-Go action failed: $actionName"
-
+    $Message = "AL-Go action failed: $(GetActionName)"
     Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
 }
 
