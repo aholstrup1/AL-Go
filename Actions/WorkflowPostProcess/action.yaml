@@ -10,7 +10,7 @@ inputs:
     required: false
     default: '7b7d'
   currentJobContext:
-    description: Job context
+    description: The current job context
     required: false
     default: ''
 runs:
