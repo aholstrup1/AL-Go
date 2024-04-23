@@ -13,6 +13,7 @@ runs:
   using: composite
   steps:
     - name: run
+      if: ${{ failure() }}
       shell: ${{ inputs.shell }}
       env:
         _telemetryScopeJson: ${{ inputs.telemetryScopeJson }}
