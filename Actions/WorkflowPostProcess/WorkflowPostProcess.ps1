@@ -65,4 +65,4 @@ function LogWorkflowEnd($TelemetryScopeJson, $JobContext) {
 }
 
 import-module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
-LogWorkflowEnd -TelemetryScopeJson $telemetryScopeJson
+LogWorkflowEnd -TelemetryScopeJson $telemetryScopeJson -JobContext $currentJobContext
