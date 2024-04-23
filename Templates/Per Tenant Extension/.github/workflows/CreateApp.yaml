@@ -98,3 +98,4 @@ jobs:
         with:
           shell: powershell
           telemetryScopeJson: ${{ steps.init.outputs.telemetryScopeJson }}
+          currentJobContext: ${{ toJson(job) }}

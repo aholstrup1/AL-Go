@@ -373,3 +373,4 @@ jobs:
         with:
           shell: powershell
           telemetryScopeJson: ${{ needs.CreateRelease.outputs.telemetryScopeJson }}
+          currentJobContext: ${{ toJson(job) }}

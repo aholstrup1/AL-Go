@@ -35,9 +35,7 @@ function LogWorkflowEnd($TelemetryScopeJson, $JobContext) {
 
     # Get the workflow conclusion
     $workflowConclusion = GetWorkflowConclusion -JobContext $JobContext
-    if ($workflowConclusion -ne '') {
-        Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
-    }
+    Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
 
     # Calculate the workflow duration using the github api
     if ($telemetryScope -and ($null -ne $telemetryScope.workflowStartTime)) {
