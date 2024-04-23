@@ -96,37 +96,41 @@ function Add-TelemetryEvent()
         [String] $Severity = 'Information'
     )
 
-    # Add powershell version
-    Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
+    try {
+        # Add powershell version
+        Add-TelemetryData -Hashtable $Data -Key 'PowerShellVersion' -Value ($PSVersionTable.PSVersion.ToString())
 
-    if ((Get-Module BcContainerHelper)) {
-        Add-TelemetryData -Hashtable $Data -Key 'BcContainerHelperVersion' -Value ((Get-Module BcContainerHelper).Version.ToString())
-    }
+        if ((Get-Module BcContainerHelper)) {
+            Add-TelemetryData -Hashtable $Data -Key 'BcContainerHelperVersion' -Value ((Get-Module BcContainerHelper).Version.ToString())
+        }
 
-    Add-TelemetryData -Hashtable $Data -Key 'ALGoVersion' -Value (GetAlGoVersion)
-    Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
-    Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
-    Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
-    Add-TelemetryData -Hashtable $Data -Key 'RunNumber' -Value $ENV:GITHUB_RUN_NUMBER
-    Add-TelemetryData -Hashtable $Data -Key 'RunAttempt' -Value $ENV:GITHUB_RUN_ATTEMPT
-    Add-TelemetryData -Hashtable $Data -Key 'JobId' -Value $ENV:GITHUB_JOB
+        Add-TelemetryData -Hashtable $Data -Key 'ALGoVersion' -Value (GetAlGoVersion)
+        Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
+        Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
+        Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
+        Add-TelemetryData -Hashtable $Data -Key 'RunNumber' -Value $ENV:GITHUB_RUN_NUMBER
+        Add-TelemetryData -Hashtable $Data -Key 'RunAttempt' -Value $ENV:GITHUB_RUN_ATTEMPT
+        Add-TelemetryData -Hashtable $Data -Key 'JobId' -Value $ENV:GITHUB_JOB
 
-    ### Add GitHub Repository information
-    Add-TelemetryData -Hashtable $Data -Key 'Repository' -Value $ENV:GITHUB_REPOSITORY
+        ### Add GitHub Repository information
+        Add-TelemetryData -Hashtable $Data -Key 'Repository' -Value $ENV:GITHUB_REPOSITORY
 
-    $repoSettings = ReadSettings
-    if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
-        Write-Host "Enabling Microsoft telemetry..."
-        $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
-        $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-        $MicrosoftTelemetryClient.Flush()
-    }
+        $repoSettings = ReadSettings
+        if ($repoSettings.microsoftTelemetryConnectionString -ne '') {
+            Write-Host "Enabling Microsoft telemetry..."
+            $MicrosoftTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.microsoftTelemetryConnectionString
+            $MicrosoftTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+            $MicrosoftTelemetryClient.Flush()
+        }
 
-    if ($repoSettings.partnerTelemetryConnectionString -ne '') {
-        Write-Host "Enabling partner telemetry..."
-        $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
-        $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
-        $PartnerTelemetryClient.Flush()
+        if ($repoSettings.partnerTelemetryConnectionString -ne '') {
+            Write-Host "Enabling partner telemetry..."
+            $PartnerTelemetryClient = Get-ApplicationInsightsTelemetryClient -TelemetryConnectionString $repoSettings.partnerTelemetryConnectionString
+            $PartnerTelemetryClient.TrackTrace($Message, [Microsoft.ApplicationInsights.DataContracts.SeverityLevel]::$Severity, $Data)
+            $PartnerTelemetryClient.Flush()
+        }
+    } catch {
+        Write-Host "Failed to log telemetry event: $_"
     }
 }
 
