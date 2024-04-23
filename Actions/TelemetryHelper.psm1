@@ -59,9 +59,9 @@ function GetAlGoVersion() {
     $owner = $actionPath[$actionPath.Count-4]
 
     if ($owner -ne "microsoft") {
-        $verstr = "Developer/Private"
+        return "Developer/Private"
     } else {
-        $verstr = $branch
+        return $branch
     }
 }
 
