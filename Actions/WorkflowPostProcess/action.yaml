@@ -13,11 +13,13 @@ runs:
   using: composite
   steps:
     - name: Workflow succeeded
+      shell: ${{ inputs.shell }}
       if: ${{ success() }}
       id: success
       run: |
         echo "Workflow succeeded"
     - name: Workflow failed
+      shell: ${{ inputs.shell }}
       if: ${{ failure() }}
       id: failure
       run: |
