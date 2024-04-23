@@ -49,6 +49,23 @@ function GetActionName() {
     return $ENV:GITHUB_ACTION_PATH.Split("/")[-1]
 }
 
+function GetAlGoVersion() {
+    Write-Host "Getting AL-Go version..."
+    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
+    $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
+    $branch = $ap[$ap.Count-2]
+    $owner = $ap[$ap.Count-4]
+
+    Write-Host "Branch: $branch"
+    Write-Host "Owner: $owner"
+
+    if ($owner -ne "microsoft") {
+        $verstr = "Developer/Private"
+    } else {
+        $verstr = $branch
+    }
+}
+
 <#
     .SYNOPSIS
     Adds a telemetry event to the telemetry client
@@ -92,6 +109,7 @@ function Add-TelemetryEvent()
     {
         $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
         Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath
+        Add-TelemetryData -Hashtable $Data -Key 'ALGoVersion' -Value (GetAlGoVersion)
     }
 
     Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
