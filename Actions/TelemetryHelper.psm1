@@ -1,5 +1,6 @@
 . (Join-Path -Path $PSScriptRoot -ChildPath ".\AL-Go-Helper.ps1" -Resolve)
 
+#region Loading telemetry helper
 function DownloadNugetPackage($PackageName, $PackageVersion) {
     $nugetPackagePath = Join-Path "$ENV:GITHUB_WORKSPACE" "/.nuget/packages/$PackageName/$PackageVersion/"
 
@@ -41,7 +42,9 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 
     return $TelemetryClient
 }
+#endregion
 
+#region Helper functions
 function GetActionName() {
     if ($null -eq $ENV:GITHUB_ACTION_PATH) {
         return ""
@@ -64,27 +67,9 @@ function GetAlGoVersion() {
         return $branch
     }
 }
+#endregion
 
-<#
-    .SYNOPSIS
-    Adds a telemetry event to the telemetry client
-
-    .DESCRIPTION
-    Adds a telemetry event to the telemetry client
-
-    .PARAMETER Message
-    The message to log to telemetry
-
-    .PARAMETER Data
-    Additional data to log to telemetry
-
-    .PARAMETER Severity
-    The severity of the telemetry event
-
-    .EXAMPLE
-    Add-TelemetryEvent -Message "AL-Go action ran" -Severity 'Information' -Data @{'WorkflowName' = 'CI/CD'}
-#>
-function Add-TelemetryEvent()
+function AddTelemetryEvent()
 {
     param(
         [Parameter(Mandatory = $true)]
@@ -160,7 +145,7 @@ function Trace-Information() {
         $Message = "AL-Go action ran: $(GetActionName)"
     }
 
-    Add-TelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
+    AddTelemetryEvent -Message $Message -Severity 'Information' -Data $AdditionalData
 }
 
 <#
@@ -188,7 +173,7 @@ function Trace-Exception() {
     }
 
     $Message = "AL-Go action failed: $(GetActionName)"
-    Add-TelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
+    AddTelemetryEvent -Message $Message -Severity 'Error' -Data $AdditionalData
 }
 
 <#
