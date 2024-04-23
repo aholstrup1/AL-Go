@@ -50,14 +50,13 @@ function GetActionName() {
 }
 
 function GetAlGoVersion() {
-    Write-Host "Getting AL-Go version..."
-    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
-    $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
-    $branch = $ap[$ap.Count-2]
-    $owner = $ap[$ap.Count-4]
+    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
+        return ""
+    }
 
-    Write-Host "Branch: $branch"
-    Write-Host "Owner: $owner"
+    $actionPath = "$ENV:GITHUB_ACTION_PATH".Split('\')
+    $branch = $actionPath[$actionPath.Count-2]
+    $owner = $actionPath[$actionPath.Count-4]
 
     if ($owner -ne "microsoft") {
         $verstr = "Developer/Private"
@@ -104,14 +103,7 @@ function Add-TelemetryEvent()
         Add-TelemetryData -Hashtable $Data -Key 'BcContainerHelperVersion' -Value ((Get-Module BcContainerHelper).Version.ToString())
     }
 
-    ### Add GitHub Actions information
-    if ($null -ne $ENV:GITHUB_ACTION_PATH)
-    {
-        $actionPath = $ENV:GITHUB_ACTION_PATH.Substring($ENV:GITHUB_ACTION_PATH.IndexOf('AL-Go')) -replace '\\', '/'
-        Add-TelemetryData -Hashtable $Data -Key 'ActionPath' -Value $actionPath
-        Add-TelemetryData -Hashtable $Data -Key 'ALGoVersion' -Value (GetAlGoVersion)
-    }
-
+    Add-TelemetryData -Hashtable $Data -Key 'ALGoVersion' -Value (GetAlGoVersion)
     Add-TelemetryData -Hashtable $Data -Key 'WorkflowName' -Value $ENV:GITHUB_WORKFLOW
     Add-TelemetryData -Hashtable $Data -Key 'RunnerOs' -Value $ENV:RUNNER_OS
     Add-TelemetryData -Hashtable $Data -Key 'RunId' -Value $ENV:GITHUB_RUN_ID
