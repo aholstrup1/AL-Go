@@ -12,8 +12,17 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: run
+    - name: Workflow succeeded
       if: ${{ success() }}
+      id: success
+      run: |
+        echo "Workflow succeeded"
+    - name: Workflow failed
+      if: ${{ failure() }}
+      id: failure
+      run: |
+        echo "Workflow failed"
+    - name: run
       shell: ${{ inputs.shell }}
       env:
         _telemetryScopeJson: ${{ inputs.telemetryScopeJson }}
