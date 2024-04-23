@@ -1,24 +1,41 @@
 ﻿Param(
     [Parameter(HelpMessage = "Telemetry scope generated during the workflow initialization", Mandatory = $false)]
-    [string] $telemetryScopeJson = ''
+    [string] $telemetryScopeJson = '',
+    [Parameter(HelpMessage = "The current job context", Mandatory = $false)]
+    [string] $currentJobContext = ''
 )
 
-function LogWorkflowEnd($TelemetryScopeJson) {
+function GetWorkflowConclusion($JobContext) {
+    # Check the conclusion for the current job
+    if ($JobContext -ne '') {
+        $jobContext = $JobContext | ConvertFrom-Json
+        if ($jobContext.status -eq 'failure') {
+            return "Failure"
+        }
+    }
+
+    # Check the conclusion for the past jobs in the workflow
+    $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
+    if ($null -ne $workflowJobs) {
+        $failedJobs = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
+        if ($null -ne $failedJobs) {
+            return "Failure"
+        }
+    }
+
+    return "Success"
+}
+
+function LogWorkflowEnd($TelemetryScopeJson, $JobContext) {
     [System.Collections.Generic.Dictionary[[System.String], [System.String]]] $AdditionalData = @{}
     $telemetryScope = $null
     if ($TelemetryScopeJson -ne '') {
         $telemetryScope = $TelemetryScopeJson | ConvertFrom-Json
     }
 
-    # Calculate the workflow conclusion using the github api
-    $workflowJobs = gh api /repos/$ENV:GITHUB_REPOSITORY/actions/runs/$ENV:GITHUB_RUN_ID/jobs -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" | ConvertFrom-Json
-    if ($null -ne $workflowJobs) {
-        $failedJobs = $workflowJobs.jobs | Where-Object { $_.conclusion -eq "failure" }
-        if ($null -eq $failedJobs) {
-            $workflowConclusion = "Success"
-        } else {
-            $workflowConclusion = "Failure"
-        }
+    # Get the workflow conclusion
+    $workflowConclusion = GetWorkflowConclusion -JobContext $JobContext
+    if ($workflowConclusion -ne '') {
         Add-TelemetryData -Hashtable $AdditionalData -Key 'WorkflowConclusion' -Value $workflowConclusion
     }
 

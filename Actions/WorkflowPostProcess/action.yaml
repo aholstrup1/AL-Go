@@ -9,29 +9,22 @@ inputs:
     description: Telemetry scope generated during the workflow initialization
     required: false
     default: '7b7d'
+  currentJobContext:
+    description: Job context
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
-    - name: Workflow succeeded
-      shell: ${{ inputs.shell }}
-      if: ${{ success() }}
-      id: success
-      run: |
-        echo "Workflow succeeded"
-    - name: Workflow failed
-      shell: ${{ inputs.shell }}
-      if: ${{ failure() }}
-      id: failure
-      run: |
-        echo "Workflow failed"
     - name: run
       shell: ${{ inputs.shell }}
       env:
         _telemetryScopeJson: ${{ inputs.telemetryScopeJson }}
+        _currentJobContext: ${{ inputs.currentJobContext }}
       run: |
         $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
         try {
-          ${{ github.action_path }}/WorkflowPostProcess.ps1 -telemetryScopeJson $ENV:_telemetryScopeJson
+          ${{ github.action_path }}/WorkflowPostProcess.ps1 -telemetryScopeJson $ENV:_telemetryScopeJson -currentJobContext $ENV:_currentJobContext
         }
         catch {
           Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
