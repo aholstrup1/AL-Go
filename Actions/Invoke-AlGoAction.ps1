@@ -9,7 +9,7 @@ Set-StrictMode -Version 2.0
 Import-Module (Join-Path -path $PSScriptRoot -ChildPath "TelemetryHelper.psm1" -Resolve)
 
 try {
-    $Action.Invoke()
+    Invoke-Command -ScriptBlock $Action
 
     # Log telemetry
     Trace-Information
