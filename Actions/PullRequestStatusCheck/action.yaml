@@ -11,12 +11,9 @@ runs:
     - name: run
       shell: ${{ inputs.shell }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/PullRequestStatusCheck.ps1
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

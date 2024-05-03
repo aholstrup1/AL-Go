@@ -22,12 +22,9 @@ runs:
         _telemetryScopeJson: ${{ inputs.telemetryScopeJson }}
         _currentJobContext: ${{ inputs.currentJobContext }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/WorkflowPostProcess.ps1 -telemetryScopeJson $ENV:_telemetryScopeJson -currentJobContext $ENV:_currentJobContext
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

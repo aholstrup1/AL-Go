@@ -39,12 +39,9 @@ runs:
         _type: ${{ inputs.type }}
         _deploymentEnvironmentsJson: ${{ inputs.deploymentEnvironmentsJson }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/Deploy.ps1 -token $ENV:_token -environmentName $ENV:_environmentName -artifacts $ENV:_artifacts -type $ENV:_type -deploymentEnvironmentsJson $ENV:_deploymentEnvironmentsJson
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

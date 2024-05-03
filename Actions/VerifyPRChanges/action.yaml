@@ -27,12 +27,9 @@ runs:
         _prBaseRepository: ${{ inputs.prBaseRepository }}
         _pullRequestId: ${{ inputs.pullRequestId }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/VerifyPRChanges.ps1 -token $ENV:_token -prBaseRepository $ENV:_prBaseRepository -pullRequestId $ENV:_pullRequestId
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

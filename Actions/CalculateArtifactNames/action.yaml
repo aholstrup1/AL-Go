@@ -60,12 +60,9 @@ runs:
         _buildMode: ${{ inputs.buildMode }}
         _suffix: ${{ inputs.suffix }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/CalculateArtifactNames.ps1 -project $ENV:_project -buildMode $ENV:_buildMode -suffix $ENV:_suffix
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

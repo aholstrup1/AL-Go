@@ -21,12 +21,9 @@ runs:
         _token: ${{ inputs.token }}
         _artifacts: ${{ inputs.artifacts }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/BuildReferenceDocumentation.ps1 -token $ENV:_token -artifacts $ENV:_artifacts
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

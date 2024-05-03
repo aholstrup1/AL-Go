@@ -35,12 +35,9 @@ runs:
       env:
         _maxBuildDepth: ${{ inputs.maxBuildDepth }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/DetermineProjectsToBuild.Action.ps1 -baseFolder ${{ github.workspace }} -maxBuildDepth $env:_maxBuildDepth -token ${{ github.token }}
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

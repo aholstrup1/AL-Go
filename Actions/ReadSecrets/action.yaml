@@ -32,12 +32,9 @@ runs:
         _getSecrets: ${{ inputs.getSecrets }}
         _useGhTokenWorkflowForPush: ${{ inputs.useGhTokenWorkflowForPush }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/ReadSecrets.ps1 -gitHubSecrets '${{ inputs.gitHubSecrets }}' -getSecrets $ENV:_getSecrets -useGhTokenWorkflowForPush $ENV:_useGhTokenWorkflowForPush
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue
