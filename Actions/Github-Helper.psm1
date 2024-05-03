@@ -1081,3 +1081,23 @@ function DownloadArtifact {
     InvokeWebRequest -Headers $headers -Uri $artifact.archive_download_url -OutFile $outFile
     $outFile
 }
+
+function Get-ActionOwner() {
+    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
+        return ""
+    }
+
+    $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
+    return $ap[$ap.Count - 4]
+}
+
+function Get-ActionBranch() {
+    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
+        return ""
+    }
+
+    $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
+    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
+    Write-Host "Action branch: $($ap[$ap.Count - 2])"
+    return $ap[$ap.Count - 2]
+} 
