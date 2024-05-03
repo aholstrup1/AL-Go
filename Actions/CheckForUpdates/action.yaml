@@ -50,12 +50,9 @@ runs:
         _updateBranch: ${{ inputs.updateBranch }}
         _directCommit: ${{ inputs.directCommit }}
       run: |
-        $algoAction = [scriptblock] { 
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action {
           ${{ github.action_path }}/CheckForUpdates.ps1 -actor $ENV:_actor -token $ENV:_token -templateUrl $ENV:_templateUrl -downloadLatest ($ENV:_downloadLatest -eq 'true') -update $ENV:_update -updateBranch $ENV:_updateBranch -directCommit ($ENV:_directCommit -eq 'true')
         }
-
-        # Run the script block
-        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue
