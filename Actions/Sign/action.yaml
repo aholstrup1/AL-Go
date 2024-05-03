@@ -30,14 +30,12 @@ runs:
         _timestampService: ${{ inputs.timestampService }}
         _digestAlgorithm: ${{ inputs.digestAlgorithm }}
       run: |
-        $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
-        try {
+        $algoAction = [scriptblock] { 
           ${{ github.action_path }}/Sign.ps1 -AzureCredentialsJson $ENV:_azureCredentialsJson -PathToFiles $ENV:_pathToFiles -TimestampService $ENV:_timestampService -digestAlgorithm $ENV:_digestAlgorithm
         }
-        catch {
-          Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
-          exit 1
-        }
+
+        # Run the script block
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue

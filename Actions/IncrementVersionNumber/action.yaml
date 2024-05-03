@@ -44,14 +44,12 @@ runs:
         _updateBranch: ${{ inputs.updateBranch }}
         _directCommit: ${{ inputs.directCommit }}
       run: |
-        $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
-        try {
+        $algoAction = [scriptblock] { 
           ${{ github.action_path }}/IncrementVersionNumber.ps1 -actor $ENV:_actor -token $ENV:_token -projects $ENV:_projects -versionNumber $ENV:_versionNumber -updateBranch $ENV:_updateBranch -directCommit ($ENV:_directCommit -eq 'true')
         }
-        catch {
-          Write-Host "::ERROR::Unexpected error when running action. Error Message: $($_.Exception.Message.Replace("`r",'').Replace("`n",' ')), StackTrace: $($_.ScriptStackTrace.Replace("`r",'').Replace("`n",' <- '))";
-          exit 1
-        }
+
+        # Run the script block
+        ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -Action $algoAction
 branding:
   icon: terminal
   color: blue
