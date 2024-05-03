@@ -1097,7 +1097,5 @@ function Get-ActionBranch() {
     }
 
     $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
-    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
-    Write-Host "Action branch: $($ap[$ap.Count - 2])"
     return $ap[$ap.Count - 2]
 } 
