@@ -18,6 +18,8 @@
     Write-Big -str "a$verstr"
 }
 
+Write-Host "Action path: $($ENV:GITHUB_ACTION_PATH)"
+
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-TestRepoHelper.ps1" -Resolve)
 
