@@ -8,6 +8,10 @@ Param(
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-TestRepoHelper.ps1" -Resolve)
 
+# Print all env variables that start with GITHUB 
+$env | Where-Object { $_.Key -like 'GITHUB_*' } | ForEach-Object { Write-Host "$($_.Key)=$($_.Value)" }
+
+
 if ($actionsRepo -eq 'microsoft/AL-Go-Actions') {
     Write-Host "Using AL-Go for GitHub $actionsRef"
     $verstr = $actionsRef
