@@ -46,14 +46,16 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 #endregion
 
 #region Helper functions
+<#
+    .DESCRIPTION
+    Get the action name from the GITHUB_ACTION_PATH environment variable
+    The assumption is that the action name is the last part of the path after the last slash
+#>
 function GetActionName() {
-    Write-Host "GITHUB_ACTION: $ENV:GITHUB_ACTION"
-    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
-    return $ENV:GITHUB_ACTION
-    <#if ($null -eq $ENV:GITHUB_ACTION_PATH) {
+    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
         return ""
     }
-    return $ENV:GITHUB_ACTION_PATH.Split("/\")[-1]#>
+    return $ENV:GITHUB_ACTION_PATH.Split("/\")[-1]
 }
 #endregion
 
