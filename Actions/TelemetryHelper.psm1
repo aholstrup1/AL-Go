@@ -48,6 +48,7 @@ function Get-ApplicationInsightsTelemetryClient($TelemetryConnectionString)
 #region Helper functions
 function GetActionName() {
     Write-Host "GITHUB_ACTION: $ENV:GITHUB_ACTION"
+    Write-Host "GITHUB_ACTION_PATH: $ENV:GITHUB_ACTION_PATH"
     return $ENV:GITHUB_ACTION
     <#if ($null -eq $ENV:GITHUB_ACTION_PATH) {
         return ""
