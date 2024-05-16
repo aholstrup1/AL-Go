@@ -54,7 +54,9 @@ function GetActionName() {
 }
 
 function GetAlGoVersion() {
-    if ((Get-ActionOwner) -ne "microsoft") {
+    if ($ENV:GITHUB_REPOSITORY -eq "microsoft/AL-Go") {
+        return "Preview"
+    } elseif($ENV:GITHUB_REPOSITORY -notlike "microsoft/*") {
         return "Developer/Private"
     } else {
         return Get-ActionBranch
