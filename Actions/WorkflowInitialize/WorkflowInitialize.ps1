@@ -8,9 +8,6 @@ Param(
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-TestRepoHelper.ps1" -Resolve)
 
-Write-Host "Action Ref: $($env:GITHUB_ACTION_REF)"
-
-
 if ($actionsRepo -eq 'microsoft/AL-Go-Actions') {
     Write-Host "Using AL-Go for GitHub $actionsRef"
     $verstr = $actionsRef

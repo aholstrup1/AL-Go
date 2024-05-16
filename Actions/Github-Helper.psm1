@@ -1098,12 +1098,3 @@ function DownloadArtifact {
         return $filename
     }
 }
-
-function Get-ActionBranch() {
-    if ($null -eq $ENV:GITHUB_ACTION_PATH) {
-        return ""
-    }
-
-    $ap = "$ENV:GITHUB_ACTION_PATH".Split('\')
-    return $ap[$ap.Count - 2]
-}
