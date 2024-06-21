@@ -14,6 +14,10 @@ permissions:
   contents: read
   security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
 
+defaults:
+  run:
+    shell: pwsh
+
 jobs:
   build:
     name: PSScriptAnalyzer
@@ -34,3 +38,23 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
+
+  precommit:
+    name: PreCommit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v3
+
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --all-files
+
+      - name: Check secrets
+        id: check
+        run: |
+          # Verify that there are no unstage changes (in pwsh)
+          if (git diff --exit-code --name-only) {
+            throw "There are files that didn't pass the pre-commit checks. Please run 'pre-commit run --all-files' locally and fix the issues."
+          }
