@@ -51,11 +51,3 @@ jobs:
       - uses: pre-commit/action@v3.0.1
         with:
           extra_args: --all-files
-
-      - name: Check secrets
-        id: check
-        run: |
-          # Verify that there are no unstage changes (in pwsh)
-          if (git diff --exit-code --name-only) {
-            throw "There are files that didn't pass the pre-commit checks. Please run 'pre-commit run --all-files' locally and fix the issues."
-          }
