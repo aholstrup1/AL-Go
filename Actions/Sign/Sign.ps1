@@ -11,7 +11,9 @@ param(
 )
 
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
+Import-Module (Join-Path -path $PSScriptRoot -ChildPath "..\TelemetryHelper.psm1" -Resolve)
 Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "Sign.psm1" -Resolve)
+DownloadAndImportBcContainerHelper
 
 $Files = Get-ChildItem -Path $PathToFiles -File | Select-Object -ExpandProperty FullName
 if (-not $Files) {
@@ -37,15 +39,25 @@ elseif ($AzureCredentials.PSobject.Properties.name -eq "keyVaultName") {
 else {
     throw "KeyVaultName is not specified in AzureCredentials nor in settings. Please specify it in one of them."
 }
+
+$AzureCredentialParams = @{
+    "ClientId" = $AzureCredentials.clientId
+    "TenantId" = $AzureCredentials.tenantId
+}
+if ($AzureCredentials.PSobject.Properties.name -eq "clientSecret") {
+    $AzureCredentialParams += @{
+        "ClientSecret" = $AzureCredentials.clientSecret
+    }
+}
+InstallAzModuleIfNeeded -name 'Az.Accounts'
+ConnectAz -azureCredentials $AzureCredentialParams
+
 $description = "Signed with AL-Go for GitHub"
 $descriptionUrl = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
 
 Write-Host "::group::Signing files"
-Invoke-SigningTool -KeyVaultName $AzureKeyVaultName `
+Invoke-SigningTool @AzureCredentialParams -KeyVaultName $AzureKeyVaultName `
     -CertificateName $settings.keyVaultCodesignCertificateName `
-    -ClientId $AzureCredentials.clientId `
-    -ClientSecret $AzureCredentials.clientSecret `
-    -TenantId $AzureCredentials.tenantId `
     -FilesToSign $PathToFiles `
     -Description $description `
     -DescriptionUrl $descriptionUrl `
