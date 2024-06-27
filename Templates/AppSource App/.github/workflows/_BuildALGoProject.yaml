@@ -1,6 +1,6 @@
-name: '_Build AL-GO project'
+name: '_Build AL-Go project'
 
-run-name: 'Build project ${{ inputs.project }}'
+run-name: 'Build ${{ inputs.project }}'
 
 on:
   workflow_call:
@@ -11,13 +11,13 @@ on:
         default: powershell
         type: string
       runsOn:
-        description: JSON-formatted string og the types of machine to run the build job on
+        description: JSON-formatted string of the types of machine to run the build job on
         required: true
         type: string
       checkoutRef:
         description: Ref to checkout
         required: false
-        default: ${{ github.ref }}
+        default: ${{ github.sha }}
         type: string
       project:
         description: Name of the built project
@@ -71,6 +71,7 @@ on:
 permissions:
   contents: read
   actions: read
+  id-token: write
 
 env:
   ALGoOrgSettings: ${{ vars.ALGoOrgSettings }}
@@ -105,7 +106,7 @@ jobs:
         with:
           shell: ${{ inputs.shell }}
           gitHubSecrets: ${{ toJson(secrets) }}
-          getSecrets: '${{ inputs.secrets }},appDependencyProbingPathsSecrets'
+          getSecrets: '${{ inputs.secrets }},appDependencyProbingPathsSecrets,AZURE_CREDENTIALS'
 
       - name: Determine ArtifactUrl
         uses: microsoft/AL-Go-Actions/DetermineArtifactUrl@main
@@ -152,7 +153,7 @@ jobs:
         uses: microsoft/AL-Go-Actions/Sign@main
         with:
           shell: ${{ needs.Initialization.outputs.githubRunnerShell }}
-          azureCredentialsJson: ${{ secrets.AZURE_CREDENTIALS }}
+          azureCredentialsJson: '${{ fromJson(steps.ReadSecrets.outputs.Secrets).AZURE_CREDENTIALS }}'
           pathToFiles: '${{ inputs.project }}/.buildartifacts/Apps/*.app'
 
       - name: Calculate Artifact names

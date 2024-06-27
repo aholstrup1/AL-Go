@@ -1,6 +1,6 @@
 ﻿[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Justification = 'GitHub Secrets are transferred as plain text')]
 param(
-    [Parameter(HelpMessage = "Azure Credentials secret", Mandatory = $true)]
+    [Parameter(HelpMessage = "Azure Credentials secret (Base 64 encoded)", Mandatory = $true)]
     [string] $AzureCredentialsJson,
     [Parameter(HelpMessage = "The path to the files to be signed", Mandatory = $true)]
     [String] $PathToFiles,
@@ -18,6 +18,51 @@ if (-not $Files) {
     Write-Host "No files to sign. Exiting."
     return
 }
+
+Write-Host "::group::Files to be signed"
+$Files | ForEach-Object {
+    Write-Host "- $_"
+}
+Write-Host "::endgroup::"
+
+# Get parameters for signing
+$AzureCredentials = ConvertFrom-Json ([System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($AzureCredentialsJson)))
+$settings = $env:Settings | ConvertFrom-Json
+if ($settings.keyVaultName) {
+    $AzureKeyVaultName = $settings.keyVaultName
+}
+elseif ($AzureCredentials.PSobject.Properties.name -eq "keyVaultName") {
+    $AzureKeyVaultName = $AzureCredentials.keyVaultName
+}
+else {
+    throw "KeyVaultName is not specified in AzureCredentials nor in settings. Please specify it in one of them."
+}
+
+$AzureCredentialParams = @{
+    "ClientId" = $AzureCredentials.clientId
+    "TenantId" = $AzureCredentials.tenantId
+}
+if ($AzureCredentials.PSobject.Properties.name -eq "clientSecret") {
+    $AzureCredentialParams += @{
+        "ClientSecret" = $AzureCredentials.clientSecret
+    }
+}
+InstallAzModuleIfNeeded -name 'Az.Accounts'
+ConnectAz -azureCredentials $AzureCredentialParams
+
+$description = "Signed with AL-Go for GitHub"
+$descriptionUrl = "$ENV:GITHUB_SERVER_URL/$ENV:GITHUB_REPOSITORY"
+
+Write-Host "::group::Signing files"
+Invoke-SigningTool @AzureCredentialParams -KeyVaultName $AzureKeyVaultName `
+    -CertificateName $settings.keyVaultCodesignCertificateName `
+    -FilesToSign $PathToFiles `
+    -Description $description `
+    -DescriptionUrl $descriptionUrl `
+    -TimestampService $TimestampService `
+    -DigestAlgorithm $digestAlgorithm `
+    -Verbosity "Information"
+Write-Host "::endgroup::"
 
 Write-Host "::group::Files to be signed"
 $Files | ForEach-Object {
