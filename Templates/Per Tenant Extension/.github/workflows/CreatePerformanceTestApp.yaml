@@ -61,7 +61,7 @@ jobs:
           shell: powershell
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Initialize the workflow
         id: init

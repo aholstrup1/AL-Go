@@ -78,7 +78,7 @@ jobs:
           shell: powershell
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Initialize the workflow
         id: init
@@ -244,7 +244,7 @@ jobs:
       fail-fast: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@main
@@ -322,7 +322,7 @@ jobs:
     runs-on: [ windows-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
         with:
           ref: '${{ needs.createRelease.outputs.commitish }}'
 
@@ -345,7 +345,7 @@ jobs:
     runs-on: [ windows-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@main
@@ -376,7 +376,7 @@ jobs:
     runs-on: [ windows-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Finalize the workflow
         id: PostProcess

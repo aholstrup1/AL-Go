@@ -50,7 +50,7 @@ jobs:
           shell: powershell
 
       - name: Checkout
-        uses: actions/checkout@722adc63f1aa60a57ec37892e133b1d319cae598 # v2.0.0
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           lfs: true
 
@@ -127,7 +127,7 @@ jobs:
     runs-on: [ windows-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Read settings
         uses: microsoft/AL-Go-Actions/ReadSettings@main
@@ -195,7 +195,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -241,7 +241,7 @@ jobs:
       url: ${{ steps.Deploy.outputs.environmentUrl }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -303,7 +303,7 @@ jobs:
     name: Deliver to ${{ matrix.deliveryTarget }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -340,7 +340,7 @@ jobs:
     runs-on: [ windows-latest ]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.7
 
       - name: Finalize the workflow
         id: PostProcess
