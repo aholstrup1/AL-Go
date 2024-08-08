@@ -1803,13 +1803,7 @@ function CreateDevEnv {
                 }
                 if ($containerName) {
                     $runAlPipelineParams += @{
-                        "updateLaunchJson" = "Local Sandbox ($containerName)"
                         "containerName"    = $containerName
-                    }
-                }
-                else {
-                    $runAlPipelineParams += @{
-                        "updateLaunchJson" = "Local Sandbox"
                     }
                 }
             }
@@ -1866,7 +1860,6 @@ function CreateDevEnv {
                     "bcAuthContext"    = $authContext
                     "environment"      = $environmentName
                     "containerName"    = "bcServerFilesOnly"
-                    "updateLaunchJson" = "Cloud Sandbox ($environmentName)"
                 }
             }
 
