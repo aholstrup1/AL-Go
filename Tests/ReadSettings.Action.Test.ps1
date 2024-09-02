@@ -21,8 +21,6 @@ Describe "ReadSettings Action Tests" {
         $permissions = [ordered]@{
         }
         $outputs = [ordered]@{
-            "GitHubRunnerJson" = "GitHubRunner in compressed Json format"
-            "GitHubRunnerShell" = "Shell for GitHubRunner jobs"
         }
         YamlTest -scriptRoot $scriptRoot -actionName $actionName -actionScript $actionScript -permissions $permissions -outputs $outputs
     }

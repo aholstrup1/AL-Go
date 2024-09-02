@@ -69,11 +69,3 @@ $settings.Keys | ForEach-Object {
 Write-Host "SETTINGS:"
 $outSettings | ConvertTo-Json -Depth 99 | Out-Host
 Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "Settings=$($outSettings | ConvertTo-Json -Depth 99 -Compress)"
-
-$gitHubRunner = $settings.githubRunner.Split(',').Trim() | ConvertTo-Json -compress
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerJson=$githubRunner"
-Write-Host "GitHubRunnerJson=$githubRunner"
-
-$gitHubRunnerShell = $settings.githubRunnerShell
-Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerShell=$githubRunnerShell"
-Write-Host "GitHubRunnerShell=$githubRunnerShell"

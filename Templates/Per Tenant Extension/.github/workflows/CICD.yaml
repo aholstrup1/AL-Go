@@ -36,8 +36,8 @@ jobs:
       generateALDocArtifact: ${{ steps.DetermineDeploymentEnvironments.outputs.GenerateALDocArtifact }}
       deployALDocArtifact: ${{ steps.DetermineDeploymentEnvironments.outputs.DeployALDocArtifact }}
       deliveryTargetsJson: ${{ steps.DetermineDeliveryTargets.outputs.DeliveryTargetsJson }}
-      githubRunner: ${{ steps.ReadSettings.outputs.GitHubRunnerJson }}
-      githubRunnerShell: ${{ steps.ReadSettings.outputs.GitHubRunnerShell }}
+      githubRunner: ${{ steps.DeterminePowerPlatformSolutionFolder.outputs.GitHubRunnerJson }}
+      githubRunnerShell: ${{ steps.DeterminePowerPlatformSolutionFolder.outputs.GitHubRunnerShell }}
       projects: ${{ steps.determineProjectsToBuild.outputs.ProjectsJson }}
       projectDependenciesJson: ${{ steps.determineProjectsToBuild.outputs.ProjectDependenciesJson }}
       buildOrderJson: ${{ steps.determineProjectsToBuild.outputs.BuildOrderJson }}
@@ -83,6 +83,12 @@ jobs:
         id: DeterminePowerPlatformSolutionFolder
         if: env.type == 'PTE'
         run: |
+          $settings = $env:Settings | ConvertFrom-Json
+          $gitHubRunner = $settings.githubRunner.Split(',').Trim() | ConvertTo-Json -compress
+          $gitHubRunnerShell = $settings.githubRunnerShell
+
+          Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerJson=$githubRunner"
+          Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "GitHubRunnerShell=$githubRunnerShell"
           Add-Content -Encoding UTF8 -Path $env:GITHUB_OUTPUT -Value "powerPlatformSolutionFolder=$($env:powerPlatformSolutionFolder)"
 
       - name: Determine Delivery Target Secrets

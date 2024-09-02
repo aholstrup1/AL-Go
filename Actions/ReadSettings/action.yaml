@@ -13,13 +13,6 @@ inputs:
     description: Specifies which properties to get from the settings file, default is all
     required: false
     default: ''
-outputs:
-  GitHubRunnerJson:
-    description: GitHubRunner in compressed Json format
-    value: ${{ steps.readsettings.outputs.GitHubRunnerJson }}
-  GitHubRunnerShell:
-    description: Shell for GitHubRunner jobs
-    value: ${{ steps.readsettings.outputs.GitHubRunnerShell }}
 runs:
   using: composite
   steps:

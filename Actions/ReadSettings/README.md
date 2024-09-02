@@ -29,7 +29,4 @@ none
 
 ### OUTPUT variables
 
-| Name | Description |
-| :-- | :-- |
-| GitHubRunnerJson | GitHubRunner in compressed Json format |
-| GitHubRunnerShell | Shell for GitHubRunner jobs |
+none
