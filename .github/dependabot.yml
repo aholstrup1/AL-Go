@@ -6,7 +6,7 @@ updates:
   directories:
     - ".github/workflows/"
     - "/Templates/**/.github/workflows/"
-    - "Actions/**/"
+    - "/Actions/**/"
   groups:
     External-Dependencies:
       applies-to: version-updates
