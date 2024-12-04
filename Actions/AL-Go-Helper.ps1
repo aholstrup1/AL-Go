@@ -661,6 +661,7 @@ function ReadSettings {
             "defaultReleaseMD"                          = "## Release reference documentation\n\nThis is the generated reference documentation for [{REPOSITORY}](https://github.com/{REPOSITORY}).\n\nYou can use the navigation bar at the top and the table of contents to the left to navigate your documentation.\n\nYou can change this content by creating/editing the **{INDEXTEMPLATERELATIVEPATH}** file in your repository or use the alDoc:defaultReleaseMD setting in your repository settings file (.github/AL-Go-Settings.json)\n\n{RELEASENOTES}"
         }
         "trustMicrosoftNuGetFeeds"                      = $true
+        "commitMessagePrefix"                           = ""
         "trustedSigning"                                = [ordered]@{
             "Endpoint"                                  = ""
             "Account"                                   = ""
@@ -1353,6 +1354,12 @@ function CommitFromNewFolder {
     invoke-git add *
     $status = invoke-git -returnValue status --porcelain=v1
     if ($status) {
+        $settings = ReadSettings
+        if ($settings.PSObject.Properties.Name -eq "commitMessagePrefix") {
+            # Add the prefix followed by a new line to the commit message
+            $commitMessage = "$($settings.commitMessagePrefix)`n$commitMessage"
+        }
+
         if ($commitMessage.Length -gt 250) {
             $commitMessage = "$($commitMessage.Substring(0,250))...)"
         }
