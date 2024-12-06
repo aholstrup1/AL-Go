@@ -662,6 +662,8 @@ function ReadSettings {
         }
         "trustMicrosoftNuGetFeeds"                      = $true
         "commitMessageSuffix"                           = ""
+        "PRLabels"                                      = @()
+        "commitAutoMerge"                               = $false
         "trustedSigning"                                = [ordered]@{
             "Endpoint"                                  = ""
             "Account"                                   = ""
