@@ -1399,7 +1399,7 @@ function CommitFromNewFolder {
             if ($settings.PRLabels) {
                 $labels = "$($settings.PRLabels -join ",")"
                 Write-Host "Adding labels: $labels"
-                invoke-gh pr edit --add-label $labels
+                #invoke-gh pr edit --add-label $labels
             }
 
             if ($settings.commitAutoMerge) {
