@@ -1394,11 +1394,13 @@ function CommitFromNewFolder {
         }
         invoke-git push -u $serverUrl $branch
         try {
-            $labels = ""
+            invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body "$body"
+
             if ($settings.PRLabels) {
                 $labels = "$($settings.PRLabels -join ",")"
+                Write-Host "Adding labels: $labels"
+                invoke-gh pr edit --add-label $labels
             }
-            invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body "$body" --label $labels
 
             if ($settings.commitAutoMerge) {
                 invoke-gh pr merge --auto --squash --delete-branch
