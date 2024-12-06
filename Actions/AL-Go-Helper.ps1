@@ -1357,9 +1357,8 @@ function CommitFromNewFolder {
         $settings = ReadSettings
         if ($settings.commitMessagePrefix) {
             # Add the prefix followed by a new line to the commit message
-            $commitMessage = "$($settings.commitMessagePrefix)`n$commitMessage"
-        } else {
-            $commitMessage = "[No Prefix]`n$commitMessage"
+            $commitMessage = "$commitMessage [$($settings.commitMessagePrefix)]"
+            $body = "$body`n$($settings.commitMessagePrefix)"
         }
 
         if ($commitMessage.Length -gt 250) {
