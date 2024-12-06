@@ -1393,7 +1393,7 @@ function CommitFromNewFolder {
         invoke-git push -u $serverUrl $branch
         try {
             if ($settings.PRLabels) {
-                $labels = "$($settings.PRLabels -join ",")"
+                $labels = "Automation" #"$($settings.PRLabels -join ",")"
             }
             invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body "$body" --label $labels
 
@@ -1402,6 +1402,7 @@ function CommitFromNewFolder {
             }
         }
         catch {
+            throw $_.Exception.Message
             OutputError("GitHub actions are not allowed to create Pull Requests (see GitHub Organization or Repository Actions Settings). You can create the PR manually by navigating to $($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/tree/$branch")
         }
         return $true
