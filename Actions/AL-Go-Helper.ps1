@@ -1394,8 +1394,9 @@ function CommitFromNewFolder {
         }
         invoke-git push -u $serverUrl $branch
         try {
+            $labels = ""
             if ($settings.PRLabels) {
-                $labels = "Automation" #"$($settings.PRLabels -join ",")"
+                $labels = "$($settings.PRLabels -join ",")"
             }
             invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body "$body" --label $labels
 
