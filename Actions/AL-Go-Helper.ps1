@@ -661,7 +661,7 @@ function ReadSettings {
             "defaultReleaseMD"                          = "## Release reference documentation\n\nThis is the generated reference documentation for [{REPOSITORY}](https://github.com/{REPOSITORY}).\n\nYou can use the navigation bar at the top and the table of contents to the left to navigate your documentation.\n\nYou can change this content by creating/editing the **{INDEXTEMPLATERELATIVEPATH}** file in your repository or use the alDoc:defaultReleaseMD setting in your repository settings file (.github/AL-Go-Settings.json)\n\n{RELEASENOTES}"
         }
         "trustMicrosoftNuGetFeeds"                      = $true
-        "commitMessagePrefix"                           = ""
+        "commitMessageSuffix"                           = ""
         "trustedSigning"                                = [ordered]@{
             "Endpoint"                                  = ""
             "Account"                                   = ""
@@ -1354,16 +1354,23 @@ function CommitFromNewFolder {
     invoke-git add *
     $status = invoke-git -returnValue status --porcelain=v1
     if ($status) {
-        $settings = ReadSettings
         $title = $commitMessage
-        if ($settings.commitMessagePrefix) {
-            $commitMessage = "$commitMessage [$($settings.commitMessagePrefix)]"
-            $body = "$body`n$($settings.commitMessagePrefix)"
+
+        # Add commit message suffix if specified in settings
+        $settings = ReadSettings
+        if ($settings.commitMessageSuffix) {
+            $commitMessage = "$commitMessage [$($settings.commitMessageSuffix)]"
+            $body = "$body`n$($settings.commitMessageSuffix)"
         }
 
         if ($commitMessage.Length -gt 250) {
             $commitMessage = "$($commitMessage.Substring(0,250))...)"
         }
+
+        if ($title.Length -gt 250) {
+            $title = "$($title.Substring(0,250))...)"
+        }
+
         invoke-git commit --allow-empty -m "$commitMessage"
         $activeBranch = invoke-git -returnValue -silent name-rev --name-only HEAD
         # $branch is the name of the branch to be used when creating a Pull Request
