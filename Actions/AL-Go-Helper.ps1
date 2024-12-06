@@ -1359,7 +1359,7 @@ function CommitFromNewFolder {
         # Add commit message suffix if specified in settings
         $settings = ReadSettings
         if ($settings.commitMessageSuffix) {
-            $commitMessage = "$commitMessage [$($settings.commitMessageSuffix)]"
+            $commitMessage = "$commitMessage / $($settings.commitMessageSuffix)"
             $body = "$body`n$($settings.commitMessageSuffix)"
         }
 
