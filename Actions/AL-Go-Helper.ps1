@@ -1358,6 +1358,8 @@ function CommitFromNewFolder {
         if ($settings.PSObject.Properties.Name -eq "commitMessagePrefix") {
             # Add the prefix followed by a new line to the commit message
             $commitMessage = "$($settings.commitMessagePrefix)`n$commitMessage"
+        } else {
+            $commitMessage = "[No Prefix]"
         }
 
         if ($commitMessage.Length -gt 250) {
