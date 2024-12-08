@@ -1399,7 +1399,7 @@ function CommitFromNewFolder {
         }
         invoke-git push -u $serverUrl $branch
         try {
-            $prCreateCmd = "invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body ""$body"""
+            $prCreateCmd = "invoke-gh pr create --fill --title ""$title"" --head ""$branch"" --repo ""$env:GITHUB_REPOSITORY"" --base ""$ENV:GITHUB_REF_NAME"" --body ""$body"""
             if ($settings.commitOptions.commitPullRequestLabels) {
                 $labels = "$($settings.commitOptions.commitPullRequestLabels -join ",")"
                 Write-Host "Adding labels: $labels"
