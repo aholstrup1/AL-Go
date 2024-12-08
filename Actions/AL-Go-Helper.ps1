@@ -664,6 +664,11 @@ function ReadSettings {
         "commitMessageSuffix"                           = ""
         "PRLabels"                                      = @()
         "commitAutoMerge"                               = $false
+        "commitOptions"                                 = [ordered]@{
+            "commitMessageSuffix"                       = ""
+            "commitAutoMerge"                           = $false
+            "commitPullRequestLabels"                   = @()
+        }
         "trustedSigning"                                = [ordered]@{
             "Endpoint"                                  = ""
             "Account"                                   = ""
@@ -1362,9 +1367,9 @@ function CommitFromNewFolder {
 
         # Add commit message suffix if specified in settings
         $settings = ReadSettings
-        if ($settings.commitMessageSuffix) {
-            $commitMessage = "$commitMessage / $($settings.commitMessageSuffix)"
-            $body = "$body`n$($settings.commitMessageSuffix)"
+        if ($settings.commitOptions.commitMessageSuffix) {
+            $commitMessage = "$commitMessage / $($settings.commitOptions.commitMessageSuffix)"
+            $body = "$body`n$($settings.commitOptions.commitMessageSuffix)"
         }
 
         if ($commitMessage.Length -gt 250) {
@@ -1394,15 +1399,16 @@ function CommitFromNewFolder {
         }
         invoke-git push -u $serverUrl $branch
         try {
-            invoke-gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body "$body" --label "Approved"
-
-            if ($settings.PRLabels) {
-                $labels = "$($settings.PRLabels -join ",")"
+            $prCreateCmd = "gh pr create --fill --title $title --head $branch --repo $env:GITHUB_REPOSITORY --base $ENV:GITHUB_REF_NAME --body ""$body"""
+            if ($settings.commitOptions.pullRequestLabels) {
+                $labels = "$($settings.commitOptions.pullRequestLabels -join ",")"
                 Write-Host "Adding labels: $labels"
-                #invoke-gh pr edit --add-label $labels
+                $prCreateCmd += " --label ""$labels"""
             }
 
-            if ($settings.commitAutoMerge) {
+            Invoke-Expression $prCreateCmd
+
+            if ($settings.commitOptions.commitAutoMerge) {
                 invoke-gh pr merge --auto --squash --delete-branch
             }
         }
