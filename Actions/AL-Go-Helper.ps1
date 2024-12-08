@@ -1404,8 +1404,6 @@ function CommitFromNewFolder {
                 $prCreateCmd += " --label ""$labels"""
             }
 
-            Write-Host "Creating Pull Request"
-            Write-Host "Command: $prCreateCmd"
             Invoke-Expression $prCreateCmd
 
             if ($settings.commitOptions.commitAutoMerge) {
