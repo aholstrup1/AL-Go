@@ -36,12 +36,13 @@ function DownloadDependenciesFromCurrentBuild {
         $token
     )
     $settings = $env:Settings | ConvertFrom-Json | ConvertTo-HashTable -recurse
-    if ($settings.ContainsKey('useProjectDependencies') -and ($settings.useProjectDependencies -eq "False")) {
+    if ($settings.ContainsKey('useProjectDependencies') -and ($settings.useProjectDependencies -eq $false)) {
         Write-Host "Project dependencies are disabled for project '$project'. Skipping downloading dependencies."
         return @()
     } else {
         Write-Host "Project dependencies are enabled for project '$project'."
         Write-Host "$($settings.useProjectDependencies)"
+        return @()
     }
 
     Write-Host "Downloading dependencies for project '$project'"
