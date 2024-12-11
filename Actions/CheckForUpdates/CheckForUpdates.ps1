@@ -260,8 +260,6 @@ else {
         Write-Host "ReleaseNotes:"
         Write-Host $releaseNotes
 
-        Write-Host "Commit suffix: $commitMessageSuffix"
-
         if (!(CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commitMessage -branch $branch -body $releaseNotes -customSuffix $commitMessageSuffix)) {
             OutputWarning "No updates available for AL-Go for GitHub."
         }

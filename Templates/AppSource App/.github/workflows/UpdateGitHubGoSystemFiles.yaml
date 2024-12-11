@@ -72,7 +72,7 @@ jobs:
         with:
           shell: powershell
           token: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).ghTokenWorkflow }}
-          downloadLatest: ${{ env.downloadLatest }} ${{ fromJson(env.settings).inputs.downloadLatest || 'true' }}
+          downloadLatest: ${{ fromJson(env.settings).inputs.downloadLatest || 'true' }}
           update: 'Y'
           templateUrl: ${{ fromJson(env.settings).inputs.templateUrl || fromJson(env.settings).templateUrl }}
           directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
