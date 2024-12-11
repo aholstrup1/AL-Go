@@ -1375,7 +1375,8 @@ function CommitFromNewFolder {
         [string] $serverUrl,
         [string] $commitMessage,
         [string] $body = $commitMessage,
-        [string] $branch
+        [string] $branch,
+        [string] $customSuffix
     )
 
     invoke-git add *
@@ -1385,9 +1386,9 @@ function CommitFromNewFolder {
 
         # Add commit message suffix if specified in settings
         $settings = ReadSettings
-        if ($settings.commitOptions.messageSuffix) {
-            $commitMessage = "$commitMessage / $($settings.commitOptions.messageSuffix)"
-            $body = "$body`n$($settings.commitOptions.messageSuffix)"
+        if ($customSuffix) {
+            $commitMessage = "$commitMessage / $customSuffix"
+            $body = "$body`n$customSuffix"
         }
 
         if ($commitMessage.Length -gt 250) {
