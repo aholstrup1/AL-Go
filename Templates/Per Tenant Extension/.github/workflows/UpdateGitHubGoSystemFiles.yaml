@@ -15,6 +15,10 @@ on:
         description: Direct Commit?
         type: boolean
         default: false
+      commitMessageSuffix:
+        description: Commit Message Suffix
+        required: false
+        default: ''
 
 permissions:
   actions: read
@@ -72,6 +76,7 @@ jobs:
           update: 'Y'
           templateUrl: ${{ fromJson(env.settings).inputs.templateUrl || fromJson(env.settings).templateUrl }}
           directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
+          commitMessageSuffix: ${{ fromJson(env.settings).inputs.commitMessageSuffix || fromJson(env.settings).commitOptions.messageSuffix }}
 
       - name: Finalize the workflow
         if: always()
