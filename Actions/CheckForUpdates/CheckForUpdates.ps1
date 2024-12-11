@@ -12,7 +12,9 @@
     [Parameter(HelpMessage = "Set the branch to update", Mandatory = $false)]
     [string] $updateBranch,
     [Parameter(HelpMessage = "Direct Commit?", Mandatory = $false)]
-    [bool] $directCommit
+    [bool] $directCommit,
+    [Parameter(HelpMessage = "Suffix to add to the commit message", Mandatory = $false)]
+    [string] $commitMessageSuffix = ""
 )
 
 . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
@@ -257,6 +259,8 @@ else {
 
         Write-Host "ReleaseNotes:"
         Write-Host $releaseNotes
+
+        Write-Host "Commit suffix: $commitMessageSuffix"
 
         if (!(CommitFromNewFolder -serverUrl $serverUrl -commitMessage $commitMessage -branch $branch -body $releaseNotes)) {
             OutputWarning "No updates available for AL-Go for GitHub."

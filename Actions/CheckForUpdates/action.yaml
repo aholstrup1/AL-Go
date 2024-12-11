@@ -36,6 +36,10 @@ inputs:
     description: Direct Commit?
     required: false
     default: 'false'
+  commitMessageSuffix:
+    description: Commit Message Suffix
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -49,9 +53,10 @@ runs:
         _update: ${{ inputs.update }}
         _updateBranch: ${{ inputs.updateBranch }}
         _directCommit: ${{ inputs.directCommit }}
+        _commitMessageSuffix: ${{ inputs.commitMessageSuffix }}
       run: |
         ${{ github.action_path }}/../Invoke-AlGoAction.ps1 -ActionName "CheckForUpdates" -Action {
-          ${{ github.action_path }}/CheckForUpdates.ps1 -actor $ENV:_actor -token $ENV:_token -templateUrl $ENV:_templateUrl -downloadLatest ($ENV:_downloadLatest -eq 'true') -update $ENV:_update -updateBranch $ENV:_updateBranch -directCommit ($ENV:_directCommit -eq 'true')
+          ${{ github.action_path }}/CheckForUpdates.ps1 -actor $ENV:_actor -token $ENV:_token -templateUrl $ENV:_templateUrl -downloadLatest ($ENV:_downloadLatest -eq 'true') -update $ENV:_update -updateBranch $ENV:_updateBranch -directCommit ($ENV:_directCommit -eq 'true') -commitMessageSuffix "$($ENV:_commitMessageSuffix)"
         }
 branding:
   icon: terminal
