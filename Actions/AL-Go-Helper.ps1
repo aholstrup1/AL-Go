@@ -711,18 +711,20 @@ function ReadSettings {
         }
     }
     if($eventName -eq "workflow_dispatch") {
-        # Read the inputs from the workflow_dispatch event using the GITHUB_EVENT_PATH
-        $eventPath = "$env:GITHUB_EVENT_PATH"
         if (Test-Path $eventPath) {
             # Print Get-Content $eventPath -Raw to log
             Write-Host "Workflow Dispatch Event:"
             Write-Host (Get-Content $eventPath -Raw)
             $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
-            $inputs = @($workflowDispatchEvent.inputs)
-            # Print all the inputs to the log
-            $inputs | ForEach-Object {
-                Write-Host "Input: $($_.key) = $($_.value)"
+            # Check if there are inputs in the workflow_dispatch event
+            if ($workflowDispatchEvent.inputs) {
+                Write-Host "Applying settings from input"
+                $settingsObjects += @($workflowDispatchEvent.inputs)
+            } else {
+                Write-Host "No settings found in input"
             }
+        } else {
+            Write-Host "Workflow was scheduled. Ignoring input settings."
         }
     }
     foreach($settingsJson in $settingsObjects) {
