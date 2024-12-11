@@ -144,7 +144,7 @@ jobs:
           environmentName: ${{ github.event.inputs.environmentName }}
           project: ${{ github.event.inputs.project }}
           reUseExistingEnvironment: ${{ github.event.inputs.reUseExistingEnvironment }}
-          directCommit: ${{ github.event.inputs.directCommit }}
+          directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
           adminCenterApiCredentials: ${{ steps.SetAdminCenterApiCredentials.outputs.adminCenterApiCredentials }}
 
       - name: Finalize the workflow

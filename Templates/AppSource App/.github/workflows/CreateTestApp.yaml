@@ -91,7 +91,7 @@ jobs:
           publisher: ${{ github.event.inputs.publisher }}
           idrange: ${{ github.event.inputs.idrange }}
           sampleCode: ${{ github.event.inputs.sampleCode }}
-          directCommit: ${{ github.event.inputs.directCommit }}
+          directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
 
       - name: Finalize the workflow
         if: always()
