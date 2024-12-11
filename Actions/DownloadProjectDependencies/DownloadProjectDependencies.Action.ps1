@@ -41,8 +41,6 @@ function DownloadDependenciesFromCurrentBuild {
         return @()
     } else {
         Write-Host "Project dependencies are enabled for project '$project'."
-        Write-Host "$($settings.useProjectDependencies)"
-        return @()
     }
 
     Write-Host "Downloading dependencies for project '$project'"
