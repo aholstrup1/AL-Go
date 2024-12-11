@@ -674,8 +674,7 @@ function ReadSettings {
         }
         "useGitSubmodules"                              = "false"
         "gitSubmodulesTokenSecretName"                  = "gitSubmodulesToken"
-        "directCommit"                                  = "false"
-        "downloadLatest"                                = "false"
+        "inputs"                                        = [ordered]@{}
     }
 
     # Read settings from files and merge them into the settings object
@@ -710,24 +709,6 @@ function ReadSettings {
             # Read settings from user settings file
             $userSettingsObject = GetSettingsObject -Path (Join-Path $projectFolder "$ALGoFolderName/$userName.settings.json")
             $settingsObjects += @($projectWorkflowSettingsObject, $userSettingsObject)
-        }
-    }
-    if($eventName -eq "workflow_dispatch") {
-        $eventPath = $env:GITHUB_EVENT_PATH
-        if (Test-Path $eventPath) {
-            # Print Get-Content $eventPath -Raw to log
-            Write-Host "Workflow Dispatch Event:"
-            Write-Host (Get-Content $eventPath -Raw)
-            $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
-            # Check if there are inputs in the workflow_dispatch event
-            if ($workflowDispatchEvent.inputs) {
-                Write-Host "Applying settings from input"
-                $settingsObjects += @($workflowDispatchEvent.inputs)
-            } else {
-                Write-Host "No settings found in input"
-            }
-        } else {
-            Write-Host "Workflow was scheduled. Ignoring input settings."
         }
     }
     foreach($settingsJson in $settingsObjects) {
@@ -767,6 +748,7 @@ function ReadSettings {
             }
         }
     }
+    $settings.inputs = ReadInputs
 
     # runs-on is used for all jobs except for the build job (basically all jobs which doesn't need a container)
     # gitHubRunner is used for the build job (or basically all jobs that needs a container)
@@ -814,6 +796,24 @@ function ReadSettings {
         $settings.projectName = $project # Default to project path as project name
     }
     $settings
+}
+
+function ReadInputs {
+    Param(
+        [string] $eventName = "$ENV:GITHUB_EVENT_NAME",
+        [string] $eventPath = "$ENV:GITHUB_EVENT_PATH"
+    )
+
+    # If the event is a workflow_dispatch event, read the inputs from the event file
+    if(($eventName -eq "workflow_dispatch") -and (Test-Path $eventPath)) {
+        $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
+        if ($workflowDispatchEvent.inputs) {
+            return $workflowDispatchEvent.inputs
+        } else {
+            Write-Host "No inputs found in workflow_dispatch event"
+            return @{}
+        }
+    }
 }
 
 function ExcludeUnneededApps {
