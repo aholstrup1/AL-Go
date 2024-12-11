@@ -513,7 +513,8 @@ function ReadSettings {
         [string] $userName = "$ENV:GITHUB_ACTOR",
         [string] $branchName = "$ENV:GITHUB_REF_NAME",
         [string] $orgSettingsVariableValue = "$ENV:ALGoOrgSettings",
-        [string] $repoSettingsVariableValue = "$ENV:ALGoRepoSettings"
+        [string] $repoSettingsVariableValue = "$ENV:ALGoRepoSettings",
+        [string] $eventName = "$ENV:GITHUB_EVENT_NAME"
     )
 
     # If the build is triggered by a pull request the refname will be the merge branch. To apply conditional settings we need to use the base branch
@@ -707,6 +708,21 @@ function ReadSettings {
             # Read settings from user settings file
             $userSettingsObject = GetSettingsObject -Path (Join-Path $projectFolder "$ALGoFolderName/$userName.settings.json")
             $settingsObjects += @($projectWorkflowSettingsObject, $userSettingsObject)
+        }
+    }
+    if($eventName -eq "workflow_dispatch") {
+        # Read the inputs from the workflow_dispatch event using the GITHUB_EVENT_PATH
+        $eventPath = "$env:GITHUB_EVENT_PATH"
+        if (Test-Path $eventPath) {
+            # Print Get-Content $eventPath -Raw to log
+            Write-Host "Workflow Dispatch Event:"
+            Write-Host (Get-Content $eventPath -Raw)
+            $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
+            $inputs = @($workflowDispatchEvent.inputs)
+            # Print all the inputs to the log
+            $inputs | ForEach-Object {
+                Write-Host "Input: $($_.key) = $($_.value)"
+            }
         }
     }
     foreach($settingsJson in $settingsObjects) {
