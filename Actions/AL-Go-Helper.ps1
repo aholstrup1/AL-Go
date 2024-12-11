@@ -674,6 +674,8 @@ function ReadSettings {
         }
         "useGitSubmodules"                              = "false"
         "gitSubmodulesTokenSecretName"                  = "gitSubmodulesToken"
+        "directCommit"                                  = $false
+        "downloadLatest"                                = $false
     }
 
     # Read settings from files and merge them into the settings object
