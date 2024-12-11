@@ -711,6 +711,7 @@ function ReadSettings {
         }
     }
     if($eventName -eq "workflow_dispatch") {
+        $eventPath = $env:GITHUB_EVENT_PATH
         if (Test-Path $eventPath) {
             # Print Get-Content $eventPath -Raw to log
             Write-Host "Workflow Dispatch Event:"
