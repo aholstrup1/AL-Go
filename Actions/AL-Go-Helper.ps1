@@ -806,7 +806,7 @@ function ReadInputs {
     )
 
     # If the event is a workflow_dispatch event, read the inputs from the event file
-    if(($eventName -eq "workflow_dispatch") -and (Test-Path $eventPath)) {
+    if(($eventName -eq "workflow_dispatch1") -and (Test-Path $eventPath)) {
         $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
         if ($workflowDispatchEvent.inputs) {
             return $workflowDispatchEvent.inputs
