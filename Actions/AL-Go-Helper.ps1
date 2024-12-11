@@ -663,6 +663,7 @@ function ReadSettings {
         }
         "trustMicrosoftNuGetFeeds"                      = $true
         "commitOptions"                                 = [ordered]@{
+            "directCommit"                              = $false
             "messageSuffix"                             = ""
             "pullRequestAutoMerge"                      = $false
             "pullRequestLabels"                         = @()
