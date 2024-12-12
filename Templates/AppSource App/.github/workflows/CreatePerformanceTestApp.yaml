@@ -96,7 +96,7 @@ jobs:
           idrange: ${{ github.event.inputs.idrange }}
           sampleCode: ${{ github.event.inputs.sampleCode }}
           sampleSuite: ${{ github.event.inputs.sampleSuite }}
-          directCommit: ${{ github.event.inputs.directCommit }}
+          directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
 
       - name: Finalize the workflow
         if: always()

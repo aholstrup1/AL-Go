@@ -75,7 +75,7 @@ jobs:
           token: ${{ steps.ReadSecrets.outputs.TokenForPush }}
           project: ${{ github.event.inputs.project }}
           url: ${{ github.event.inputs.url }}
-          directCommit: ${{ github.event.inputs.directCommit }}
+          directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
 
       - name: Finalize the workflow
         if: always()

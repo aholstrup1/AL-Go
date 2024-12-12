@@ -662,6 +662,7 @@ function ReadSettings {
         }
         "trustMicrosoftNuGetFeeds"                      = $true
         "commitOptions"                                 = [ordered]@{
+            "directCommit"                              = $false
             "messageSuffix"                             = ""
             "pullRequestAutoMerge"                      = $false
             "pullRequestLabels"                         = @()
@@ -673,6 +674,7 @@ function ReadSettings {
         }
         "useGitSubmodules"                              = "false"
         "gitSubmodulesTokenSecretName"                  = "gitSubmodulesToken"
+        "inputs"                                        = [ordered]@{}
     }
 
     # Read settings from files and merge them into the settings object
@@ -746,6 +748,7 @@ function ReadSettings {
             }
         }
     }
+    $settings.inputs = ReadInputs
 
     # runs-on is used for all jobs except for the build job (basically all jobs which doesn't need a container)
     # gitHubRunner is used for the build job (or basically all jobs that needs a container)
@@ -793,6 +796,25 @@ function ReadSettings {
         $settings.projectName = $project # Default to project path as project name
     }
     $settings
+}
+
+function ReadInputs {
+    Param(
+        [string] $eventName = "$ENV:GITHUB_EVENT_NAME",
+        [string] $eventPath = "$ENV:GITHUB_EVENT_PATH"
+    )
+
+    # If the event is a workflow_dispatch event, read the inputs from the event file
+    # If the workflow is triggered in other ways (e.g. push, schedule), the inputs are not available
+    if(($eventName -eq "workflow_dispatch") -and (Test-Path $eventPath)) {
+        $workflowDispatchEvent = Get-Content $eventPath -Raw | ConvertFrom-Json
+        if ($workflowDispatchEvent.inputs) {
+            return $workflowDispatchEvent.inputs
+        } else {
+            Write-Host "No inputs found in workflow_dispatch event"
+            return @{}
+        }
+    }
 }
 
 function ExcludeUnneededApps {
@@ -1354,7 +1376,8 @@ function CommitFromNewFolder {
         [string] $serverUrl,
         [string] $commitMessage,
         [string] $body = $commitMessage,
-        [string] $branch
+        [string] $branch,
+        [string] $customSuffix
     )
 
     invoke-git add *
@@ -1364,9 +1387,9 @@ function CommitFromNewFolder {
 
         # Add commit message suffix if specified in settings
         $settings = ReadSettings
-        if ($settings.commitOptions.messageSuffix) {
-            $commitMessage = "$commitMessage / $($settings.commitOptions.messageSuffix)"
-            $body = "$body`n$($settings.commitOptions.messageSuffix)"
+        if ($customSuffix) {
+            $commitMessage = "$commitMessage / $customSuffix"
+            $body = "$body`n$customSuffix"
         }
 
         if ($commitMessage.Length -gt 250) {

@@ -15,6 +15,10 @@ on:
         description: Direct Commit?
         type: boolean
         default: false
+      commitMessageSuffix:
+        description: Commit Message Suffix
+        required: false
+        default: ''
 
 permissions:
   actions: read
@@ -63,44 +67,16 @@ jobs:
           gitHubSecrets: ${{ toJson(secrets) }}
           getSecrets: 'ghTokenWorkflow'
 
-      - name: Override templateUrl
-        env:
-          templateUrl: ${{ github.event.inputs.templateUrl }}
-        run: |
-          $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
-          $templateUrl = $ENV:templateUrl
-          if ($templateUrl) {
-            Write-Host "Using Template Url: $templateUrl"
-            Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "templateUrl=$templateUrl"
-          }
-
-      - name: Calculate Input
-        env:
-          directCommit: '${{ github.event.inputs.directCommit }}'
-          downloadLatest: ${{ github.event.inputs.downloadLatest }}
-          eventName: ${{ github.event_name }}
-        run: |
-          $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
-          $directCommit = $ENV:directCommit
-          $downloadLatest = $ENV:downloadLatest
-          Write-Host $ENV:eventName
-          if ($ENV:eventName -eq 'schedule') {
-            Write-Host "Running Update AL-Go System Files on a schedule. Setting DirectCommit and DownloadLatest to true"
-            $directCommit = 'true'
-            $downloadLatest = 'true'
-          }
-          Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "directCommit=$directCommit"
-          Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "downloadLatest=$downloadLatest"
-
       - name: Update AL-Go system files
         uses: microsoft/AL-Go-Actions/CheckForUpdates@main
         with:
           shell: powershell
           token: ${{ fromJson(steps.ReadSecrets.outputs.Secrets).ghTokenWorkflow }}
-          downloadLatest: ${{ env.downloadLatest }}
+          downloadLatest: ${{ fromJson(env.settings).inputs.downloadLatest || 'true' }}
           update: 'Y'
-          templateUrl: ${{ env.templateUrl }}
-          directCommit: ${{ env.directCommit }}
+          templateUrl: ${{ fromJson(env.settings).inputs.templateUrl || fromJson(env.settings).templateUrl }}
+          directCommit: ${{ fromJson(env.settings).inputs.directCommit || fromJson(env.settings).commitOptions.directCommit }}
+          commitMessageSuffix: ${{ fromJson(env.settings).inputs.commitMessageSuffix || fromJson(env.settings).commitOptions.messageSuffix }}
 
       - name: Finalize the workflow
         if: always()
