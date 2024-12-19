@@ -2117,10 +2117,18 @@ Function AnalyzeProjectDependencies {
         $unknownDependencies = @()
         $apps = @()
         Sort-AppFoldersByDependencies -appFolders $folders -baseFolder $baseFolder -WarningAction SilentlyContinue -unknownDependencies ([ref]$unknownDependencies) -knownApps ([ref]$apps) | Out-Null
-        $appDependencies."$project" = @{
-            "apps"         = $apps
-            "dependencies" = @($unknownDependencies | ForEach-Object { $_.Split(':')[0] })
+        if ($projectSettings.useProjectDependencies -eq $false) {
+            $appDependencies."$project" = @{
+                "apps"         = $apps
+                "dependencies" = @()
+            }
+        } else {
+            $appDependencies."$project" = @{
+                "apps"         = $apps
+                "dependencies" = @($unknownDependencies | ForEach-Object { $_.Split(':')[0] })
+            }
         }
+        
     }
     # AppDependencies is a hashtable with the following structure
     # $appDependencies = @{
