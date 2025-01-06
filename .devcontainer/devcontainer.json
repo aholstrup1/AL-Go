@@ -5,9 +5,6 @@
       "test": "pwsh -Command \". (Join-Path \".\" \"Tests/runtests.ps1\")\"",
       "run": "Write-Host 'Not Supported'"
     },
-    "settings": {
-          "terminal.integrated.defaultProfile.linux": "pwsh"
-      },
     "features": {
       "ghcr.io/devcontainers/features/powershell:1": {
         "modules": "BcContainerHelper"
@@ -24,6 +21,9 @@
                   "github.vscode-pull-request-github",
                   "github.vscode-codeql"
               ]
+              "settings": {
+                "terminal.integrated.defaultProfile.linux": "pwsh"
+              }
           }
       },
     "postCreateCommand": "Import-Module BCContainerHelper && pip install pre-commit && pre-commit install --install-hooks --overwrite"
