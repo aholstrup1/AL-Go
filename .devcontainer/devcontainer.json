@@ -2,12 +2,12 @@
     "image": "mcr.microsoft.com/devcontainers/universal:2",
     "tasks": {
       "build": "Write-Host 'Not Supported'",
-      "test": "pwsh -Command \". (Join-Path \".\" \"Tests/runtests.ps1\")\"",
+      "test": "pwsh -File Tests/runtests.ps1",
       "run": "Write-Host 'Not Supported'"
     },
     "features": {
       "ghcr.io/devcontainers/features/powershell:1": {
-        "modules": "BcContainerHelper"
+        "modules": "BcContainerHelper,Pester"
       },
       "ghcr.io/devcontainers/features/github-cli:1": {}
     },
