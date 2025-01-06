@@ -4,7 +4,7 @@ param(
     [Parameter(Mandatory = $true)]
     [scriptblock]$Action,
     [Parameter(Mandatory = $false)]
-    [switch]$SkipTelemetry
+    [switch]$SkipTelemetry 
 )
 
 $errorActionPreference = "Stop"
