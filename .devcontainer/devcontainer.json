@@ -1,0 +1,30 @@
+{
+    "image": "mcr.microsoft.com/devcontainers/universal:2",
+    "tasks": {
+      "build": "Write-Host 'Not Supported'",
+      "test": "pwsh -Command \". (Join-Path \".\" \"Tests/runtests.ps1\")\"",
+      "run": "Write-Host 'Not Supported'"
+    },
+    "settings": {
+          "terminal.integrated.defaultProfile.linux": "pwsh"
+      },
+    "features": {
+      "ghcr.io/devcontainers/features/powershell:1": {
+        "modules": "BcContainerHelper"
+      },
+      "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "customizations": {
+          "vscode": {
+              "extensions": [
+                  "GitHub.copilot",
+                  "GitHub.copilot-chat",
+                  "GitHub.vscode-github-actions",
+                  "ms-vscode.powershell",
+                  "github.vscode-pull-request-github",
+                  "github.vscode-codeql"
+              ]
+          }
+      },
+    "postCreateCommand": "Import-Module BCContainerHelper && pip install pre-commit && pre-commit install --install-hooks --overwrite"
+  }
