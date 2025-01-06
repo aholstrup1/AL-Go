@@ -11,6 +11,7 @@
       },
       "ghcr.io/devcontainers/features/github-cli:1": {}
     },
+    "postCreateCommand": "pip install pre-commit",
     "customizations": {
           "vscode": {
               "extensions": [
@@ -25,6 +26,5 @@
                 "terminal.integrated.defaultProfile.linux": "pwsh"
               }
           }
-      },
-    "postCreateCommand": "Import-Module BCContainerHelper && pip install pre-commit && pre-commit install --install-hooks --overwrite"
-  }
+      }
+}
