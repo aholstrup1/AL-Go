@@ -47,7 +47,7 @@ Describe "Get-ProjectsToBuild" {
         $buildOrder[0] | Should -BeOfType System.Collections.Hashtable
         $buildOrder[0].projects | Should -BeExactly @(".")
         $buildOrder[0].projectsCount | Should -BeExactly 1
-        $buildOrder[0].buildDimensions.Count | Should -BeExactly 1
+        $buildOrder[0].buildDimensions.Count | Should -BeExactly 2
         $buildOrder[0].buildDimensions[0].buildMode | Should -BeExactly "Default"
         $buildOrder[0].buildDimensions[0].project | Should -BeExactly "."
     }
