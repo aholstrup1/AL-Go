@@ -2090,11 +2090,11 @@ function CheckAndCreateProjectFolder {
 Function AnalyzeProjectDependencies {
     Param(
         [string] $baseFolder,
-        [string[]] $projects,
-        [ref] $buildAlso,
-        [ref] $projectDependencies
+        [string[]] $projects
     )
 
+    $buildAlso = @{}
+    $projectDependencies = @{}
     $appDependencies = @{}
     Write-Host "Analyzing projects in $baseFolder"
 
@@ -2223,7 +2223,11 @@ Function AnalyzeProjectDependencies {
         $no++
     }
 
-    return @($projectsOrder)
+    return [PSCustomObject]@{
+        ProjectsOrder = $projectsOrder
+        BuildAlso = $buildAlso
+        ProjectDependencies = $projectDependencies
+    }
 }
 
 function GetBaseFolder {
