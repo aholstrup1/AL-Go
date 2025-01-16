@@ -238,13 +238,12 @@ function Get-ProjectsToBuild {
             }
 
             # Calculate the full projects order
-            #$fullProjectsOrder, $buildAlso, $projectDependencies = AnalyzeProjectDependencies -baseFolder $baseFolder -projects $projects
             $projectBuildInfo = AnalyzeProjectDependencies -baseFolder $baseFolder -projects $projects
 
             $projectsToBuild = @($projectsToBuild | ForEach-Object { $_; if ($projectBuildInfo.buildAlso.Keys -contains $_) { $projectBuildInfo.buildAlso."$_" } } | Select-Object -Unique)
 
             # Create a project order based on the projects to build
-            foreach($depth in $projectBuildInfo.fullProjectsOrder) {
+            foreach($depth in $projectBuildInfo.FullProjectsOrder) {
                 $projectsOnDepth = @($depth.projects | Where-Object { $projectsToBuild -contains $_ })
 
                 if ($projectsOnDepth) {

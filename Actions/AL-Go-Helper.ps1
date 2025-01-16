@@ -2224,7 +2224,7 @@ Function AnalyzeProjectDependencies {
     }
 
     return [PSCustomObject]@{
-        ProjectsOrder = $projectsOrder
+        FullProjectsOrder = $projectsOrder
         BuildAlso = $buildAlso
         ProjectDependencies = $projectDependencies
     }
