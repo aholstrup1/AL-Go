@@ -38,7 +38,8 @@ function PushChanges
         invoke-git checkout -b $branchName origin/$BaseBranch
         invoke-git commit --allow-empty -m $CommitMessage
         invoke-git push origin $branchName
-        invoke-gh pr create --base $BaseBranch --title $CommitMessage --body $CommitMessage
+        Write-Host "Creating PR to $BaseBranch"
+        gh pr create --base $BaseBranch --title $CommitMessage --body $CommitMessage
     }
 }
 
