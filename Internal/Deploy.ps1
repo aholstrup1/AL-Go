@@ -2,8 +2,6 @@
 Param(
     [Parameter(Mandatory=$true)]
     [Hashtable] $config,
-    [Parameter(Mandatory=$true)]
-    [string] $token,
     [Parameter(Mandatory=$false)]
     [bool] $directCommit
 )
@@ -44,7 +42,6 @@ function PushChanges
     }
 }
 
-$token = GetAccessToken -token $token -repository "$($config.githubOwner)/.github"
 $oldPath = Get-Location
 try {
 
@@ -53,11 +50,10 @@ try {
     invoke-git config --global user.name "$($config.githubOwner)"
     invoke-git config --global hub.protocol https
     invoke-git config --global core.autocrlf false
-    $ENV:GITHUB_TOKEN = ''
+    #$ENV:GITHUB_TOKEN = ''
 
     Write-Host "Authenticating with GitHub using token"
-    $token | invoke-gh auth login --with-token
-    $ENV:GITHUB_TOKEN = $token
+    $ENV:GITHUB_TOKEN | invoke-gh auth login --with-token
 
     # All references inside microsoft/AL-Go and forks of it are to microsoft/AL-Go-Actions@main, microsoft/AL-Go-PTE@main and microsoft/AL-Go-AppSource@main
     # When deploying to new repos, the originalOwnerAndRepo should be changed to the new owner and repo
@@ -162,7 +158,7 @@ try {
         Write-Host -ForegroundColor Yellow "Deploying to $repo"
 
         try {
-            $serverUrl = "https://$($config.githubOwner):$token@github.com/$($config.githubOwner)/$repo.git"
+            $serverUrl = "https://$($config.githubOwner):$($ENV:GITHUB_TOKEN)@github.com/$($config.githubOwner)/$repo.git"
             if (Test-Path $repo) {
                 Remove-Item $repo -Recurse -Force
             }
