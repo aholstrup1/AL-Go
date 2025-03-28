@@ -199,7 +199,6 @@ jobs:
           }
 
       - name: Calculate Release Notes
-        if: github.repository_owner == 'microsoft' && needs.Inputs.outputs.createRelease == 'true'
         run: |
           $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
           $releaseNotesFile = Join-Path $env:GITHUB_WORKSPACE "RELEASENOTES.md"
@@ -209,7 +208,6 @@ jobs:
           Add-Content -encoding UTF8 -Path $env:GITHUB_ENV -Value "ReleaseNotes=$([Uri]::EscapeDataString($releaseNotes))"
 
       - name: Create release
-        if: github.repository_owner == 'microsoft' && needs.Inputs.outputs.createRelease == 'true'
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         id: createrelease
         env:
