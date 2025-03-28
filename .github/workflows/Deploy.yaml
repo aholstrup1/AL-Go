@@ -158,11 +158,6 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
-      - run: |
-          gh issue create --repo 'aholstrup1/AL-Go-pte' --title "Issue title" --body "Issue body"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Deploy
         env:
           branch: ${{ needs.Inputs.outputs.branch }}

@@ -47,8 +47,9 @@ $oldPath = Get-Location
 try {
 
     # Authenticate to GIT and GH
-    invoke-git config --global user.email "$($config.githubOwner)@users.noreply.github.com"
-    invoke-git config --global user.name "$($config.githubOwner)"
+    gh repo sync
+    #invoke-git config --global user.email "$($config.githubOwner)@users.noreply.github.com"
+    #invoke-git config --global user.name "$($config.githubOwner)"
     invoke-git config --global hub.protocol https
     invoke-git config --global core.autocrlf false
 
