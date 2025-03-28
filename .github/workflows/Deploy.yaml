@@ -165,15 +165,16 @@ jobs:
           copyToMain: ${{ needs.Inputs.outputs.copyToMain }}
           directCommit: ${{ needs.Inputs.outputs.directCommit }}
           defaultBcContainerHelperVersion: ${{ needs.Inputs.outputs.defaultBcContainerHelperVersion }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token || Secrets.OrgPAT }}
+          AuthToken: ${{ steps.app-token.outputs.token || Secrets.OrgPAT }}
         run: |
           $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
           try {
-            # Check if GH Token is set
-            if ($env:GH_TOKEN -eq "") {
-              Write-Host "::Error::GH_TOKEN is not set. Please create a secret called OrgPAT containing a valid Personal Access Token or set up a GitHub App."
-              exit 1
+            # Check if auth token is set
+            if ($env:AuthToken -eq "") {
+              throw "::Error::In order to run the Deploy workflow, you need a Secret called OrgPAT containing a valid Personal Access Token or a GitHub app set up."
             }
+            Write-Host "Updating GitHub token"
+            $ENV:GITHUB_TOKEN = $env:AuthToken
             $githubOwner = "$env:GITHUB_REPOSITORY_OWNER"
             if ("$env:defaultBcContainerHelperVersion" -eq "") {
               if ($env:branch -eq 'preview') {
