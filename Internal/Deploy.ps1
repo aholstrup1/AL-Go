@@ -38,8 +38,7 @@ function PushChanges
         invoke-git checkout -b $branchName origin/$BaseBranch
         invoke-git commit --allow-empty -m $CommitMessage
         invoke-git push origin $branchName
-        Write-Host "Creating PR to $BaseBranch"
-        gh pr create --base $BaseBranch --title $CommitMessage --body $CommitMessage
+        invoke-gh pr create --base $BaseBranch --title $CommitMessage --body $CommitMessage
     }
 }
 
@@ -158,8 +157,8 @@ try {
             invoke-git clone --quiet $serverUrl
             Set-Location $repo
             $env:GITHUB_TOKEN | gh auth login --with-token
-            gh auth setup-git
-            gh repo sync
+            invoke-gh auth setup-git
+            invoke-gh repo sync
             try {
                 invoke-git checkout $branch
                 Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
