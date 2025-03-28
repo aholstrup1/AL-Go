@@ -48,8 +48,8 @@ try {
 
     # Authenticate to GIT and GH
     gh repo sync
-    #invoke-git config --global user.email "$($config.githubOwner)@users.noreply.github.com"
-    #invoke-git config --global user.name "$($config.githubOwner)"
+    invoke-git config --global user.email "$($config.githubOwner)@users.noreply.github.com"
+    invoke-git config --global user.name "$($config.githubOwner)"
     invoke-git config --global hub.protocol https
     invoke-git config --global core.autocrlf false
 
@@ -152,7 +152,7 @@ try {
         Write-Host -ForegroundColor Yellow "Deploying to $repo"
 
         try {
-            $serverUrl = "https://$($config.githubOwner):$($ENV:GITHUB_TOKEN)@github.com/$($config.githubOwner)/$repo.git"
+            $serverUrl = "https://$($config.githubOwner)@github.com/$($config.githubOwner)/$repo.git"
             if (Test-Path $repo) {
                 Remove-Item $repo -Recurse -Force
             }
