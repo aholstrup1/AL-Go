@@ -165,7 +165,7 @@ jobs:
           copyToMain: ${{ needs.Inputs.outputs.copyToMain }}
           directCommit: ${{ needs.Inputs.outputs.directCommit }}
           defaultBcContainerHelperVersion: ${{ needs.Inputs.outputs.defaultBcContainerHelperVersion }}
-          GH_TOKEN: ${{ steps.app-token.outputs.token || Secrets.OrgPAT }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }} # || Secrets.OrgPAT }}
         run: |
           $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
           try {
