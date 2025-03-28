@@ -157,7 +157,8 @@ try {
             }
             invoke-git clone --quiet $serverUrl
             Set-Location $repo
-            gh auth login
+            $env:GITHUB_TOKEN | gh auth login --with-token
+            gh auth setup-git
             gh repo sync
             try {
                 invoke-git checkout $branch
