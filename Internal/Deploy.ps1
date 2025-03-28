@@ -47,7 +47,6 @@ $oldPath = Get-Location
 try {
 
     # Authenticate to GIT and GH
-    gh repo sync
     invoke-git config --global user.email "$($config.githubOwner)@users.noreply.github.com"
     invoke-git config --global user.name "$($config.githubOwner)"
     invoke-git config --global hub.protocol https
@@ -158,6 +157,8 @@ try {
             }
             invoke-git clone --quiet $serverUrl
             Set-Location $repo
+            gh auth login
+            gh repo sync
             try {
                 invoke-git checkout $branch
                 Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
