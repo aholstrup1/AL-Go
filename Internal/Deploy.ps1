@@ -156,9 +156,7 @@ try {
             }
             invoke-git clone --quiet $serverUrl
             Set-Location $repo
-            $env:GITHUB_TOKEN | gh auth login --with-token
             invoke-gh auth setup-git
-            invoke-gh repo sync
             try {
                 invoke-git checkout $branch
                 Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
@@ -177,6 +175,7 @@ try {
             invoke-gh repo create $ownerRepo --public --clone
             Start-Sleep -Seconds 10
             Set-Location $repo
+            invoke-gh auth setup-git
             invoke-git checkout -b $branch
             invoke-git commit --allow-empty -m 'init'
             invoke-git branch -M $branch
