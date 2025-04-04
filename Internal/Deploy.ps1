@@ -140,7 +140,7 @@ try {
         Write-Host "- from $($srcOwnerAndRepo)/$($_.srcPath)@$($algoBranch) to $($config.githubOwner)/$($_.repo)@$($_.branch)"
     }
 
-    invoke-gh auth setup-git
+
     $additionalRepos + $repos | ForEach-Object {
         Set-Location $baseFolder
         $repo = $_.repo
@@ -149,6 +149,7 @@ try {
         $branch = $_.branch
 
         Write-Host -ForegroundColor Yellow "Deploying to $repo"
+
         try {
             $serverUrl = "https://$($config.githubOwner)@github.com/$($config.githubOwner)/$repo.git"
             if (Test-Path $repo) {
@@ -156,6 +157,7 @@ try {
             }
             invoke-git clone --quiet $serverUrl
             Set-Location $repo
+            invoke-gh auth setup-git
             try {
                 invoke-git checkout $branch
                 Get-ChildItem -Path "." -Exclude ".git" -Force | Remove-Item -Force -Recurse
@@ -174,6 +176,7 @@ try {
             invoke-gh repo create $ownerRepo --public --clone
             Start-Sleep -Seconds 10
             Set-Location $repo
+            invoke-gh auth setup-git
             invoke-git checkout -b $branch
             invoke-git commit --allow-empty -m 'init'
             invoke-git branch -M $branch
