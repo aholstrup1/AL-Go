@@ -64,7 +64,7 @@ jobs:
           githubOwner: ${{ github.event.inputs.githubOwner }}
         run: |
           $err = $false
-          if ('${{ Secrets.E2EPAT }}' -eq '') {
+          if (('${{ Secrets.E2EPAT }}' -eq '') -and ('${{ Secrets.E2E_PRIVATE_KEY }}' -eq '')) {
             Write-Host "::Error::In order to run end to end tests, you need a Secret called E2EPAT containing a valid Personal Access Token with the following permissions: admin:org, delete_repo, repo, workflow, packages:write"
             $err = $true
           }
