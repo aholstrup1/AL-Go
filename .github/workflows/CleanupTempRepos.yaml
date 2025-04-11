@@ -39,7 +39,7 @@ jobs:
           owner: ${{ github.event.inputs.githubOwner }}
 
       - name: Check E2EPAT Secret is defined
-        if: ${{ vars.E2E_APP_ID != '' }}
+        if: ${{ vars.E2E_APP_ID == '' }}
         run: |
           if ('${{ Secrets.E2EPAT }}' -eq '') {
             Write-Host "::Error::In order to run end to end tests, you need a Secret called E2EPAT containing a valid Personal Access Token with the following permissions: admin:org, delete_repo, repo, workflow, packages:write"
