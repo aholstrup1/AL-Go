@@ -4,7 +4,8 @@ Param(
     [switch] $github,
     [string] $githubOwner = $global:E2EgithubOwner,
     [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
-    [string] $e2epat = ($Global:SecureE2EPAT | Get-PlainText),
+    [string] $e2epat,
+    [string] $ghtokenworkflow = ($Global:SecureE2EPAT | Get-PlainText),
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $contentPath = "pte",
     [string] $release = "v2.2",
@@ -102,7 +103,7 @@ if ($releaseVersion -ge [System.Version]"6.4") {
     SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $algoauthapp
 }
 else {
-    SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $e2epat
+    SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $ghtokenworkflow
 }
 RunUpdateAlGoSystemFiles -templateUrl $template -wait -repository $repository -branch $branch | Out-Null
 
