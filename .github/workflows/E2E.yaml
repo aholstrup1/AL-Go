@@ -332,10 +332,20 @@ jobs:
           Write-Host "repoName='$repoName'"
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
+      - uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        id: app-token
+        if: ${{ vars.E2E_APP_ID != '' }}
+        with:
+          app-id: ${{ vars.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_PRIVATE_KEY }}
+          owner: ${{ needs.Check.outputs.githubowner }}
+
       - name: Run tests
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || Secrets.E2EPAT }}
         run: |
           try {
-            . (Join-Path "." "e2eTests/Test-AL-Go.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2epat '${{ Secrets.E2EPAT }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -adminCenterApiToken ${{ steps.calculateParams.outputs.adminCenterApiCredentials }} -multiProject:('${{ matrix.style }}' -eq 'multiProject') -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -linux:('${{ matrix.os }}' -eq 'linux') -useCompilerFolder:('${{ matrix.Compiler }}' -eq 'CompilerFolder')
+            . (Join-Path "." "e2eTests/Test-AL-Go.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2epat $ENV:GH_TOKEN -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -adminCenterApiToken ${{ steps.calculateParams.outputs.adminCenterApiCredentials }} -multiProject:('${{ matrix.style }}' -eq 'multiProject') -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -linux:('${{ matrix.os }}' -eq 'linux') -useCompilerFolder:('${{ matrix.Compiler }}' -eq 'CompilerFolder')
           }
           catch {
             Write-Host $_.Exception.Message
@@ -380,10 +390,20 @@ jobs:
           Write-Host "repoName='$repoName'"
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
+      - uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
+        id: app-token
+        if: ${{ vars.E2E_APP_ID != '' }}
+        with:
+          app-id: ${{ vars.E2E_APP_ID }}
+          private-key: ${{ secrets.E2E_PRIVATE_KEY }}
+          owner: ${{ needs.Check.outputs.githubowner }}
+
       - name: Run tests
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || Secrets.E2EPAT }}
         run: |
           try {
-            . (Join-Path "." "e2eTests/Test-AL-Go.ps1") -private -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2epat '${{ Secrets.E2EPAT }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -adminCenterApiToken ${{ steps.calculateParams.outputs.adminCenterApiCredentials }} -multiProject:('${{ matrix.style }}' -eq 'multiProject') -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -linux:('${{ matrix.os }}' -eq 'linux') -useCompilerFolder:('${{ matrix.Compiler }}' -eq 'CompilerFolder')
+            . (Join-Path "." "e2eTests/Test-AL-Go.ps1") -private -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2epat $ENV:GH_TOKEN -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -adminCenterApiToken ${{ steps.calculateParams.outputs.adminCenterApiCredentials }} -multiProject:('${{ matrix.style }}' -eq 'multiProject') -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -linux:('${{ matrix.os }}' -eq 'linux') -useCompilerFolder:('${{ matrix.Compiler }}' -eq 'CompilerFolder')
           }
           catch {
             Write-Host $_.Exception.Message
