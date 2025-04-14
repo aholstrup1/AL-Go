@@ -1,5 +1,7 @@
 ﻿$githubOwner = "githubOwner"
 $token = "token"
+$e2eAppClientId = "AppId"
+$e2eAppPrivateKey = "AppPrivateKey"
 $defaultRepository = "repo"
 $defaultApplication = "22.0.0.0"
 $defaultRuntime = "10.0"
@@ -15,13 +17,28 @@ function GetDefaultPublisher() {
 function SetTokenAndRepository {
     Param(
         [string] $githubOwner,
+        [Parameter(ParameterSetName = 'TokenAuth')]
         [string] $token,
+        [Parameter(ParameterSetName = 'AppAuth')]
+        [string] $e2eAppClientId,
+        [Parameter(ParameterSetName = 'AppAuth')]
+        [string] $e2eAppPrivateKey,
         [string] $repository,
         [switch] $github
     )
 
+    # If parameterset is appAuth, set token to e2eAppClientId and e2eAppPrivateKey
+    switch ($PSCmdlet.ParameterSetName) {
+        'AppAuth' {
+            $script:token = GetGitHubAppAuthToken -gitHubAppClientId $e2eAppClientId -gitHubAppPrivateKey $e2eAppPrivateKey -repository $repository
+        }
+        'TokenAuth' {
+            $script:token = $token
+            break
+        }
+    }
+
     $script:githubOwner = $githubOwner
-    $script:token = $token
     $script:defaultRepository = $repository
     $realToken = GetAccessToken -token $script:token -repository "$githubOwner/.github"
 

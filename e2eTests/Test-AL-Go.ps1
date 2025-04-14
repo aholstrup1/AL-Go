@@ -5,6 +5,8 @@ Param(
     [string] $githubOwner = $global:E2EgithubOwner,
     [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
     [string] $e2epat = ($Global:SecureE2EPAT | Get-PlainText),
+    [string] $e2eAppId,
+    [string] $e2ePrivateKey,
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $template = $global:pteTemplate,
     [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText),
@@ -101,7 +103,7 @@ else {
 $template = "https://github.com/$template"
 
 # Login
-SetTokenAndRepository -github:$github -githubOwner $githubOwner -token $e2epat -repository $repository
+SetTokenAndRepository -github:$github -githubOwner $githubOwner -e2eAppClientId $e2eAppId -e2eAppPrivateKey $e2ePrivateKey -repository $repository
 
 # Create repo
 # Set DoNotPublishApps to true until we have test apps and set useCompilerFolder
@@ -197,6 +199,9 @@ if ($adminCenterApiToken -and -not $multiProject) {
 RunIncrementVersionNumber @p2ProjectsParam -versionNumber 2.1 -wait -branch $branch -useGhTokenWorkflow | Out-Null
 $runs++
 
+# Reauthenticate to GitHub
+SetTokenAndRepository -github:$github -githubOwner $githubOwner -e2eAppClientId $e2eAppId -e2eAppPrivateKey $e2ePrivateKey -repository $repository
+
 # Wait for PR build to succeed
 WaitAllWorkflows -repository $repository -top 1
 $runs++
@@ -265,6 +270,9 @@ $runTestNextMajor = RunTestNextMajor -branch $branch
 # TODO: Check that environment was created and that launch.json was updated
 
 # Test localdevenv
+
+# Reauthenticate to GitHub
+SetTokenAndRepository -github:$github -githubOwner $githubOwner -e2eAppClientId $e2eAppId -e2eAppPrivateKey $e2ePrivateKey -repository $repository
 
 WaitWorkflow -runid $runTestNextMajor.id
 $runs++
