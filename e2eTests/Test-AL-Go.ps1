@@ -4,7 +4,7 @@ Param(
     [switch] $github,
     [string] $githubOwner = $global:E2EgithubOwner,
     [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
-    [string] $e2epat = ($Global:SecureE2EPAT | Get-PlainText),
+    [string] $e2epat,
     [string] $e2eauthApp = ($Global:SecureE2EAUTHAPP | Get-PlainText),
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $template = $global:pteTemplate,
