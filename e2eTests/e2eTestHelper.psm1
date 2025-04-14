@@ -30,7 +30,7 @@ function SetTokenAndRepository {
     # If parameterset is appAuth, set token to e2eAppClientId and e2eAppPrivateKey
     switch ($PSCmdlet.ParameterSetName) {
         'AppAuth' {
-            $script:token = GetGitHubAppAuthToken -gitHubAppClientId $e2eAppClientId -gitHubAppPrivateKey $e2eAppPrivateKey -repository $repository
+            $script:token = GetGitHubAppAuthToken -gitHubAppClientId $e2eAppClientId -privateKey $e2eAppPrivateKey -repository $repository
         }
         'TokenAuth' {
             $script:token = $token
