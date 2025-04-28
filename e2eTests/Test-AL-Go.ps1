@@ -101,7 +101,7 @@ else {
 $template = "https://github.com/$template"
 
 # Login
-SetTokenAndRepository -github:$github -githubOwner $githubOwner -token $e2eauthApp -repository $repository
+SetTokenAndRepository -github:$github -githubOwner $githubOwner -token $e2epat -repository $repository
 
 # Create repo
 # Set DoNotPublishApps to true until we have test apps and set useCompilerFolder

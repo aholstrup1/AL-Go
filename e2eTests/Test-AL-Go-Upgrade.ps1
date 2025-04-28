@@ -102,7 +102,7 @@ if ($releaseVersion -ge [System.Version]"6.4") {
     SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $algoauthapp
 }
 else {
-    SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $ghtokenworkflow
+    SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $e2epat
 }
 RunUpdateAlGoSystemFiles -templateUrl $template -wait -repository $repository -branch $branch | Out-Null
 
