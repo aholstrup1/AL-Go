@@ -164,7 +164,6 @@ jobs:
           $errorActionPreference = "Stop"; $ProgressPreference = "SilentlyContinue"; Set-StrictMode -Version 2.0
           $modulePath = Join-Path "." "e2eTests\e2eTestHelper.psm1" -resolve
           Import-Module $modulePath -DisableNameChecking
-          SetTokenAndRepository -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -token $ENV:GH_TOKEN -repository "microsoft/AL-Go"
           $maxParallel = [int]'${{ needs.Check.outputs.maxParallel }}'
 
           $publicTestruns = @{
