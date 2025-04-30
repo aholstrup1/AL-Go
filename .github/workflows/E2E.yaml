@@ -65,11 +65,11 @@ jobs:
         run: |
           $err = $false
           if ('${{ Secrets.E2EPAT }}' -eq '') {
-            Write-Host "::Warning::Some tests will fail without a Secret called E2EPAT containing a valid Personal Access Token with the following permissions: admin:org, delete_repo, repo, workflow, packages:write"
+            Write-Host "::Error::Some tests will fail without a Secret called E2EPAT containing a valid Personal Access Token with the following permissions: admin:org, delete_repo, repo, workflow, packages:write"
             $err = $true
           }
           if (('${{ vars.E2E_APP_ID }}' -eq '') -and ('${{ secrets.E2E_PRIVATE_KEY }}' -eq '')){
-            Write-Host "::Warning::In order to run end to end tests, you need a Secret called E2E_PRIVATE_KEY and a variable called E2E_APP_ID."
+            Write-Host "::Error::In order to run end to end tests, you need a Secret called E2E_PRIVATE_KEY and a variable called E2E_APP_ID."
             $err = $true
           }
           if ('${{ Secrets.ALGOAUTHAPP }}' -eq '') {
@@ -119,7 +119,6 @@ jobs:
 
       - uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
         id: app-token
-        if: ${{ vars.E2E_APP_ID != '' }}
         with:
           app-id: ${{ vars.E2E_APP_ID }}
           private-key: ${{ secrets.E2E_PRIVATE_KEY }}
@@ -154,7 +153,6 @@ jobs:
 
       - uses: actions/create-github-app-token@3ff1caaa28b64c9cc276ce0a02e2ff584f3900c5 # v2.0.2
         id: app-token
-        if: ${{ vars.E2E_APP_ID != '' }}
         with:
           app-id: ${{ vars.E2E_APP_ID }}
           private-key: ${{ secrets.E2E_PRIVATE_KEY }}
