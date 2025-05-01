@@ -44,8 +44,8 @@ function SetToken {
     Param(
         [Parameter(Mandatory = $false)]
         [string] $token,
-        [Parameter(Mandatory = $true)]
-        [string] $repository
+        [Parameter(Mandatory = $false)]
+        [string] $repository = $ENV:GITHUB_REPOSITORY
     )
 
     if ($token) {
@@ -528,7 +528,8 @@ function CommitAndPush {
     )
 
     if ($wait) {
-        $headers = GetHeaders -token $token
+        SetToken -repository "$githubOwner/.github"
+        $headers = GetHeaders -token $ENV:GH_TOKEN
         Write-Host "Get Previous runs"
         $url = "https://api.github.com/repos/$repository/actions/runs"
         $previousrunids = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'push' } | Select-Object -ExpandProperty id
