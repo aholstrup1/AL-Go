@@ -58,7 +58,7 @@ function SetToken {
 
     Write-Host "Authenticating with GitHub using token"
     $realToken = GetAccessToken -token $script:token -repository $repository
-    $realToken | invoke-gh auth login --with-token
+    #$realToken | invoke-gh auth login --with-token
     if ($github) {
         $ENV:GITHUB_TOKEN = $realToken
         $ENV:GH_TOKEN = $realToken
