@@ -94,6 +94,7 @@ CommitAndPush -commitMessage 'DeployToGitHubPages'
 RunDeployReferenceDocumentation -repository $repository -wait | Out-Null
 
 # Get Pages URL and read the content
+SetToken -repository $repository
 $pagesInfo = gh api /repos/$repository/pages | ConvertFrom-Json
 $html = (Invoke-WebRequest -Uri $pagesInfo.html_url -UseBasicParsing).Content
 $html | Should -belike "*Documentation for $repository*"

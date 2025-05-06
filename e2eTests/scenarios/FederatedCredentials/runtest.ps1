@@ -5,6 +5,7 @@ Param(
     [switch] $linux,
     [string] $githubOwner = $global:E2EgithubOwner,
     [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
+    [string] $e2epat = ($Global:SecureE2EPAT | Get-PlainText),
     [string] $e2eAppId,
     [string] $e2eKey,
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
@@ -59,11 +60,11 @@ $branch = "e2e"
 $template = "https://github.com/$appSourceTemplate"
 $repository = 'microsoft/bcsamples-bingmaps.appsource'
 
-SetTokenAndRepository -github:$github -githubOwner $githubOwner -appId $e2eAppId -appKey $e2eKey -repository $repository
+SetTokenAndRepository -github:$github -githubOwner $githubOwner -token $e2epat -repository $repository
 
 # Get the branches from https://github.com/microsoft/bcsamples-bingmaps.appsource
 # Use e2e PAT to get the branches - as token doesn't have access to the repository
-$headers = GetHeaders -token $ENV:GH_TOKEN -repository "$githubOwner/.github"
+$headers = GetHeaders -token $e2epat -repository "$githubOwner/.github"
 $existingBranchJson = gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/$repository/branches/$branch 2> $null
 $existingBranch = $existingBranchJson | ConvertFrom-Json
 if ($existingBranch -and $existingBranch.PSObject.Properties.Name -eq 'Name' -and $existingBranch.Name -eq $branch) {

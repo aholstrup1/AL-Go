@@ -263,8 +263,8 @@ function WaitWorkflow {
     $count = 0
     $status = ""
     do {
+        SetToken -repository "$githubOwner/.github"
         if ($count % 45 -eq 0) {
-            SetToken -repository "$githubOwner/.github"
             $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
             $count++
         }
