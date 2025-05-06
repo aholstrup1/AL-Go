@@ -37,15 +37,15 @@ function SetTokenAndRepository {
     if ($appKey -and $appId) {
         $token = @{ "GitHubAppClientId" = $appId; "PrivateKey" = ($appKey -join '') } | ConvertTo-Json -Compress -Depth 99
     }
-    RefreshToken -token $token -repository $repository
+    RefreshToken -token $token -repository "$githubOwner/.github"
 }
 
 function RefreshToken {
     Param(
         [Parameter(Mandatory = $false)]
         [string] $token,
-        [Parameter(Mandatory = $false)]
-        [string] $repository = $ENV:GITHUB_REPOSITORY
+        [Parameter(Mandatory = $true)]
+        [string] $repository
     )
 
     if ($token) {
