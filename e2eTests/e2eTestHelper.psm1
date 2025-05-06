@@ -37,10 +37,10 @@ function SetTokenAndRepository {
     if ($appKey -and $appId) {
         $token = @{ "GitHubAppClientId" = $appId; "PrivateKey" = ($appKey -join '') } | ConvertTo-Json -Compress -Depth 99
     }
-    SetToken -token $token -repository "$githubOwner/.github"
+    RefreshToken -token $token -repository $repository
 }
 
-function SetToken {
+function RefreshToken {
     Param(
         [Parameter(Mandatory = $false)]
         [string] $token,
@@ -136,7 +136,7 @@ function RunWorkflow {
         Write-Host ($parameters | ConvertTo-Json)
     }
 
-    SetToken -repository $repository
+    RefreshToken -repository $repository
 
     $headers = GetHeaders -token $Env:GH_TOKEN -repository "$($script:githubOwner)/.github"
     WaitForRateLimit -headers $headers -displayStatus
@@ -203,7 +203,7 @@ function DownloadWorkflowLog {
     if (!$repository) {
         $repository = $defaultRepository
     }
-    SetToken -repository "$githubOwner/.github"
+    RefreshToken -repository $repository
     $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
     $url = "https://api.github.com/repos/$repository/actions/runs/$runid"
     $run = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json)
@@ -263,7 +263,7 @@ function WaitWorkflow {
     $count = 0
     $status = ""
     do {
-        SetToken -repository "$githubOwner/.github"
+        RefreshToken -repository $repository
         if ($count % 45 -eq 0) {
             $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
             $count++
@@ -503,7 +503,7 @@ function CreateAlGoRepository {
     invoke-git commit --allow-empty -m 'init'
     invoke-git branch -M $branch
     if ($githubOwner) {
-        SetToken -repository "$githubOwner/.github"
+        RefreshToken -repository $repository
         invoke-git remote set-url origin "https://$($githubOwner):$($ENV:GH_TOKEN)@github.com/$repository.git"
     }
     invoke-git push --set-upstream origin $branch
@@ -527,8 +527,13 @@ function CommitAndPush {
         [switch] $wait
     )
 
+    if (!$repository) {
+        $repository = $defaultRepository
+    }
+
+    RefreshToken -repository $repository
+
     if ($wait) {
-        SetToken -repository "$githubOwner/.github"
         $headers = GetHeaders -token $ENV:GH_TOKEN
         Write-Host "Get Previous runs"
         $url = "https://api.github.com/repos/$repository/actions/runs"
@@ -569,7 +574,7 @@ function MergePRandPull {
     }
 
     Write-Host "Get Previous runs"
-    SetToken -repository "$githubOwner/.github"
+    RefreshToken -repository $repository
     $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
     $url = "https://api.github.com/repos/$repository/actions/runs"
     $previousrunids = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'push' } | Select-Object -ExpandProperty id
