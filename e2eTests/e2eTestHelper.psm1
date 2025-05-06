@@ -58,7 +58,6 @@ function RefreshToken {
 
     Write-Host "Authenticating with GitHub using token"
     $realToken = GetAccessToken -token $script:token -repository $repository -repositories @()
-    #$realToken | invoke-gh auth login --with-token
     if ($github) {
         $ENV:GITHUB_TOKEN = $realToken
         $ENV:GH_TOKEN = $realToken
@@ -138,7 +137,7 @@ function RunWorkflow {
 
     RefreshToken -repository $repository
 
-    $headers = GetHeaders -token $Env:GH_TOKEN -repository "$($script:githubOwner)/.github"
+    $headers = GetHeaders -token $Env:GH_TOKEN -repository $repository
     WaitForRateLimit -headers $headers -displayStatus
 
     Write-Host "Get Workflows"
@@ -204,7 +203,7 @@ function DownloadWorkflowLog {
         $repository = $defaultRepository
     }
     RefreshToken -repository $repository
-    $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
+    $headers = GetHeaders -token $ENV:GH_TOKEN -repository $repository
     $url = "https://api.github.com/repos/$repository/actions/runs/$runid"
     $run = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json)
     $log = InvokeWebRequest -Method Get -Headers $headers -Uri $run.logs_url
@@ -265,7 +264,7 @@ function WaitWorkflow {
     do {
         RefreshToken -repository $repository
         if ($count % 45 -eq 0) {
-            $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
+            $headers = GetHeaders -token $ENV:GH_TOKEN -repository $repository
             $count++
         }
         if ($delay) {
@@ -575,7 +574,7 @@ function MergePRandPull {
 
     Write-Host "Get Previous runs"
     RefreshToken -repository $repository
-    $headers = GetHeaders -token $ENV:GH_TOKEN -repository "$($script:githubOwner)/.github"
+    $headers = GetHeaders -token $ENV:GH_TOKEN -repository $repository
     $url = "https://api.github.com/repos/$repository/actions/runs"
     $previousrunids = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'push' } | Select-Object -ExpandProperty id
     if ($previousrunids) {
