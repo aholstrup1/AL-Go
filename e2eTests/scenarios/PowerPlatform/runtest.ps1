@@ -74,10 +74,8 @@ foreach($sourceRepo in $repositories) {
     Write-Host "PowerPlatform Solution Folder: $($settings.powerPlatformSolutionFolder)"
 
     # Upgrade AL-Go System Files to test version
-    # TODO: E2EPAT update bcsamples powerplatform repositories to latest version
-    RunUpdateAlGoSystemFiles -directCommit -wait -templateUrl $template -ghTokenWorkflow $algoauthapp -repository $repository | Out-Null
-
     SetRepositorySecret -repository $repository -name 'GHTOKENWORKFLOW' -value $algoauthapp
+    RunUpdateAlGoSystemFiles -directCommit -templateUrl $template -wait -repository $repository | Out-Null
 
     CancelAllWorkflows -repository $repository
 
