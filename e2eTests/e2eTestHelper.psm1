@@ -4,6 +4,7 @@ $defaultRepository = "repo"
 $defaultApplication = "22.0.0.0"
 $defaultRuntime = "10.0"
 $defaultPublisher = "MS Test"
+$lastTokenRefresh = 0
 
 Import-Module (Join-Path $PSScriptRoot "..\Actions\Github-Helper.psm1" -Resolve) -DisableNameChecking -Global
 . (Join-Path $PSScriptRoot "..\Actions\AL-Go-Helper.ps1" -Resolve)
@@ -54,10 +55,14 @@ function RefreshToken {
         throw "Token not set."
     }
 
-    $ENV:GITHUB_TOKEN = ''
-    $ENV:GH_TOKEN = ''
+    # Check if the last token refresh was more than 30 minutes ago
+    if (($script:lastTokenRefresh -ne 0) -and (([DateTime]::Now - $script:lastTokenRefresh).TotalMinutes -lt 30)) {
+        Write-Host "Token is still valid, skipping refresh"
+    }
+
     Write-Host "Authenticating with GitHub using token"
     $realToken = GetAccessToken -token $script:token -repository $repository -repositories @()
+    $script:lastTokenRefresh = [DateTime]::Now
     if ($github) {
         Write-Host "Setting token in environment variables"
         $ENV:GITHUB_TOKEN = $realToken
