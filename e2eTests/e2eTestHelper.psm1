@@ -59,10 +59,6 @@ function RefreshToken {
     Write-Host "Authenticating with GitHub using token"
     $realToken = GetAccessToken -token $script:token -repository $repository -repositories @()
     if ($github) {
-        if ($realToken -eq $ENV:GH_TOKEN) {
-            Write-Host "Got the same token as before, no need to set it again"
-            return
-        }
         Write-Host "Setting token in environment variables"
         $ENV:GITHUB_TOKEN = $realToken
         $ENV:GH_TOKEN = $realToken
@@ -509,7 +505,7 @@ function CreateAlGoRepository {
     invoke-git branch -M $branch
     if ($githubOwner) {
         RefreshToken -repository $repository
-        invoke-git remote set-url origin "https://$($githubOwner):$($ENV:GH_TOKEN)@github.com/$repository.git"
+        invoke-git remote set-url origin "https://$($githubOwner)@github.com/$repository.git"
     }
     invoke-git push --set-upstream origin $branch
     if (!$github) {

@@ -111,6 +111,7 @@ WaitAllWorkflows -repository $repository -noError
 
 # Get Pages URL and read the content
 $pagesInfo = invoke-gh api /repos/$repository/pages | ConvertFrom-Json
+Write-Host "Pages Info: $($pagesInfo | ConvertTo-Json)"
 $html = (Invoke-WebRequest -Uri $pagesInfo.html_url -UseBasicParsing).Content
 $html | Should -belike "*Documentazione per $repository*"
 
