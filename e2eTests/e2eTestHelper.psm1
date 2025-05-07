@@ -30,8 +30,6 @@ function SetTokenAndRepository {
         invoke-git config --global user.name "$githubOwner"
         invoke-git config --global hub.protocol https
         invoke-git config --global core.autocrlf false
-        $ENV:GITHUB_TOKEN = ''
-        $ENV:GH_TOKEN = ''
     }
 
     if ($appKey -and $appId) {
@@ -56,11 +54,19 @@ function RefreshToken {
         throw "Token not set."
     }
 
+    $ENV:GITHUB_TOKEN = ''
+    $ENV:GH_TOKEN = ''
     Write-Host "Authenticating with GitHub using token"
     $realToken = GetAccessToken -token $script:token -repository $repository -repositories @()
     if ($github) {
+        if ($realToken -eq $ENV:GH_TOKEN) {
+            Write-Host "Got the same token as before, no need to set it again"
+            return
+        }
+        Write-Host "Setting token in environment variables"
         $ENV:GITHUB_TOKEN = $realToken
         $ENV:GH_TOKEN = $realToken
+        invoke-gh auth setup-git
     }
     else {
         $realToken | invoke-gh auth login --with-token
