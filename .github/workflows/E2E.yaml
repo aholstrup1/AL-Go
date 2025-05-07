@@ -250,7 +250,7 @@ jobs:
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
       - name: Run test on Windows
-        if : ${{ matrix.scenario == 'GitHubPackages' || matrix.scenario == 'FederatedCredentials' }}
+        if : ${{ matrix.scenario == 'GitHubPackages' }}
         run: |
           try {
             . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2epat '${{ Secrets.E2EPAT }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}'
@@ -263,7 +263,7 @@ jobs:
           }
 
       - name: Run test on Windows
-        if : ${{ matrix.scenario != 'GitHubPackages' && matrix.scenario != 'FederatedCredentials' }}
+        if : ${{ matrix.scenario != 'GitHubPackages' }}
         run: |
           try {
             . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}'
@@ -300,7 +300,7 @@ jobs:
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
       - name: Run tests
-        if : ${{ matrix.scenario == 'GitHubPackages' || matrix.scenario == 'FederatedCredentials' }}
+        if : ${{ matrix.scenario == 'GitHubPackages' }}
         run: |
           try {
             . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -linux -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2epat '${{ Secrets.E2EPAT }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}'
@@ -313,7 +313,7 @@ jobs:
           }
 
       - name: Run tests
-        if : ${{ matrix.scenario != 'GitHubPackages' && matrix.scenario != 'FederatedCredentials' }}
+        if : ${{ matrix.scenario != 'GitHubPackages' }}
         run: |
           try {
             . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -linux -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}'
