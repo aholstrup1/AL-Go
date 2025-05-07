@@ -4,7 +4,7 @@ Param(
     [switch] $github,
     [switch] $linux,
     [string] $githubOwner = $global:E2EgithubOwner,
-    [string] $repoName = "E2ETest-bingmaps.appsource",
+    [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
     [string] $e2eAppId,
     [string] $e2eKey,
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
@@ -55,7 +55,7 @@ if ($linux) {
 Remove-Module e2eTestHelper -ErrorAction SilentlyContinue
 Import-Module (Join-Path $PSScriptRoot "..\..\e2eTestHelper.psm1") -DisableNameChecking
 
-$repository = "$githubOwner/$repoName"
+$repository = "$githubOwner/E2ETest-bingmaps.appsource"
 $branch = "main"
 $template = "https://github.com/$appSourceTemplate"
 $sourceRepository = 'microsoft/bcsamples-bingmaps.appsource' # E2E test will create a copy of this repository
