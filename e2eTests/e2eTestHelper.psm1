@@ -44,7 +44,9 @@ function RefreshToken {
         [Parameter(Mandatory = $false)]
         [string] $token,
         [Parameter(Mandatory = $true)]
-        [string] $repository
+        [string] $repository,
+        [Parameter(Mandatory = $false)]
+        [switch] $force
     )
 
     if ($token) {
@@ -56,8 +58,9 @@ function RefreshToken {
     }
 
     # Check if the last token refresh was more than 30 minutes ago
-    if (($script:lastTokenRefresh -ne 0) -and (([DateTime]::Now - $script:lastTokenRefresh).TotalMinutes -lt 30)) {
+    if ((-not $force) -and ($script:lastTokenRefresh -ne 0) -and (([DateTime]::Now - $script:lastTokenRefresh).TotalMinutes -lt 30)) {
         Write-Host "Token is still valid, skipping refresh"
+        return
     }
 
     Write-Host "Authenticating with GitHub using token"
@@ -517,6 +520,8 @@ function CreateAlGoRepository {
         Start-Process "https://github.com/$repository/actions"
     }
     Start-Sleep -seconds 10
+
+    RefreshToken -repository $repository -force
 }
 
 function Pull {
