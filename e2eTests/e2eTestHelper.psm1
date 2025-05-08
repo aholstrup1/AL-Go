@@ -508,11 +508,12 @@ function CreateAlGoRepository {
         Add-PropertiesToJsonFile -path $repoSettingsFile -properties $addRepoSettings
     }
 
+    RefreshToken -repository $repository -force
+
     invoke-git add *
     invoke-git commit --allow-empty -m 'init'
     invoke-git branch -M $branch
     if ($githubOwner) {
-        RefreshToken -repository $repository
         invoke-git remote set-url origin "https://$($githubOwner)@github.com/$repository.git"
     }
     invoke-git push --set-upstream origin $branch
@@ -520,8 +521,6 @@ function CreateAlGoRepository {
         Start-Process "https://github.com/$repository/actions"
     }
     Start-Sleep -seconds 10
-
-    RefreshToken -repository $repository -force
 }
 
 function Pull {
