@@ -11,7 +11,8 @@ Param(
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $pteTemplate = $global:pteTemplate,
     [string] $appSourceTemplate = $global:appSourceTemplate,
-    [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText)
+    [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText),
+    [string] $azureConnectionSecret
 )
 
 Write-Host -ForegroundColor Yellow @'
@@ -59,6 +60,19 @@ $branch = "main"
 
 $template = "https://github.com/$pteTemplate"
 
+function SetGitHubPackagesContext {
+    Param(
+        [string] $githubOwner,
+        [string] $repository
+    )
+    RefreshToken -repository $repository
+    $githubPackagesContextJson = @{
+        "serverUrl"="https://nuget.pkg.github.com/$($githubOwner.ToLowerInvariant())/index.json"
+        "token"=$ENV:GH_TOKEN
+    } | ConvertTo-Json -Compress
+    SetRepositorySecret -repository $repository -name 'GitHubPackagesContext' -value $githubPackagesContextJson
+}
+
 # Login
 SetTokenAndRepository -github:$github -githubOwner $githubOwner -appId $e2eAppId -appKey $e2eKey -repository $repository
 
@@ -85,7 +99,7 @@ CreateAlGoRepository `
         $script:id3 = CreateNewAppInFolder -folder $path -name app3 -objID 50003 -dependencies @( @{ "id" = $script:id1; "name" = "app1"; "publisher" = (GetDefaultPublisher); "version" = "1.0.0.0" }, @{ "id" = $script:id2; "name" = "app2"; "publisher" = (GetDefaultPublisher); "version" = "1.0.0.0" } )
         Add-PropertiesToJsonFile -path (Join-Path $path '.AL-Go\settings.json') -properties @{ "country" = "w1" }
     }
-SetRepositorySecret -repository $repository1 -name 'GitHubPackagesContext' -value $githubPackagesContextJson
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository1
 $repoPath1 = (Get-Location).Path
 $run1 = RunCICD -repository $repository1 -branch $branch
 
@@ -101,7 +115,7 @@ CreateAlGoRepository `
         $script:id4 = CreateNewAppInFolder -folder $path -name app4 -objID 50004 -dependencies @( @{ "id" = $script:id1; "name" = "app1"; "publisher" = (GetDefaultPublisher); "version" = "1.0.0.0" } )
         Add-PropertiesToJsonFile -path (Join-Path $path '.AL-Go\settings.json') -properties @{ "country" = "dk" }
     }
-SetRepositorySecret -repository $repository2 -name 'GitHubPackagesContext' -value $githubPackagesContextJson
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository2
 $repoPath2 = (Get-Location).Path
 
 CreateAlGoRepository `
@@ -116,7 +130,7 @@ CreateAlGoRepository `
         $script:id5 = CreateNewAppInFolder -folder $path -name app5 -objID 50005 -dependencies @( @{ "id" = $script:id4; "name" = "app4"; "publisher" = (GetDefaultPublisher); "version" = "1.0.0.0" }; @{ "id" = $script:id3; "name" = "app3"; "publisher" = (GetDefaultPublisher); "version" = "1.0.0.0" } )
         Add-PropertiesToJsonFile -path (Join-Path $path '.AL-Go\settings.json') -properties @{ "country" = "dk"; "nuGetFeedSelectMode" = "EarliestMatching" }
     }
-SetRepositorySecret -repository $repository -name 'GitHubPackagesContext' -value $githubPackagesContextJson
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository
 $repoPath = (Get-Location).Path
 
 # Wait for CI/CD workflow of repository1 to finish
@@ -124,6 +138,7 @@ Set-Location $repoPath1
 WaitWorkflow -repository $repository1 -runid $run1.id
 
 # Run a second time with wait (to have at least two versions in the feed 1.0.2 and 1.0.3 - RUN_NUMBER 1 was initial commit)
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository1
 $run1 = RunCICD -repository $repository1 -branch $branch -wait
 
 # test artifacts generated in repository1
@@ -131,6 +146,7 @@ Test-ArtifactsFromRun -runid $run1.id -folder 'artifacts' -expectedArtifacts @{"
 
 # Wait for CI/CD workflow of repository2 to finish
 Set-Location $repoPath2
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository2
 $run2 = RunCICD -repository $repository2 -branch $branch -wait
 
 # Run a second time with wait (due to GitHubPackages error with our organization?)
@@ -141,6 +157,7 @@ Test-ArtifactsFromRun -runid $run2.id -folder 'artifacts' -expectedArtifacts @{"
 
 # Wait for CI/CD workflow of main repo to finish
 Set-Location $repoPath
+SetGitHubPackagesContext -githubOwner $githubOwner -repository $repository
 $run = RunCICD -repository $repository -branch $branch -wait
 
 # test artifacts generated in main repo

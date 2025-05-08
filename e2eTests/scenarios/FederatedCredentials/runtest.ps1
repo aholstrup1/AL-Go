@@ -10,7 +10,8 @@ Param(
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $pteTemplate = $global:pteTemplate,
     [string] $appSourceTemplate = $global:appSourceTemplate,
-    [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText)
+    [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText),
+    [string] $azureConnectionSecret
 )
 
 Write-Host -ForegroundColor Yellow @'
@@ -67,6 +68,8 @@ CreateAlGoRepository `
     -template "https://github.com/$sourceRepository" `
     -repository $repository `
     -branch $branch
+
+SetRepositorySecret -repository $repository -name 'Azure_Credentials' -value $azureConnectionSecret
 
 # Upgrade AL-Go System Files to test version
 # bcsamples-bingmaps.appsource already has the GHTOKENWORKFLOW secret
