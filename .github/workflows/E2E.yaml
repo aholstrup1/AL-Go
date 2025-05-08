@@ -64,10 +64,6 @@ jobs:
           githubOwner: ${{ github.event.inputs.githubOwner }}
         run: |
           $err = $false
-          if ('${{ Secrets.E2E_GHPackagesPAT }}' -eq '') {
-            Write-Host "::Error::Some tests will fail without a Secret called E2E_GHPackagesPAT"
-            $err = $true
-          }
           if (('${{ vars.E2E_APP_ID }}' -eq '') -and ('${{ secrets.E2E_PRIVATE_KEY }}' -eq '')){
             Write-Host "::Error::In order to run end to end tests, you need a Secret called E2E_PRIVATE_KEY and a variable called E2E_APP_ID."
             $err = $true
@@ -78,6 +74,14 @@ jobs:
           }
           if ('${{ Secrets.adminCenterApiCredentials }}' -eq '') {
             Write-Host "::Error::In order to run end to end tests, you need a Secret called adminCenterApiCredentials containing API access credentials for BC Admin Center"
+            $err = $true
+          }
+          if ('${{ Secrets.E2E_GHPackagesPAT }}' -eq '') {
+            Write-Host "::Error::Some tests will fail without a Secret called E2E_GHPackagesPAT"
+            $err = $true
+          }
+          if ('${{ Secrets.E2EAZURECREDENTIALS }}' -eq '') {
+            Write-Host "::Error::Some tests will fail without a Secret called E2EAZURECREDENTIALS"
             $err = $true
           }
           if ($err) {

@@ -69,7 +69,7 @@ $repository2 = "$repository.2"
 # https://docs.github.com/en/packages/learn-github-packages/about-permissions-for-github-packages#about-scopes-and-permissions-for-package-registries
 $githubPackagesContext = @{
     "serverUrl"="https://nuget.pkg.github.com/$($githubOwner.ToLowerInvariant())/index.json"
-    "token"=$e2epat
+    "token"=$githubPackagesToken
 }
 $githubPackagesContextJson = ($githubPackagesContext | ConvertTo-Json -Compress)
 
