@@ -64,24 +64,24 @@ jobs:
           githubOwner: ${{ github.event.inputs.githubOwner }}
         run: |
           $err = $false
-          if (('${{ vars.E2E_APP_ID }}' -eq '') -and ('${{ secrets.E2E_PRIVATE_KEY }}' -eq '')){
+          if (('${{ vars.E2E_APP_ID }}' -eq '') -or ('${{ secrets.E2E_PRIVATE_KEY }}' -eq '')){
             Write-Host "::Error::In order to run end to end tests, you need a Secret called E2E_PRIVATE_KEY and a variable called E2E_APP_ID."
             $err = $true
           }
           if ('${{ Secrets.ALGOAUTHAPP }}' -eq '') {
-            Write-Host "::Error::In order to run end to end tests, you need a Secret called ALGOAUTHAPP containing a json structure as described in this app: https://github.com/organizations/BusinessCentralApps/settings/apps/al-go-authentication"
+            Write-Host "::Error::In order to run end to end tests, you need a Secret called ALGOAUTHAPP"
             $err = $true
           }
           if ('${{ Secrets.adminCenterApiCredentials }}' -eq '') {
-            Write-Host "::Error::In order to run end to end tests, you need a Secret called adminCenterApiCredentials containing API access credentials for BC Admin Center"
+            Write-Host "::Error::In order to run end to end tests, you need a Secret called adminCenterApiCredentials"
             $err = $true
           }
           if ('${{ Secrets.E2E_GHPackagesPAT }}' -eq '') {
-            Write-Host "::Error::Some tests will fail without a Secret called E2E_GHPackagesPAT"
+            Write-Host "::Error::In order to run end to end tests, you need a secret called E2E_GHPackagesPAT"
             $err = $true
           }
           if ('${{ Secrets.E2EAZURECREDENTIALS }}' -eq '') {
-            Write-Host "::Error::Some tests will fail without a Secret called E2EAZURECREDENTIALS"
+            Write-Host "::Error::In order to run end to end tests, you need a secret called E2EAZURECREDENTIALS"
             $err = $true
           }
           if ($err) {
