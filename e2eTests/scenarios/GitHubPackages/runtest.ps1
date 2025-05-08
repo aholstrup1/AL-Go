@@ -5,14 +5,14 @@ Param(
     [switch] $linux,
     [string] $githubOwner = $global:E2EgithubOwner,
     [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
-    [string] $e2epat = ($Global:SecureE2EPAT | Get-PlainText),
     [string] $e2eAppId,
     [string] $e2eKey,
     [string] $algoauthapp = ($Global:SecureALGOAUTHAPP | Get-PlainText),
     [string] $pteTemplate = $global:pteTemplate,
     [string] $appSourceTemplate = $global:appSourceTemplate,
     [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText),
-    [string] $azureConnectionSecret
+    [string] $azureConnectionSecret,
+    [string] $githubPackagesToken
 )
 
 Write-Host -ForegroundColor Yellow @'

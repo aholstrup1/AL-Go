@@ -64,8 +64,8 @@ jobs:
           githubOwner: ${{ github.event.inputs.githubOwner }}
         run: |
           $err = $false
-          if ('${{ Secrets.E2EPAT }}' -eq '') {
-            Write-Host "::Error::Some tests will fail without a Secret called E2EPAT containing a valid Personal Access Token with the following permissions: admin:org, delete_repo, repo, workflow, packages:write"
+          if ('${{ Secrets.E2E_GHPackagesPAT }}' -eq '') {
+            Write-Host "::Error::Some tests will fail without a Secret called E2E_GHPackagesPAT"
             $err = $true
           }
           if (('${{ vars.E2E_APP_ID }}' -eq '') -and ('${{ secrets.E2E_PRIVATE_KEY }}' -eq '')){
@@ -250,23 +250,9 @@ jobs:
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
       - name: Run test on Windows
-        if : ${{ matrix.scenario == 'GitHubPackages' }}
         run: |
           try {
-            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2epat '${{ Secrets.E2EPAT }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}'
-          }
-          catch {
-            Write-Host $_.Exception.Message
-            Write-Host $_.ScriptStackTrace
-            Write-Host "::Error::$($_.Exception.Message)"
-            $host.SetShouldExit(1)
-          }
-
-      - name: Run test on Windows
-        if : ${{ matrix.scenario != 'GitHubPackages' }}
-        run: |
-          try {
-            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}'
+            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}' -githubPackagesToken '${{ Secrets.E2E_GHPackagesPAT }}'
           }
           catch {
             Write-Host $_.Exception.Message
@@ -300,23 +286,9 @@ jobs:
           Write-Host "Repo URL: https://github.com/${{ needs.Check.outputs.githubowner }}/$repoName"
 
       - name: Run tests
-        if : ${{ matrix.scenario == 'GitHubPackages' }}
         run: |
           try {
-            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -linux -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2epat '${{ Secrets.E2EPAT }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}'
-          }
-          catch {
-            Write-Host $_.Exception.Message
-            Write-Host $_.ScriptStackTrace
-            Write-Host "::Error::$($_.Exception.Message)"
-            $host.SetShouldExit(1)
-          }
-
-      - name: Run tests
-        if : ${{ matrix.scenario != 'GitHubPackages' }}
-        run: |
-          try {
-            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -linux -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}'
+            . (Join-Path "." "e2eTests/scenarios/${{ matrix.scenario }}/runtest.ps1") -github -linux -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName '${{ steps.calculateParams.outputs.repoName }}' -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -pteTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.perTenantExtensionRepo }}' -appSourceTemplate '${{ needs.Check.outputs.githubowner }}/${{ needs.SetupRepositories.outputs.appSourceAppRepo }}' -adminCenterApiToken '${{ Secrets.adminCenterApiCredentials }}' -azureConnectionSecret '${{ Secrets.E2EAzureCredentials }}' -githubPackagesToken '${{ Secrets.E2E_GHPackagesPAT }}'
           }
           catch {
             Write-Host $_.Exception.Message

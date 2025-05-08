@@ -11,7 +11,8 @@ Param(
     [string] $pteTemplate = $global:pteTemplate,
     [string] $appSourceTemplate = $global:appSourceTemplate,
     [string] $adminCenterApiToken = ($global:SecureAdminCenterApiToken | Get-PlainText),
-    [string] $azureConnectionSecret
+    [string] $azureConnectionSecret,
+    [string] $githubPackagesToken
 )
 
 Write-Host -ForegroundColor Yellow @'
