@@ -56,7 +56,7 @@ if ($linux) {
 Remove-Module e2eTestHelper -ErrorAction SilentlyContinue
 Import-Module (Join-Path $PSScriptRoot "..\..\e2eTestHelper.psm1") -DisableNameChecking
 
-$repository = "$githubOwner/E2ETest-bingmaps.appsource"
+$repository = "$githubOwner/tmp-bingmaps.appsource"
 $branch = "main"
 $template = "https://github.com/$appSourceTemplate"
 $sourceRepository = 'microsoft/bcsamples-bingmaps.appsource' # E2E test will create a copy of this repository
