@@ -85,7 +85,7 @@ WaitWorkflow -repository $repository -runid $run.id
 Test-ArtifactsFromRun -runid $run.id -folder 'artifacts' -expectedArtifacts @{"Apps"=1;"TestApps"=0;"Dependencies"=0;"github-pages"=1} -repoVersion '1.0' -appVersion '1.0'
 
 # Set GitHub Pages in repository to GitHub Actions
-invoke-gh api --method POST /repos/$repository/pages -f build_type=workflow | Out-Null
+gh api --method POST /repos/$repository/pages -f build_type=workflow | Out-Null
 
 # Add setting to deploy to GitHub Pages
 Pull
@@ -97,7 +97,6 @@ RunDeployReferenceDocumentation -repository $repository -wait | Out-Null
 
 # Get Pages URL and read the content
 $pagesInfo = gh api /repos/$repository/pages | ConvertFrom-Json
-Write-Host "Pages Info: $($pagesInfo | ConvertTo-Json)"
 $html = (Invoke-WebRequest -Uri $pagesInfo.html_url -UseBasicParsing).Content
 $html | Should -belike "*Documentation for $repository*"
 
@@ -114,7 +113,6 @@ WaitAllWorkflows -repository $repository -noError
 
 # Get Pages URL and read the content
 $pagesInfo = gh api /repos/$repository/pages | ConvertFrom-Json
-Write-Host "Pages Info: $($pagesInfo | ConvertTo-Json)"
 $html = (Invoke-WebRequest -Uri $pagesInfo.html_url -UseBasicParsing).Content
 $html | Should -belike "*Documentazione per $repository*"
 
