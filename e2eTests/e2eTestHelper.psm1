@@ -36,6 +36,7 @@ function SetTokenAndRepository {
     if ($appKey -and $appId) {
         $token = @{ "GitHubAppClientId" = $appId; "PrivateKey" = ($appKey -join '') } | ConvertTo-Json -Compress -Depth 99
     }
+    # Repository isn't created yet so authenticating towards the .github repository
     RefreshToken -token $token -repository "$githubOwner/.github"
 }
 
@@ -508,7 +509,7 @@ function CreateAlGoRepository {
         Add-PropertiesToJsonFile -path $repoSettingsFile -properties $addRepoSettings
     }
 
-    RefreshToken -repository $repository -force
+    RefreshToken -repository $repository
 
     invoke-git add *
     invoke-git commit --allow-empty -m 'init'

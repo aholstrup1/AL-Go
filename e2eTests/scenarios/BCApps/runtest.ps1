@@ -116,7 +116,6 @@ elseif ($prs.Count -gt 1) {
     throw "More than one Pull Request exists"
 }
 
-RefreshToken -repository $repository
 $headers = GetHeaders -token $ENV:GH_TOKEN -repository $repository
 $url = "https://api.github.com/repos/$repository/actions/runs"
 $run = ((InvokeWebRequest -Method Get -Headers $headers -Uri $url).Content | ConvertFrom-Json).workflow_runs | Where-Object { $_.event -eq 'pull_request' } | Where-Object { $_.name -eq 'Pull Request Build' }
