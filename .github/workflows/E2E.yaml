@@ -458,7 +458,7 @@ jobs:
       - name: Run tests
         run: |
           try {
-            . (Join-Path "." "e2eTests/Test-AL-Go-Upgrade.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -e2epat '${{ Secrets.E2EPAT }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -release '${{ matrix.release }}' -contentPath ${{ steps.calculateParams.outputs.contentPath }}
+            . (Join-Path "." "e2eTests/Test-AL-Go-Upgrade.ps1") -github -githubOwner '${{ needs.Check.outputs.githubowner }}' -repoName ${{ steps.calculateParams.outputs.repoName }} -e2eAppId '${{ vars.E2E_APP_ID }}' -e2eKey '${{ secrets.E2E_PRIVATE_KEY }}' -algoauthapp '${{ Secrets.ALGOAUTHAPP }}' -template ${{ steps.calculateParams.outputs.template }} -appSource:('${{ matrix.type }}' -eq 'appSourceApp') -release '${{ matrix.release }}' -contentPath ${{ steps.calculateParams.outputs.contentPath }}
           }
           catch {
             Write-Host $_.Exception.Message
