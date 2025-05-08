@@ -65,7 +65,7 @@ function SetGitHubPackagesContext {
         [string] $githubOwner,
         [string] $repository
     )
-    RefreshToken -repository $repository
+    RefreshToken -repository $repository -force
     $githubPackagesContextJson = @{
         "serverUrl"="https://nuget.pkg.github.com/$($githubOwner.ToLowerInvariant())/index.json"
         "token"=$ENV:GH_TOKEN
