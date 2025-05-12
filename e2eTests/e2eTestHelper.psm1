@@ -35,9 +35,7 @@ function SetTokenAndRepository {
 
     if (-not $github) {
         # Running locally - Check that user is logged in with gh cli
-        if ((invoke-gh auth status) -like "*not logged in*") {
-            throw "Not logged in to GitHub. Please run 'gh auth login' to log in."
-        }
+        invoke-gh auth status
     } elseif ($appKey -and $appId) {
         # Running in GitHub Actions
         $token = @{ "GitHubAppClientId" = $appId; "PrivateKey" = ($appKey -join '') } | ConvertTo-Json -Compress -Depth 99
