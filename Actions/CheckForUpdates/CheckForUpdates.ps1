@@ -379,9 +379,9 @@ else {
         if ($releaseNotes -eq "") {
             $releaseNotes = "No release notes available!"
         }
-        $removeFiles | ForEach-Object {
+        $removeFiles | Select-Object -Unique | ForEach-Object {
             Write-Host "Remove $_"
-            Remove-Item (Join-Path (Get-Location).Path $_) -Force
+            Remove-Item (Join-Path (Get-Location).Path $_) -Force -ErrorAction SilentlyContinue
         }
 
         # Update the templateUrl and templateSha in the repo settings file
