@@ -93,7 +93,7 @@ if ($repoSettings.templateUrl -ne $templateUrl -or $templateSha -eq '') {
 
 $realTemplateFolder = $null
 $templateHeaders = GetHeadersForTemplateUrl -templateUrl $templateUrl -token $token
-$templateFolder = DownloadTemplateRepository -headers $templateHeaders -templateUrl $templateUrl -templateSha ([ref]$templateSha) -downloadLatest $downloadLatest
+$templateFolder = DownloadTemplateRepository -headers $templateHeaders -templateUrl $templateUrl -templateSha ([ref]$templateSha) -downloadLatest $downloadLatest -token $token
 Write-Host "Template Folder: $templateFolder"
 
 $templateBranch = $templateUrl.Split('@')[1]
@@ -123,7 +123,7 @@ if (-not $isDirectALGo) {
 
             # Download the "real" template repository - use downloadLatest if no TemplateSha is specified in the indirect template repository
             $realTemplateHeaders = GetHeadersForTemplateUrl -templateUrl $realTemplateUrl -token $token
-            $realTemplateFolder = DownloadTemplateRepository -headers $realTemplateHeaders -templateUrl $realTemplateUrl -templateSha ([ref]$realTemplateSha) -downloadLatest ($realTemplateSha -eq '')
+            $realTemplateFolder = DownloadTemplateRepository -headers $realTemplateHeaders -templateUrl $realTemplateUrl -templateSha ([ref]$realTemplateSha) -downloadLatest ($realTemplateSha -eq '') -token $token
             Write-Host "Real Template Folder: $realTemplateFolder"
 
             # Set TemplateBranch and TemplateOwner
