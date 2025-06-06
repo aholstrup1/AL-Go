@@ -20,7 +20,9 @@ try {
     Invoke-Command -ScriptBlock $Action
 
     if (-not $SkipTelemetry) {
-        $AdditionalData["ActionDuration"] = (((Get-Date) - $startTime).TotalSeconds).ToString()
+        $duration = (((Get-Date) - $startTime).TotalSeconds).ToString()
+        Write-Host "Action '$ActionName' completed in $duration seconds"
+        $AdditionalData["ActionDuration"] = $duration
         Trace-Information -ActionName $ActionName -AdditionalData $AdditionalData
     }
 }
