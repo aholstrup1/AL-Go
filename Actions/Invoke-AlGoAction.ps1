@@ -21,14 +21,16 @@ try {
 
     if (-not $SkipTelemetry) {
         $duration = (((Get-Date) - $startTime).TotalSeconds).ToString()
-        Write-Host "Action '$ActionName' completed in $duration seconds"
-        $AdditionalData["ActionDuration"] = $duration
+        Add-TelemetryProperty -Hashtable $AdditionalData -Key 'ActionDuration' -Value $duration
+
         Trace-Information -ActionName $ActionName -AdditionalData $AdditionalData
     }
 }
 catch {
     if (-not $SkipTelemetry) {
-        $AdditionalData["ActionDuration"] = (((Get-Date) - $startTime).TotalSeconds).ToString()
+        $duration = (((Get-Date) - $startTime).TotalSeconds).ToString()
+        Add-TelemetryProperty -Hashtable $AdditionalData -Key 'ActionDuration' -Value $duration
+
         Trace-Exception -ActionName $ActionName -ErrorRecord $_ -AdditionalData $AdditionalData
     }
 
