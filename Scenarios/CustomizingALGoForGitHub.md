@@ -2,15 +2,32 @@
 
 AL-Go for GitHub is a plug-and-play DevOps solution, intended to support 100% of the functionality needed by 90% of the people developing applications for Microsoft Dynamics 365 Business Central out-of-the-box.
 
+## Table of Contents
+
+- [When to Customize](#when-to-customize)
+- [Customization Options](#customization-options)
+- [Customizing Your Repository](#customizing-your-repository)
+  - [Hide/Remove Unused Workflows](#hideremove-unused-workflows)
+  - [Override GitHub Actions](#override-github-actions)
+  - [Custom Scripts](#custom-scripts)
+  - [Custom Jobs](#custom-jobs)
+  - [Custom Workflows](#custom-workflows)
+- [Creating Custom Template Repositories](#creating-custom-template-repositories)
+- [Forking AL-Go for GitHub](#forking-al-go-for-github)
+
+## When to Customize
+
 If AL-Go functionality out-of-the-box doesn't match your needs, you should always start by creating a feature suggestion [here](https://github.com/microsoft/AL-Go/discussions) and see whether your needs are met by other mechanisms or required by other partners and should be part of AL-Go for GitHub.
 
 If your feature should be part of AL-Go for GitHub, you can select to [contribute](Contribute.md) to AL-Go for GitHub yourself or wait for Microsoft or other partners to pickup your feature suggestion.
 
 If your feature suggestion isn't accepted, you really have three options:
 
-1. Customize AL-Go for GitHub to fit your needs
-1. Select another managed DevOps solution
-1. Create your own DevOps solution from scratch (not recommended)
+## Customization Options
+
+1. **Customize the repository** with custom scripts, workflows or jobs following the guidelines below
+2. **Create a customized repository** and use this as your custom template repository
+3. **Fork AL-Go for GitHub** and create your "own" version (not recommended)
 
 Creating your own DevOps solution from scratch requires dedicated resources to develop and maintain workflows, processes etc. **This is not a small task**. There are many moving parts in a DevOps solution, which might require you to make changes to workflows and scripts over time and stay secure and having to maintain many repositories is tedious and time consuming, even when using templates and other advanced features.
 
@@ -32,11 +49,11 @@ There are three ways you can customize AL-Go for GitHub to fit your needs. You c
 > [!CAUTION]
 > The more you customize AL-Go for GitHub, the more likely you are to be broken by future updates to AL-Go for GitHub, meaning that you will have to update your customizations to match the changes in AL-Go for GitHub.
 
-## Customizing your repository
+## Customizing Your Repository
 
 There are several ways you can customize your AL-Go repository and ensure that the changes you make, will survive an update of AL-Go for GitHub.
 
-### Hide/Remove unused workflows
+### Hide/Remove Unused Workflows
 
 By adding a setting called [`unusedALGoSystemFiles`](https://aka.ms/algosettings#unusedalgosystemfiles) in your [repo settings](https://aka.ms/algosettings#settings), you can tell AL-Go for GitHub that these system files are not used. Example:
 
