@@ -4,77 +4,171 @@ The behavior of AL-Go for GitHub is very much controlled by settings and secrets
 
 To learn more about the secrets used by AL-Go for GitHub, please navigate to [Secrets](secrets.md).
 
+## Table of Contents
+
+- [Settings Location Hierarchy](#settings-location-hierarchy)
+- [Basic Project Settings](#basic-project-settings)
+- [AppSource Specific Settings](#appsource-specific-basic-project-settings)
+- [Basic Repository Settings](#basic-repository-settings)
+- [Advanced Settings](#advanced-settings)
+- [Expert Level Settings](#expert-level)
+
 <a id="settings"></a>
 
-## Where are the settings located
+## Settings Location Hierarchy
 
 Settings can be defined in GitHub variables or in various settings file. An AL-Go repository can consist of a single project (with multiple apps) or multiple projects (each with multiple apps). Settings can be applied on the project level or on the repository level. Multiple projects in a single repository are comparable to multiple repositories; they are built, deployed, and tested separately. All apps in each project (single or multiple) are built together in the same pipeline, published and tested together. If a repository is multiple projects, each project is stored in a separate folder in the root of the repository.
 
-When running a workflow or a local script, the settings are applied by reading settings from GitHub variables and one or more settings files. Last applied settings file wins. The following lists the order of locations to search for settings:
+### Settings Priority Order
 
-1. `ALGoOrgSettings` is a **GitHub variable**, which can be defined on an **organizational level** and will apply to **all AL-Go repositories** in this organization.
+When running a workflow or a local script, the settings are applied by reading settings from GitHub variables and one or more settings files. **Last applied settings file wins**. The following lists the order of locations to search for settings (from lowest to highest priority):
 
-1. `.github/AL-Go-TemplateRepoSettings.doNotEdit.json` is the repository settings from a custom template repository (if applicable)
+1. **`ALGoOrgSettings`** - GitHub variable defined at **organizational level**, applies to **all AL-Go repositories** in the organization
+2. **`.github/AL-Go-TemplateRepoSettings.doNotEdit.json`** - Repository settings from a custom template repository (if applicable)  
+3. **`.github/AL-Go-settings.json`** - **Repository settings file** containing settings relevant for all projects in the repository
+4. **`ALGoRepoSettings`** - GitHub variable defined at **repository level**, contains settings relevant for **all projects** in the repository
+5. **`.github/AL-Go-TemplateProjectSettings.doNotEdit.json`** - Project settings from a custom template repository (if applicable)
+6. **`.AL-Go/settings.json`** - **Project settings file** (in root for single-project, in project folder for multi-project)
+7. **`.github/<workflow>.settings.json`** - **Workflow-specific settings** for **all projects**
+8. **`.AL-Go/<workflow>.settings.json`** - **Workflow-specific settings** for a **specific project**
+9. **`.AL-Go/<username>.settings.json`** - **User-specific settings** (rarely used, for special user-specific configurations)
 
-1. `.github/AL-Go-settings.json` is the **repository settings file**. This settings file contains settings that are relevant for all projects in the repository. **Special note:** The repository settings file can also contains `BcContainerHelper` settings, which will be applied when loading `BcContainerHelper` in a workflow - the GitHub variables are not considered for BcContainerHelper settings. (see expert section).
-
-1. `ALGoRepoSettings` is a **GitHub variable**, which can be defined on an **repository level** and can contain settings that are relevant for **all projects** in the repository.
-
-1. `.github/AL-Go-TemplateProjectSettings.doNotEdit.json` is the project settings from a custom template repository (if applicable)
-
-1. `.AL-Go/settings.json` is the **project settings file**. If the repository is a single project, the .AL-Go folder is in the root folder of the repository. If the repository contains multiple projects, there will be a .AL-Go folder in each project folder (like `project/.AL-Go/settings.json`)
-
-1. `.github/<workflow>.settings.json` is the **workflow-specific settings file** for **all projects**. This option is used for the Current, NextMinor and NextMajor workflows to determine artifacts and build numbers when running these workflows.
-
-1. `.AL-Go/<workflow>.settings.json` is the **workflow-specific settings file** for a **specific project**.
-
-1. `.AL-Go/<username>.settings.json` is the **user-specific settings file**. This option is rarely used, but if you have special settings, which should only be used for one specific user (potentially in the local scripts), these settings can be added to a settings file with the name of the user followed by `.settings.json`.
+> [!NOTE]
+> The repository settings file can also contain `BcContainerHelper` settings, which will be applied when loading `BcContainerHelper` in a workflow. GitHub variables are not considered for BcContainerHelper settings.
 
 <a id="basic"></a>
 
-## Basic Project settings
+## Basic Project Settings
 
-| Name | Description | Default value |
+These settings are typically defined in the project-level settings file (`.AL-Go/settings.json`).
+
+### Core App Configuration
+
+| Setting | Description | Default |
 | :-- | :-- | :-- |
-| <a id="country"></a>country | Specifies which country this app is built against. | us |
-| <a id="repoVersion"></a>repoVersion | RepoVersion is the project version number. The Repo Version number consists of \<major>.\<minor> only and is used for naming build artifacts in the CI/CD workflow. Build artifacts are named **\<project>-Apps-\<repoVersion>.\<build>.\<revision>** and can contain multiple apps. The Repo Version number is used as major.minor for individual apps if versioningStrategy is +16. | 1.0 |
-| <a id="projectName"></a>projectName | Friendly name for an AL-Go project to be used in the UI for various workflows (CICD, Pull Request Build, etc.). If not set, the name for the project will be the relative path from the root of the repository. | '' |
-| <a id="appFolders"></a>appFolders | appFolders should be an array of folders (relative to project root), which contains apps for this project. Apps in these folders are sorted based on dependencies and built and published in that order.<br />If appFolders are not specified, AL-Go for GitHub will try to locate appFolders in the root of the project. | [ ] |
-| <a id="testFolders"></a>testFolders | testFolders should be an array of folders (relative to project root), which contains test apps for this project. Apps in these folders are sorted based on dependencies and built, published and tests are run in that order.<br />If testFolders are not specified, AL-Go for GitHub will try to locate testFolders in the root of the project. | [ ] |
-| <a id="bcptTestFolders"></a>bcptTestFolders | bcptTestFolders should be an array of folders (relative to project root), which contains performance test apps for this project. Apps in these folders are sorted based on dependencies and built, published and bcpt tests are run in that order.<br />If bcptTestFolders are not specified, AL-Go for GitHub will try to locate bcptTestFolders in the root of the project. | [ ] |
-| <a id="pageScriptingTests"></a>pageScriptingTests | pageScriptingTests should be an array of page scripting test file specifications, relative to the AL-Go project. Examples of file specifications: `recordings/my*.yml` (for all yaml files in the recordings subfolder matching my\*.yml), `recordings` (for all \*.yml files in the recordings subfolder) or `recordings/test.yml` (for a single yml file) | [ ] |
-| <a id="doNotRunpageScriptingTests"></a>doNotRunpageScriptingTests | When true, this setting forces the pipeline to NOT run the page scripting tests specified in pageScriptingTests. Note this setting can be set in a [workflow specific settings file](#where-are-the-settings-located) to only apply to that workflow | false |
-| <a id="restoreDatabases"></a>restoreDatabases | restoreDatabases should be an array of events, indicating when you want to start with clean databases in the container. Possible events are: `BeforeBcpTests`, `BeforePageScriptingTests`, `BeforeEachTestApp`, `BeforeEachBcptTestApp`, `BeforeEachPageScriptingTest` | [ ] |
-| <a id="appDependencyProbingPaths"></a>appDependencyProbingPaths | Array of dependency specifications, from which apps will be downloaded when the CI/CD workflow is starting. Every dependency specification consists of the following properties:<br />**repo** = repository<br />**version** = version (default latest)<br />**release_status** = latestBuild/release/prerelease/draft (default release)<br />**projects** = projects (default * = all)<br />**branch** = branch (default main)<br />**AuthTokenSecret** = Name of secret containing auth token (default none)<br /> | [ ] |
-| <a id="preprocessorSymbols"></a>preprocessorSymbols | List of preprocessor symbols to use when building the apps. This setting can be specified in [workflow specific settings files](https://aka.ms/algosettings#where-are-the-settings-located) or in [conditional settings](https://aka.ms/algosettings#conditional-settings). | [ ] |
-| <a id="bcptThresholds"></a>bcptThresholds | Structure with properties for the thresholds when running performance tests using the Business Central Performance Toolkit.<br />**DurationWarning** = a warning is shown if the duration of a bcpt test degrades more than this percentage (default 10)<br />**DurationError** - an error is shown if the duration of a bcpt test degrades more than this percentage (default 25)<br />**NumberOfSqlStmtsWarning** - a warning is shown if the number of SQL statements from a bcpt test increases more than this percentage (default 5)<br />**NumberOfSqlStmtsError** - an error is shown if the number of SQL statements from a bcpt test increases more than this percentage (default 10)<br />*Note that errors and warnings on the build in GitHub are only issued when a threshold is exceeded on the codeunit level, when an individual operation threshold is exceeded, it is only shown in the test results viewer.* |
+| <a id="country"></a>**country** | Specifies which country this app is built against | `us` |
+| <a id="repoVersion"></a>**repoVersion** | Project version number (major.minor only). Used for naming build artifacts as **\<project>-Apps-\<repoVersion>.\<build>.\<revision>** | `1.0` |
+| <a id="projectName"></a>**projectName** | Friendly name for the AL-Go project displayed in UI workflows. If not set, uses the relative path from repository root | `''` |
 
-## AppSource specific basic project settings
+### App and Test Folders
 
-| Name | Description | Default value |
+| Setting | Description | Default |
 | :-- | :-- | :-- |
-| <a id="appSourceCopMandatoryAffixes"></a>appSourceCopMandatoryAffixes | This setting is only used if the type is AppSource App. The value is an array of affixes, which is used for running AppSource Cop. | [ ] |
-| <a id="deliverToAppSource"></a>deliverToAppSource | Structure with properties for AppSource delivery from AL-Go for GitHub. The structure can contain the following properties:<br />**branches** = an array of branch patterns, which are allowed to deliver to AppSource. (Default main)<br />**productId** must be the product Id from partner Center.<br />**mainAppFolder** specifies the appFolder of the main app if you have multiple apps in the same project.<br />**continuousDelivery** can be set to true to enable continuous delivery of every successful build to AppSource Validation. Note that the app will only be in preview in AppSource and you will need to manually press GO LIVE in order for the app to be promoted to production.<br />**includeDependencies** can be set to an array of file names (incl. wildcards) which are the names of the dependencies to include in the AppSource submission. You need to set `generateDependencyArtifact` in the [project settings file](#where-are-the-settings-located) to true in order to include dependencies.<br />**Note:** You will need to define an AppSourceContext secret in order to publish to AppSource. | |
-| <a id="obsoleteTagMinAllowedMajorMinor"></a>obsoleteTagMinAllowedMajorMinor | This setting will enable AppSource cop rule AS0105, which causes objects that are pending obsoletion with an obsolete tag version lower than the minimum set in this property are not allowed. | |
+| <a id="appFolders"></a>**appFolders** | Array of folders (relative to project root) containing apps. Apps are sorted by dependencies and built in order | `[ ]` |
+| <a id="testFolders"></a>**testFolders** | Array of folders containing test apps. Sorted by dependencies, built, published and tested in order | `[ ]` |
+| <a id="bcptTestFolders"></a>**bcptTestFolders** | Array of folders containing performance test apps. Used for Business Central Performance Toolkit tests | `[ ]` |
 
-## Basic Repository settings
+### Page Scripting and Database Management
 
-The repository settings are only read from the repository settings file (.github\\AL-Go-Settings.json)
+| Setting | Description | Default |
+| :-- | :-- | :-- |
+| <a id="pageScriptingTests"></a>**pageScriptingTests** | Array of page scripting test file specifications. Examples: `recordings/my*.yml`, `recordings`, `recordings/test.yml` | `[ ]` |
+| <a id="doNotRunpageScriptingTests"></a>**doNotRunpageScriptingTests** | When true, forces pipeline to NOT run page scripting tests. Can be set in workflow-specific settings | `false` |
+| <a id="restoreDatabases"></a>**restoreDatabases** | Array of events for starting with clean databases. Events: `BeforeBcpTests`, `BeforePageScriptingTests`, `BeforeEachTestApp`, `BeforeEachBcptTestApp`, `BeforeEachPageScriptingTest` | `[ ]` |
 
-| Name | Description |
+### Dependencies and Build Configuration
+
+| Setting | Description | Default |
+| :-- | :-- | :-- |
+| <a id="appDependencyProbingPaths"></a>**appDependencyProbingPaths** | Array of dependency specifications for downloading apps when CI/CD starts. Properties: **repo**, **version**, **release_status**, **projects**, **branch**, **AuthTokenSecret** | `[ ]` |
+| <a id="preprocessorSymbols"></a>**preprocessorSymbols** | List of preprocessor symbols for building apps. Can be specified in workflow-specific or conditional settings | `[ ]` |
+
+### Performance Testing Configuration  
+
+| Setting | Description | Default |
+| :-- | :-- | :-- |
+| <a id="bcptThresholds"></a>**bcptThresholds** | Structure with performance test thresholds:<br/>**DurationWarning** = Warning if test duration degrades more than this % (default 10)<br/>**DurationError** = Error if test duration degrades more than this % (default 25)<br/>**NumberOfSqlStmtsWarning** = Warning if SQL statements increase more than this % (default 5)<br/>**NumberOfSqlStmtsError** = Error if SQL statements increase more than this % (default 10) | See description |
+
+## AppSource Specific Basic Project Settings
+
+These settings are only relevant for repositories with `type` set to "AppSource App".
+
+| Setting | Description | Default |
+| :-- | :-- | :-- |
+| <a id="appSourceCopMandatoryAffixes"></a>**appSourceCopMandatoryAffixes** | Array of affixes used for running AppSource Cop validation | `[ ]` |
+| <a id="deliverToAppSource"></a>**deliverToAppSource** | Structure controlling AppSource delivery with properties:<br/>**branches** = Array of branch patterns allowed to deliver to AppSource (default: `main`)<br/>**productId** = Product ID from Partner Center<br/>**mainAppFolder** = AppFolder of the main app for multi-app projects<br/>**continuousDelivery** = Enable continuous delivery to AppSource Validation (default: `false`)<br/>**includeDependencies** = Array of dependency file names to include (requires `generateDependencyArtifact: true`) | |
+| <a id="obsoleteTagMinAllowedMajorMinor"></a>**obsoleteTagMinAllowedMajorMinor** | Enables AppSource cop rule AS0105 - prevents objects with obsolete tag version lower than this minimum | |
+
+> [!NOTE]
+> You need to define an `AppSourceContext` secret to publish to AppSource.
+
+## Basic Repository Settings
+
+These settings are defined in the repository settings file (`.github/AL-Go-Settings.json`).
+
+### Repository Type and Structure
+
+| Setting | Description |
 | :-- | :-- |
-| <a id="type"></a>type | Specifies the type of repository. Allowed values are **PTE** or **AppSource App**. This value comes with the default repository. Default value is PTE. |
-| <a id="projects"></a>projects | Specifies the list of projects in this repository (names of folders containing AL-Go projects). If not specified, AL-Go will **enumerate folders in the two levels under the root of the repository** for folders containing a `.AL-Go` folder with a `settings.json` file. |
-| <a id="powerPlatformSolutionFolder"></a>powerPlatformSolutionFolder | Contains the name of the folder containing a PowerPlatform Solution (only one) |
-| <a id="templateUrl"></a>templateUrl | Defines the URL of the template repository used to create this repository and is used for checking and downloading updates to AL-Go System files. |
-| <a id="runs-on"></a>runs-on | Specifies which github runner will be used for all non-build/test jobs in all workflows (except the Update AL-Go System Files workflow). The default is to use the GitHub hosted runner _windows-latest_. After changing the runs-on setting, you need to run Update AL-Go System Files for this to take effect. You can specify a special GitHub Runner for the build job using the GitHubRunner setting. Read [this](SelfHostedGitHubRunner.md) for more information.<br />Setting runs-on to _ubuntu-latest_ will run all non-build/test jobs on Linux, build jobs will still run _windows-latest_ (or whatever you have set in **githubRunner**) |
-| <a id="shell"></a>shell | Specifies which shell will be used as the default in all jobs. **powershell** is the default, which results in using _PowerShell 5.1_ (unless you selected _ubuntu-latest_, then **pwsh** is used, which results in using _PowerShell 7_) |
-| <a id="githubRunner"></a>githubRunner | Specifies which github runner will be used for the build/test jobs in workflows including a build job. This is the most time consuming task. By default this job uses the _Windows-latest_ github runner (unless overridden by the runs-on setting). This settings takes precedence over runs-on so that you can use different runners for the build job and the housekeeping jobs. See **runs-on** setting. |
-| <a id="githubRunnerShell"></a>githubRunnerShell | Specifies which shell is used for build jobs in workflows including a build job. The default is to use the same as defined in **shell**. If the shell setting isn't defined, **powershell** is the default, which results in using _PowerShell 5.1_. Use **pwsh** for _PowerShell 7_. |
-| <a id="environments"></a>environments | Array of logical environment names. You can specify environments in GitHub environments or in the repo settings file. If you specify environments in the settings file, you can create your AUTHCONTEXT secret using **\<environmentname>\_AUTHCONTEXT**. You can specify additional information about environments in a setting called **DeployTo\<environmentname>** |
-| <a id="deliverto"></a>DeliverTo\<deliveryTarget> | Structure with additional properties for the deliveryTarget specified. Some properties are deliveryTarget specific. The structure can contain the following properties:<br />**Branches** = an array of branch patterns, which are allowed to deliver to this deliveryTarget. (Default main)<br />**CreateContainerIfNotExist** = *[Only for DeliverToStorage]* Create Blob Storage Container if it doesn't already exist. (Default false)<br /> |
-| <a id="deployto"></a>DeployTo\<environmentname> | Structure with additional properties for the environment specified. `<environmentName>` refers to the GitHub environment name. The structure can contain the following properties:<br />**EnvironmentType** = specifies the type of environment. The environment type can be used to invoke a custom deployment. (Default SaaS)<br />**EnvironmentName** = specifies the "real" name of the environment if it differs from the GitHub environment.<br />**Branches** = an array of branch patterns, which are allowed to deploy to this environment. These branches can also be defined under the environment in GitHub settings and both settings are honored. If neither setting is defined, the default is the **main** branch only.<br />**Projects** = In multi-project repositories, this property can be a comma separated list of project patterns to deploy to this environment. (Default \*)<br />**DependencyInstallMode** = Determines how dependencies are deployed if `GenerateDependencyArtifact` is true. Default value is `install` to install dependencies if not already installed. Other values are `ignore` for ignoring dependencies and `upgrade` or `forceUpgrade` for upgrading dependencies.<br />**includeTestAppsInSandboxEnvironment** = deploys test apps and their dependencies if the environment type is sandbox (Default is `false`)<br />**excludeAppIds** = array of app ids to exclude from deployment. (Default is `[]`)<br />**Scope** = Determines the mechanism for deployment to the environment (Dev or PTE). If not specified, AL-Go for GitHub will always use the Dev Scope for AppSource Apps, but also for PTEs when deploying to sandbox environments when impersonation (refreshtoken) is used for authentication.<br />**SyncMode** = ForceSync if deployment to this environment should happen with ForceSync, else Add. If deploying to the development endpoint you can also specify Development or Clean. (Default Add)<br />**BuildMode** = specifies which buildMode to use for the deployment. Default is to use the Default buildMode<br />**ContinuousDeployment** = true if this environment should be used for continuous deployment, else false. (Default: AL-Go will continuously deploy to sandbox environments or environments, which doesn't end in (PROD) or (FAT)<br />**runs-on** = specifies which runner to use when deploying to this environment. (Default is settings.runs-on)<br />**shell** = specifies which shell to use when deploying to this environment, pwsh or powershell. (Default is settings.shell)<br />**companyId** = Company Id from Business Central (for PowerPlatform connection)<br />**ppEnvironmentUrl** = Url of the PowerPlatform environment to deploy to<br /> |
-| <a id="aldoc"></a>alDoc | Structure with properties for the aldoc reference document generation. The structure can contain the following properties:<br />**continuousDeployment** = Determines if reference documentation will be deployed continuously as part of CI/CD. You can run the **Deploy Reference Documentation** workflow to deploy manually or on a schedule. (Default false)<br />**deployToGitHubPages** = Determines whether or not the reference documentation site should be deployed to GitHub Pages for the repository. In order to deploy to GitHub Pages, GitHub Pages must be enabled and set to GitHub Actuibs. (Default true)<br />**maxReleases** = Maximum number of releases to include in the reference documentation. (Default 3)<br />**groupByProject** = Determines whether projects in multi-project repositories are used as folders in reference documentation<br />**includeProjects** = An array of projects to include in the reference documentation. (Default all)<br />**excludeProjects** = An array of projects to exclude in the reference documentation. (Default none)<br />**header** = Header for the documentation site. (Default: Documentation for...)<br />**footer** = Footer for the documentation site. (Default: Made with...)<br />**defaultIndexMD** = Markdown for the landing page of the documentation site. (Default: Reference documentation...)<br />**defaultReleaseMD** = Markdown for the landing page of the release sites. (Default: Release reference documentation...)<br />*Note that in header, footer, defaultIndexMD and defaultReleaseMD you can use the following placeholders: {REPOSITORY}, {VERSION}, {INDEXTEMPLATERELATIVEPATH}, {RELEASENOTES}* |
+| <a id="type"></a>**type** | Repository type: **PTE** (Per Tenant Extension) or **AppSource App** |
+| <a id="projects"></a>**projects** | List of project folder names. If not specified, AL-Go enumerates folders containing `.AL-Go/settings.json` |
+| <a id="powerPlatformSolutionFolder"></a>**powerPlatformSolutionFolder** | Name of folder containing PowerPlatform Solution (only one allowed) |
+| <a id="templateUrl"></a>**templateUrl** | URL of template repository used for creating this repository and checking for updates |
+
+### Runners and Execution Environment
+
+| Setting | Description |
+| :-- | :-- |
+| <a id="runs-on"></a>**runs-on** | GitHub runner for non-build/test jobs (default: `windows-latest`). Set to `ubuntu-latest` for Linux |
+| <a id="shell"></a>**shell** | Default shell for all jobs (default: `powershell` or `pwsh` on Linux) |
+| <a id="githubRunner"></a>**githubRunner** | GitHub runner specifically for build/test jobs (overrides `runs-on` for build jobs) |
+| <a id="githubRunnerShell"></a>**githubRunnerShell** | Shell for build jobs (defaults to `shell` setting) |
+
+### Environment and Deployment Configuration
+
+| Setting | Description |
+| :-- | :-- |
+| <a id="environments"></a>**environments** | Array of logical environment names for deployment |
+| <a id="deliverto"></a>**DeliverTo\<deliveryTarget>** | Structure with delivery target properties:<br/>**Branches** = Branch patterns allowed for delivery (default: `main`)<br/>**CreateContainerIfNotExist** = *[Storage only]* Create container if not exists (default: `false`) |
+| <a id="deployto"></a>**DeployTo\<environmentname>** | Structure with environment-specific properties. [See detailed properties below](#deployment-environment-properties) |
+
+#### Deployment Environment Properties
+
+The `DeployTo<environmentname>` setting supports these properties:
+
+| Property | Description | Default |
+| :-- | :-- | :-- |
+| **EnvironmentType** | Environment type for custom deployment | `SaaS` |
+| **EnvironmentName** | Real environment name if different from GitHub environment | |
+| **Branches** | Branch patterns allowed to deploy to this environment | `main` |
+| **Projects** | Comma-separated project patterns to deploy (multi-project repos) | `*` |
+| **DependencyInstallMode** | How dependencies are deployed: `install`, `ignore`, `upgrade`, `forceUpgrade` | `install` |
+| **includeTestAppsInSandboxEnvironment** | Deploy test apps to sandbox environments | `false` |
+| **excludeAppIds** | Array of app IDs to exclude from deployment | `[]` |
+| **Scope** | Deployment mechanism: `Dev` or `PTE` | Auto-determined |
+| **SyncMode** | Sync mode: `Add`, `ForceSync`, `Development`, `Clean` | `Add` |
+| **BuildMode** | Build mode to use for deployment | `Default` |
+| **ContinuousDeployment** | Enable continuous deployment | Auto-determined |
+| **runs-on** | Runner for deployment to this environment | `settings.runs-on` |
+| **shell** | Shell for deployment to this environment | `settings.shell` |
+| **companyId** | Business Central Company ID (for PowerPlatform) | |
+| **ppEnvironmentUrl** | PowerPlatform environment URL | |
+
+### Documentation Generation
+
+| Setting | Description |
+| :-- | :-- |
+| <a id="aldoc"></a>**alDoc** | Structure for ALDoc reference documentation generation. [See detailed properties below](#aldoc-properties) |
+
+#### ALDoc Properties
+
+The `alDoc` setting supports these properties:
+
+| Property | Description | Default |
+| :-- | :-- | :-- |
+| **continuousDeployment** | Deploy documentation continuously in CI/CD | `false` |
+| **deployToGitHubPages** | Deploy to GitHub Pages (requires Pages enabled) | `true` |
+| **maxReleases** | Maximum releases to include in documentation | `3` |
+| **groupByProject** | Use projects as folders in multi-project repos | |
+| **includeProjects** | Array of projects to include | All |
+| **excludeProjects** | Array of projects to exclude | None |
+| **header** | Documentation site header | "Documentation for..." |
+| **footer** | Documentation site footer | "Made with..." |
+| **defaultIndexMD** | Landing page markdown | "Reference documentation..." |
+| **defaultReleaseMD** | Release page markdown | "Release reference documentation..." |
+
+> [!NOTE]
+> In header, footer, defaultIndexMD and defaultReleaseMD you can use placeholders: `{REPOSITORY}`, `{VERSION}`, `{INDEXTEMPLATERELATIVEPATH}`, `{RELEASENOTES}`
 | <a id="useProjectDependencies"></a>useProjectDependencies | Determines whether your projects are built using a multi-stage built workflow or single stage. After setting useProjectDependencies to true, you need to run Update AL-Go System Files and your workflows including a build job will change to have multiple build jobs, depending on each other. The number of build jobs will be determined by the dependency depth in your projects.<br />You can change dependencies between your projects, but if the dependency **depth** changes, AL-Go will warn you that updates for your AL-Go System Files are available and you will need to run the workflow. |
 | <a id="CICDPushBranches"></a>CICDPushBranches | CICDPushBranches can be specified as an array of branches, which triggers a CI/CD workflow on commit. You need to run the Update AL-Go System Files workflow for the change to take effect.<br />Default is [ "main", "release/\*", "feature/\*" ] |
 | <a id="CICDPullrequestBranches"></a>CICDPullRequestBranches | CICDPullRequestBranches can be specified as an array of branches, which triggers a CI/CD workflow on a PR. You need to run the Update AL-Go System Files workflow for the change to take effect.<br />Default is [ "main" ] |

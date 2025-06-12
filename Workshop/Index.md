@@ -16,18 +16,21 @@ This workshop shows you how to take advantage of the functionality, which is pro
 1. [Publish to Production](PublishToProduction.md) - Publish your apps to a production environment securely.
 1. [Automated Tests](AutomatedTests.md) - Add automated testing to your project.
 1. [Scheduled test runs](ScheduledTestRuns.md) - Testing your app against the latest (and future Business Central versions) daily or weekly.
-1. [Performance Testing](PerformanceTesting.md) - *FUTURE TOPIC: Add performance tests to your daily test runs.*
+1. [Performance Testing](PerformanceTesting.md) - Add performance tests to your daily test runs.
 1. [Reference Documentation Generation](ReferenceDoc.md) - Keep your reference documentation up-to-date.
-1. [Development Environments](DevelopmentEnvironments.md) - *FUTURE TOPIC: How to setup a development environment for a project.*
-1. [The Development Process](TheDevelopmentProcess.md) - *FUTURE TOPIC: The recommended way to work with feature branches, pull requests, code reviews and branch protection rules.*
-1. [Keeping your Repository Up-to-date](KeepUpToDate.md) - *FUTURE TOPIC: Updating AL-Go for GitHub to the latest version by running a workflow.*
+1. [Development Environments](DevelopmentEnvironments.md) - *[Under Development]* How to setup a development environment for a project.
+1. [The Development Process](TheDevelopmentProcess.md) - *[Under Development]* The recommended way to work with feature branches, pull requests, code reviews and branch protection rules.
+1. [Keeping your Repository Up-to-date](KeepUpToDate.md) - Updating AL-Go for GitHub to the latest version by running a workflow.
 
 ## Expert level
 
-1. [Custom Delivery](CustomDelivery.md) - *FUTURE TOPIC: Setting up custom delivery to f.ex. a Teams channel.*
-1. [Custom Delivery](CustomDeployment.md) - *FUTURE TOPIC: Setting up custom deployment to f.ex. an on-premises environment.*
-1. [Custom Jobs](CustomJobs.md) - *FUTURE TOPIC: Adding a custom job to an AL-Go for GitHub workflows.*
-1. [Using Custom Templates](CustomTemplates.md) - *FUTURE TOPIC: Using custom templates to ensure that all repositories are using the same customizations*
+> [!NOTE]
+> The following expert-level topics are currently under development and will be completed in future updates.
+
+1. [Custom Delivery](CustomDelivery.md) - *[Under Development]* Setting up custom delivery to f.ex. a Teams channel.
+1. [Custom Deployment](CustomDeployment.md) - *[Under Development]* Setting up custom deployment to f.ex. an on-premises environment.
+1. [Custom Jobs](CustomJobs.md) - *[Under Development]* Adding a custom job to an AL-Go for GitHub workflows.
+1. [Using Custom Templates](CustomTemplates.md) - *[Under Development]* Using custom templates to ensure that all repositories are using the same customizations
 
 ## Additional Future topics
 
