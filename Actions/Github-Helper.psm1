@@ -169,13 +169,13 @@ function GetDependencies {
                         }
                     }
                     elseif ($mask -like '*Apps') {
-                        # Check if the dependency project contains app folders. If it doesn't we shouldn't add it to missing projects
-                        if (($dependency.PSObject.Properties.Name -contains 'appFolders') -and ($dependency.appFolders.Count -gt 0)) {
-                            Write-Host "$project not built, downloading from artifacts"
-                            $missingProjects += @($project)
+                        # Check if the dependency project contains app folders. If it doesn't we don't need to add it to missingProjects
+                        if (($dependency.PSObject.Properties.Name -contains 'appFolders') -and ($dependency.appFolders.Count -eq 0)) {
+                            Write-Host "No app folders found for project '$project'. Skipping download."
                         }
                         else {
-                            Write-Host "No app folders found for project '$project'. Skipping download."
+                            Write-Host "$project not built, downloading from artifacts"
+                            $missingProjects += @($project)
                         }
                     }
                 }
