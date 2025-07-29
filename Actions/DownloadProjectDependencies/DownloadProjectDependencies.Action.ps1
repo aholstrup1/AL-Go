@@ -70,6 +70,12 @@ function DownloadDependenciesFromCurrentBuild {
             $baseBranch = $ENV:GITHUB_REF_NAME
         }
 
+        # Check if the $dependencyProjectSettings contains appFolders and whether it is empty
+        $appFolders = @()
+        if ($dependencyProjectSettings.appFolders -and $dependencyProjectSettings.appFolders.Count -gt 0) {
+            $appFolders = $dependencyProjectSettings.appFolders
+        }
+
         $dependeciesProbingPaths += @(@{
             "release_status"  = "thisBuild"
             "version"         = "latest"
@@ -80,6 +86,7 @@ function DownloadDependenciesFromCurrentBuild {
             "baseBranch"      = $baseBranch
             "baselineWorkflowID" = $baselineWorkflowRunID
             "authTokenSecret" = $token
+            "appFolders"      = $appFolders
         })
     }
 
@@ -91,6 +98,8 @@ function DownloadDependenciesFromCurrentBuild {
         $branch = $probingPath.branch
         $baseBranch = $probingPath.baseBranch
         $baselineWorkflowRunID = $probingPath.baselineWorkflowID
+
+        Write-Host "Found the following app folders for $project : $($probingPath.appFolders -join ', ')"
 
         Write-Host "Downloading dependencies for project '$project'. BuildMode: $buildMode, Branch: $branch, Base Branch: $baseBranch, Baseline Workflow ID: $baselineWorkflowRunID"
         GetDependencies -probingPathsJson $probingPath -saveToPath $destinationPath | Where-Object { $_ } | ForEach-Object {

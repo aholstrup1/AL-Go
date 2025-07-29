@@ -169,8 +169,14 @@ function GetDependencies {
                         }
                     }
                     elseif ($mask -like '*Apps') {
-                        Write-Host "$project not built, downloading from artifacts"
-                        $missingProjects += @($project)
+                        # Check if the dependency project contains app folders. If it doesn't we shouldn't add it to missing projects
+                        if (($dependency.PSObject.Properties.Name -contains 'appFolders') -and ($dependency.appFolders.Count -gt 0)) {
+                            Write-Host "$project not built, downloading from artifacts"
+                            $missingProjects += @($project)
+                        }
+                        else {
+                            Write-Host "No app folders found for project '$project'. Skipping download."
+                        }
                     }
                 }
                 if ($missingProjects -and $dependency.baselineWorkflowID) {
