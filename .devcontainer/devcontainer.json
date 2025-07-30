@@ -24,8 +24,9 @@
             "mcp": {
               "servers": {
                 "github": {
-                  "type": "http",
-                  "url": "https://api.githubcopilot.com/mcp/"
+                  "url": "https://api.githubcopilot.com/mcp/",
+                  "name": "GitHub MCP Server",
+                  "description": "Access GitHub repositories, issues, and pull requests through secure API integration."
                 }
               }
             },
