@@ -21,6 +21,14 @@
                 "GitHub.vscode-pull-request-github",
                 "ms-vscode.powershell"
             ],
+            "mcp": {
+              "servers": {
+                "github": {
+                  "type": "http",
+                  "url": "https://api.githubcopilot.com/mcp/"
+                }
+              }
+            },
             "settings": {
               "terminal.integrated.defaultProfile.linux": "pwsh"
             }
