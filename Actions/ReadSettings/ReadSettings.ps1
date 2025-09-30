@@ -69,6 +69,7 @@ $settings.Keys | ForEach-Object {
             Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "$setting=$(ConvertTo-Json $settingValue -Depth 99 -Compress)"
         }
         else {
+            Write-Host "Writing setting $setting with value '$settingValue' to GITHUB_ENV"
             Add-Content -Encoding UTF8 -Path $env:GITHUB_ENV -Value "$setting=$settingValue"
         }
     }
