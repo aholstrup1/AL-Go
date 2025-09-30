@@ -89,7 +89,18 @@ try {
         }
 
         $sarifJson = $sarif | ConvertTo-Json -Depth 10 -Compress
+        Write-Host "Sarif JSON:"
+        Write-Host $sarifJson
         OutputDebug -message $sarifJson
+
+        # Test that JSON is valid
+        try {
+            Test-Json -Path $sarifJson -Schema ((Invoke-WebRequest -Uri "https://json.schemastore.org/sarif-2.1.0.json").Content)
+        } catch {
+            Write-Host "Generated SARIF JSON is not valid according to the SARIF 2.1.0 schema. You can manually inspect your artifacts for AL code alerts."
+            Write-Host "Error: $_"
+        }
+
         Set-Content -Path "$errorLogsFolderPath/output.sarif.json" -Value $sarifJson
     }
     else {

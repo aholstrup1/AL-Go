@@ -141,6 +141,14 @@ jobs:
         with:
           shell: powershell
 
+      - name: Publish artifacts - Output Sarif
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: 'OutputSarif'
+          path: '${{ github.workspace }}/ErrorLogs/output.sarif.json'
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Upload SARIF file to GitHub
         uses: github/codeql-action/upload-sarif@v3
         if: always()
