@@ -33,8 +33,10 @@ function Get-FileFromAbsolutePath {
         [string] $WorkspacePath = $ENV:GITHUB_WORKSPACE
     )
 
-    # Convert absolute path to POSIX style and remove the drive letter if present
+    # Remove leading drive letter and convert backslashes to forward slashes to match unix-style paths
     $normalizedPath = ($AbsolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
+
+    # Extract the file name from the absolute path
     $fileName = [System.IO.Path]::GetFileName($normalizedPath)
 
     # Search the workspace path for a file with that name
@@ -42,11 +44,13 @@ function Get-FileFromAbsolutePath {
     if ($null -eq $matchingFiles) {
         return $null
     } elseif($matchingFiles.Count -eq 1) {
-        $foundFile = $matchingFiles[0]
+        $foundFile = $matchingFiles | Select-Object -First 1
     } else {
-        # Pick the file with the longest matching suffix to the absolute path
+        # If multiple files are found, return the one with the longest matching suffix to the absolute path
         $foundFile = $matchingFiles | Sort-Object { ($normalizedPath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
     }
+
+    # Return the relative path from the workspace root with forward slashes
     $relativePath = [System.IO.Path]::GetRelativePath($workspacePath, $foundFile.FullName) -replace '\\', '/'
     return $relativePath
 }
