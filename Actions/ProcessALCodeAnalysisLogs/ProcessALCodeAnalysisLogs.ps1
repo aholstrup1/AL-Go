@@ -55,16 +55,37 @@ function GenerateSARIFJson {
             $message = $issue.shortMessage
         }
 
-        # Convert absolute path to relative path from repository root and normalize to POSIX style
         $absolutePath = $issue.locations[0].analysisTarget[0].uri
         $workspacePath = $ENV:GITHUB_WORKSPACE
-        $relativePath = $absolutePath.Replace($workspacePath, '') -replace '^[A-Za-z]:', '' -replace '\\', '/'
-        Write-Host "Absolute Path: $absolutePath"
-        Write-Host "Workspace Path: $workspacePath"
-        Write-Host "Relative Path: $relativePath"
+        $fileName = [System.IO.Path]::GetFileName($absolutePath)
 
+        # Convert absolute path to POSIX style and remove the drive letter if present
+        $absolutePath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
+        $workspacePath = ($workspacePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
 
-        $relativePath = $normalizedAbsolutePath.Replace($normalizedWorkspacePath, '').TrimStart('/')
+        # Search the workspace path for a file with that name
+        $matchingFiles = Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue
+        Write-Host "MatchingFiles:"
+        $foundFile = $null
+        if ($null -eq $matchingFiles) {
+            # Could not find file
+        } elseif($matchingFiles.Count -eq 1) {
+            $foundFile = $matchingFiles[0]
+        } else {
+            # Pick the file with the longest matching suffix to the absolute path
+            $foundFile = $matchingFiles | Sort-Object { ($absolutePath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
+        }
+
+        if ($null -eq $foundFile) {
+            OutputWarning -message "Could not determine file for issue: $message"
+            continue
+        }
+        Write-Host "WorkspacePath: $workspacePath"
+        Write-Host "FoundFile: $($foundFile.FullName)"
+        Write-Host "AbsolutePath: $absolutePath"
+
+        $relativePath = [System.IO.Path]::GetRelativePath($workspacePath, $foundFile.FullName) -replace '\\', '/'
+        Write-Host "RelativePath: $relativePath"
 
         # Add result
         if (-not ($sarif.runs[0].results | Where-Object {
