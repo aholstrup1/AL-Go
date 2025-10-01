@@ -70,8 +70,13 @@ function GenerateSARIFJson {
     )
 
     foreach ($issue in $errorLogContent.issues) {
+        # Skip issues without locations
+        if (($issue.PSObject.Properties.Name -notcontains "locations" ) -or ($issue.locations.Count -eq 0)) {
+            continue
+        }
+
         $newResult = $null
-        $relativePath = $null
+        $relativePath = Get-FileFromAbsolutePath -AbsolutePath $issue.locations[0].analysisTarget[0].uri
         $message = Get-IssueMessage -issue $issue
 
         # If we could not extract a message, skip this issue
@@ -84,16 +89,9 @@ function GenerateSARIFJson {
         $existingResults = $sarif.runs[0].results | Where-Object {
             $_.ruleId -eq $issue.ruleId -and
             $_.message.text -eq $message -and
-            $_.level -eq ($issue.properties.severity).ToLower()
-        }
-
-        # Additionally, filter on location if it exists
-        if (($issue.PSObject.Properties.Name -contains "locations" ) -and ($issue.locations.Count -gt 0)) {
-            $relativePath = Get-FileFromAbsolutePath -AbsolutePath $issue.locations[0].analysisTarget[0].uri
-            $existingResults = $existingResults | Where-Object {
-                ($_.locations[0].physicalLocation.artifactLocation.uri -eq $relativePath) -and
-                ($_.locations[0].physicalLocation.region | ConvertTo-Json) -eq ($issue.locations[0].analysisTarget[0].region | ConvertTo-Json)
-            }
+            $_.level -eq ($issue.properties.severity).ToLower() -and
+            ($_.locations[0].physicalLocation.artifactLocation.uri -eq $relativePath) -and
+            ($_.locations[0].physicalLocation.region | ConvertTo-Json) -eq ($issue.locations[0].analysisTarget[0].region | ConvertTo-Json)
         }
 
         # Add result if it does not already exist
@@ -117,16 +115,13 @@ function GenerateSARIFJson {
             $newResult = @{
                 ruleId = $issue.ruleId
                 message = @{ text = $message }
-                level = ($issue.properties.severity).ToLower()
-            }
-
-            if ($null -ne $relativePath) {
-                $newResult["locations"] = @(@{
+                locations = @(@{
                     physicalLocation = @{
                         artifactLocation = @{ uri = $relativePath }
                         region = $issue.locations[0].analysisTarget[0].region
                     }
                 })
+                level = ($issue.properties.severity).ToLower()
             }
         }
 
