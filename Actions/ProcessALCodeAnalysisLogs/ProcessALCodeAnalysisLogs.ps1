@@ -63,6 +63,7 @@ function GenerateSARIFJson {
         $absolutePath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
 
         # Search the workspace path for a file with that name
+        Write-Host "Searching for file: $fileName"
         $matchingFiles = Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue
         Write-Host "MatchingFiles:"
         $foundFile = $null
