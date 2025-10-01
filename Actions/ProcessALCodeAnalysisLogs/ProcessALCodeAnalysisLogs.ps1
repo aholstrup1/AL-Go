@@ -57,10 +57,10 @@ function GenerateSARIFJson {
 
         $absolutePath = $issue.locations[0].analysisTarget[0].uri
         $workspacePath = $ENV:GITHUB_WORKSPACE
-        $fileName = [System.IO.Path]::GetFileName($absolutePath)
 
         # Convert absolute path to POSIX style and remove the drive letter if present
-        $absolutePath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
+        $normalizedPath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
+        $fileName = [System.IO.Path]::GetFileName($normalizedPath)
 
         # Search the workspace path for a file with that name
         Write-Host "Searching for file: $fileName"
@@ -73,7 +73,7 @@ function GenerateSARIFJson {
             $foundFile = $matchingFiles[0]
         } else {
             # Pick the file with the longest matching suffix to the absolute path
-            $foundFile = $matchingFiles | Sort-Object { ($absolutePath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
+            $foundFile = $matchingFiles | Sort-Object { ($normalizedPath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
         }
 
         if ($null -eq $foundFile) {
@@ -82,7 +82,7 @@ function GenerateSARIFJson {
         }
         Write-Host "WorkspacePath: $workspacePath"
         Write-Host "FoundFile: $($foundFile.FullName)"
-        Write-Host "AbsolutePath: $absolutePath"
+        Write-Host "NormalizedPath: $normalizedPath"
 
         $relativePath = [System.IO.Path]::GetRelativePath($workspacePath, $foundFile.FullName) -replace '\\', '/'
         Write-Host "RelativePath: $relativePath"
@@ -116,7 +116,6 @@ try {
         Write-Host "Found $($errorLogFiles.Count) error log files in $errorLogsFolderPath"
         $errorLogFiles | ForEach-Object {
             OutputDebug -message "Found error log file: $($_.FullName)"
-            $fileName = $_.Name
             try {
                 $errorLogContent = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
                 GenerateSARIFJson -errorLogContent $errorLogContent
