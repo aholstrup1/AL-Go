@@ -29,6 +29,11 @@ function GenerateSARIFJson {
     )
 
     foreach ($issue in $errorLogContent.issues) {
+        if (($issue.PSObject.Properties.Name -notcontains "locations" ) -or ($issue.locations.Count -eq 0)) {
+            OutputDebug -message "Skipping issue without analysisTarget: $($issue | ConvertTo-Json -Depth 10 -Compress)"
+            continue
+        }
+
         # Add rule if not already added
         if (-not ($sarif.runs[0].tool.driver.rules | Where-Object { $_.id -eq $issue.ruleId })) {
             $sarif.runs[0].tool.driver.rules += @{
@@ -43,6 +48,13 @@ function GenerateSARIFJson {
             }
         }
 
+        # if issue has a shortmessage, use it, otherwise use fullMessage
+        if ($issue.PSObject.Properties.Name -notcontains "shortMessage") {
+            $message = $issue.fullMessage
+        } else {
+            $message = $issue.shortMessage
+        }
+
         # Convert absolute path to relative path from repository root
         $absolutePath = $issue.locations[0].analysisTarget[0].uri
         $workspacePath = $ENV:GITHUB_WORKSPACE
@@ -51,14 +63,14 @@ function GenerateSARIFJson {
         # Add result
         if (-not ($sarif.runs[0].results | Where-Object {
             $_.ruleId -eq $issue.ruleId -and
-            $_.message.text -eq $issue.shortMessage -and
+            $_.message.text -eq $message -and
             $_.locations[0].physicalLocation.artifactLocation.uri -eq $relativePath -and
             ($_.locations[0].physicalLocation.region | ConvertTo-Json) -eq ($issue.locations[0].analysisTarget[0].region | ConvertTo-Json) -and
             $_.level -eq ($issue.properties.severity).ToLower()
         })) {
             $sarif.runs[0].results += @{
                 ruleId = $issue.ruleId
-                message = @{ text = $issue.shortMessage }
+                message = @{ text = $message }
                 locations = @(@{
                     physicalLocation = @{
                         artifactLocation = @{ uri = $relativePath }
@@ -83,8 +95,9 @@ try {
                 GenerateSARIFJson -errorLogContent $errorLogContent
             }
             catch {
-                OutputWarning "Failed to process $fileName. AL code alerts might not appear in GitHub. You can manually inspect your artifacts for AL code alerts"
-                OutputDebug -message "Error: $_"
+                throw $_
+                #OutputWarning "Failed to process $fileName. AL code alerts might not appear in GitHub. You can manually inspect your artifacts for AL code alerts"
+                #OutputDebug -message "Error: $_"
             }
         }
 
@@ -97,7 +110,8 @@ try {
     }
 }
 catch {
-    OutputWarning -message "Unexpected error processing AL code analysis results. You can manually inspect your artifacts for AL code alerts."
-    OutputDebug -message "Error: $_"
-    Trace-Exception -ActionName "ProcessALCodeAnalysisLogs" -ErrorRecord $_
+    throw $_
+    #OutputWarning -message "Unexpected error processing AL code analysis results. You can manually inspect your artifacts for AL code alerts."
+    #OutputDebug -message "Error: $_"
+    #Trace-Exception -ActionName "ProcessALCodeAnalysisLogs" -ErrorRecord $_
 }
