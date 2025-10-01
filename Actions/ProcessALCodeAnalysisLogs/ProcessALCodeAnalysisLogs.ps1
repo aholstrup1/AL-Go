@@ -96,7 +96,7 @@ function GenerateSARIFJson {
     )
 
     foreach ($issue in $errorLogContent.issues) {
-        # Skip issues without locations
+        # Skip issues without locations as GitHub expects at least one location
         if (($issue.PSObject.Properties.Name -notcontains "locations" ) -or ($issue.locations.Count -eq 0)) {
             continue
         }
