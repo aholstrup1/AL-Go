@@ -13,6 +13,32 @@ if (Test-Path $sarifPath) {
     OutputError -message "Base SARIF file not found at $sarifPath"
 }
 
+function Get-FileFromAbsolutePath {
+    param(
+        [Parameter(HelpMessage = "The absolute path of the file to find.", Mandatory = $true)]
+        [string] $AbsolutePath,
+        [Parameter(HelpMessage = "The workspace path to search in.", Mandatory = $false)]
+        [string] $WorkspacePath = $ENV:GITHUB_WORKSPACE
+    )
+
+    # Convert absolute path to POSIX style and remove the drive letter if present
+    $normalizedPath = ($AbsolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
+    $fileName = [System.IO.Path]::GetFileName($normalizedPath)
+
+    # Search the workspace path for a file with that name
+    $matchingFiles = @(Get-ChildItem -Path $WorkspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue)
+    if ($null -eq $matchingFiles) {
+        return $null
+    } elseif($matchingFiles.Count -eq 1) {
+        $foundFile = $matchingFiles[0]
+    } else {
+        # Pick the file with the longest matching suffix to the absolute path
+        $foundFile = $matchingFiles | Sort-Object { ($normalizedPath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
+    }
+    $relativePath = [System.IO.Path]::GetRelativePath($workspacePath, $foundFile.FullName) -replace '\\', '/'
+    return $relativePath
+}
+
 <#
     .SYNOPSIS
     Generates SARIF JSON.
@@ -55,37 +81,11 @@ function GenerateSARIFJson {
             $message = $issue.shortMessage
         }
 
-        $absolutePath = $issue.locations[0].analysisTarget[0].uri
-        $workspacePath = $ENV:GITHUB_WORKSPACE
-
-        # Convert absolute path to POSIX style and remove the drive letter if present
-        $normalizedPath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
-        $fileName = [System.IO.Path]::GetFileName($normalizedPath)
-
-        # Search the workspace path for a file with that name
-        Write-Host "Searching for file: $fileName"
-        $matchingFiles = @(Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue)
-        Write-Host "MatchingFiles:"
-        $foundFile = $null
-        if ($null -eq $matchingFiles) {
-            # Could not find file
-        } elseif($matchingFiles.Count -eq 1) {
-            $foundFile = $matchingFiles[0]
-        } else {
-            # Pick the file with the longest matching suffix to the absolute path
-            $foundFile = $matchingFiles | Sort-Object { ($normalizedPath -split [regex]::Escape($_.FullName)).Length } -Descending | Select-Object -First 1
-        }
-
-        if ($null -eq $foundFile) {
-            OutputWarning -message "Could not determine file for issue: $message"
+        $relativePath = Get-FileFromAbsolutePath -AbsolutePath $issue.locations[0].analysisTarget[0].uri
+        if ($null -eq $relativePath) {
+            OutputDebug -message "Could not locate file in local file system $($issue.locations[0].analysisTarget[0].uri)"
             continue
         }
-        Write-Host "WorkspacePath: $workspacePath"
-        Write-Host "FoundFile: $($foundFile.FullName)"
-        Write-Host "NormalizedPath: $normalizedPath"
-
-        $relativePath = [System.IO.Path]::GetRelativePath($workspacePath, $foundFile.FullName) -replace '\\', '/'
-        Write-Host "RelativePath: $relativePath"
 
         # Add result
         if (-not ($sarif.runs[0].results | Where-Object {
