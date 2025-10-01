@@ -61,7 +61,6 @@ function GenerateSARIFJson {
 
         # Convert absolute path to POSIX style and remove the drive letter if present
         $absolutePath = ($absolutePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
-        $workspacePath = ($workspacePath -replace '\\', '/') -replace '^[A-Za-z]:', ''
 
         # Search the workspace path for a file with that name
         $matchingFiles = Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue
