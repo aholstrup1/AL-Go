@@ -64,7 +64,7 @@ function GenerateSARIFJson {
 
         # Search the workspace path for a file with that name
         Write-Host "Searching for file: $fileName"
-        $matchingFiles = Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue
+        $matchingFiles = @(Get-ChildItem -Path $workspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue)
         Write-Host "MatchingFiles:"
         $foundFile = $null
         if ($null -eq $matchingFiles) {
