@@ -164,6 +164,7 @@ try {
         Write-Host "Found $($errorLogFiles.Count) error log files in $errorLogsFolderPath"
         $errorLogFiles | ForEach-Object {
             OutputDebug -message "Found error log file: $($_.FullName)"
+            $fileName = $_.Name
             try {
                 $errorLogContent = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
                 GenerateSARIFJson -errorLogContent $errorLogContent
