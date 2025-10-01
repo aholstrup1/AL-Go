@@ -13,6 +13,18 @@ if (Test-Path $sarifPath) {
     OutputError -message "Base SARIF file not found at $sarifPath"
 }
 
+<#
+    .SYNOPSIS
+    Finds a file in the workspace based on its absolute path.
+    .DESCRIPTION
+    Given an absolute path, this function searches the workspace for a file with the same name and returns its relative path.
+    If multiple files with the same name are found, it returns the one with the longest matching suffix to the absolute path.
+    If no file is found, it returns $null.
+    .PARAMETER AbsolutePath
+    The absolute path of the file to find.
+    .PARAMETER WorkspacePath
+    The workspace path to search in. Defaults to the GITHUB_WORKSPACE environment variable.
+#>
 function Get-FileFromAbsolutePath {
     param(
         [Parameter(HelpMessage = "The absolute path of the file to find.", Mandatory = $true)]
@@ -39,6 +51,16 @@ function Get-FileFromAbsolutePath {
     return $relativePath
 }
 
+<#
+    .SYNOPSIS
+    Extracts the most appropriate message from an issue object.
+    .DESCRIPTION
+    Given an issue object, this function checks for the presence of "shortMessage" and "fullMessage" properties
+    and returns the most appropriate one based on their availability.
+    If neither property is available, it returns $null.
+    .PARAMETER issue
+    The issue object to extract the message from.
+#>
 function Get-IssueMessage {
     param(
         [Parameter(HelpMessage = "The issue object to extract the message from.", Mandatory = $true)]
@@ -79,7 +101,7 @@ function GenerateSARIFJson {
         $relativePath = Get-FileFromAbsolutePath -AbsolutePath $issue.locations[0].analysisTarget[0].uri
         $message = Get-IssueMessage -issue $issue
 
-        # If we could not extract a message, skip this issue
+        # Skip issues if we cannot find a message
         if ($null -eq $message) {
             OutputDebug -message "Could not extract message from issue: $($issue | ConvertTo-Json -Depth 10 -Compress)"
             continue
