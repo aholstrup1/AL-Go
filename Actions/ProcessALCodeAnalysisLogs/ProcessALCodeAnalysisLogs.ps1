@@ -72,7 +72,7 @@ function GenerateSARIFJson {
     foreach ($issue in $errorLogContent.issues) {
         $newResult = $null
         $relativePath = $null
-        $message = Get-IssueMessage
+        $message = Get-IssueMessage -issue $issue
 
         # If we could not extract a message, skip this issue
         if ($null -eq $message) {
