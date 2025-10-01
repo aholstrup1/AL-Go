@@ -55,10 +55,15 @@ function GenerateSARIFJson {
             $message = $issue.shortMessage
         }
 
-        # Convert absolute path to relative path from repository root
+        # Convert absolute path to relative path from repository root and normalize to POSIX style
         $absolutePath = $issue.locations[0].analysisTarget[0].uri
         $workspacePath = $ENV:GITHUB_WORKSPACE
-        $relativePath = $absolutePath.Replace($workspacePath, '').TrimStart('\').Replace('\', '/')
+
+        # Normalize path to POSIX style: remove drive letter and convert backslashes to forward slashes
+        $normalizedAbsolutePath = $absolutePath -replace '^[A-Za-z]:', '' -replace '\\', '/'
+        $normalizedWorkspacePath = $workspacePath -replace '^[A-Za-z]:', '' -replace '\\', '/'
+
+        $relativePath = $normalizedAbsolutePath.Replace($normalizedWorkspacePath, '').TrimStart('/')
 
         # Add result
         if (-not ($sarif.runs[0].results | Where-Object {
