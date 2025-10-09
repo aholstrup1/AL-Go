@@ -418,12 +418,12 @@ Describe 'Set-VersionInAppManifests tests' {
 
         $anotherTestProjectAppFolder = 'Another TestProjectApp'
         New-Item -ItemType Directory -Path (Join-Path $anotherTestProjectPath $anotherTestProjectAppFolder) -Force | Out-Null
-        New-Item -ItemType File -Path (Join-Path $anotherTestProjectPath $anotherTestProjectAppFolder 'app.json') -Force | Out-Null
+        New-Item -ItemType File -Path (Join-Path (Join-Path $anotherTestProjectPath $anotherTestProjectAppFolder) 'app.json') -Force | Out-Null
         $anotherTestProjectAppJsonContent = @{
             "version" = "0.2"
             "name" = $anotherTestProjectAppFolder
         }
-        $anotherTestProjectAppJsonContent | ConvertTo-Json | Set-Content (Join-Path $anotherTestProjectPath $anotherTestProjectAppFolder 'app.json') -Encoding UTF8
+        $anotherTestProjectAppJsonContent | ConvertTo-Json | Set-Content (Join-Path (Join-Path $anotherTestProjectPath $anotherTestProjectAppFolder) 'app.json') -Encoding UTF8
 
         Pop-Location
     }
