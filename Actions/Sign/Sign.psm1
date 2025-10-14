@@ -17,10 +17,19 @@ function AssertNugetSourceIsAdded() {
     Installs the dotnet signing tool.
 #>
 function Install-SigningTool() {
+    param(
+        # Use GitHubs temp folder if available
+        [string] $ToolsFolder = $ENV:RUNNER_TEMP
+    )
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\AL-Go-Helper.ps1" -Resolve)
 
+    if (-not $ToolsFolder) {
+        # If not running in GitHub Actions, use the system temp folder
+        $ToolsFolder = [System.IO.Path]::GetTempPath()
+    }
+
     # Create folder in temp directory with a unique name
-    $tempFolder = Join-Path -Path ([System.IO.Path]::GetTempPath()) "SigningTool-$(Get-Random)"
+    $tempFolder = Join-Path -Path $ToolsFolder "SigningTool-$(Get-Random)"
 
     # Get version of the signing tool
     $version = GetPackageVersion -PackageName "sign"

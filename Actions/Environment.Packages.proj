@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="sign" Version="0.9.1-beta.25278.1" GeneratePathProperty="true" ExcludeAssets="All" />
+    <PackageReference Include="sign" Version="0.9.1-beta.25379.1" GeneratePathProperty="true" ExcludeAssets="All" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.20.0" GeneratePathProperty="true" ExcludeAssets="All" />
     <PackageReference Include="Az.Accounts" Version="2.15.1" GeneratePathProperty="true" ExcludeAssets="All" />
     <PackageReference Include="Az.Storage" Version="6.1.1" GeneratePathProperty="true" ExcludeAssets="All" />
