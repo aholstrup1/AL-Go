@@ -110,7 +110,7 @@ try {
         throw "A malformed $ALGoSettingsFile is encountered.$([environment]::Newline) $($_.Exception.Message)"
     }
 
-    $appVersion = "1.0.0.0"
+    $appVersion = "2.0.0.0"
     if ($settingsJson.PSObject.Properties.Name -eq "AppVersion") {
         $appVersion = "$($settingsJson.AppVersion).0.0"
     }
