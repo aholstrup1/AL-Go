@@ -61,8 +61,7 @@ testData:
 evaluators:
   - name: categorization_accuracy
     llm:
-      model: gpt-5
-      modelId: azureml://registries/azure-openai/models/gpt-5/versions/2025-08-07
+      modelId: openai/gpt-4o
       prompt: >-
         Evaluates whether the AI correctly categorizes the bug report as
         Complete, Incomplete, or Unsure
