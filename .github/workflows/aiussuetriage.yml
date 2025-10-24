@@ -29,3 +29,4 @@ jobs:
           ai_review_label: 'AI Review'
           prompts_directory: '.github/TriagePrompts'
           labels_to_prompts_mapping: 'bug,bug-review.prompt.yml'
+          suppress_labels: true
