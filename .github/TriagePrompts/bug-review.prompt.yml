@@ -20,5 +20,99 @@ messages:
 model: openai/gpt-4o-mini
 modelParameters:
   max_tokens: 2000
-testData: []
+testData:
+  - input: |
+      **Title:** App compilation fails with "Object 'Table1' already exists" error during CI/CD pipeline
+
+      **AL-Go Version:** v5.2
+
+      **Describe the bug:**
+      When running the CI/CD pipeline, the compilation step fails with error ALS0032: "Object 'Table1' already exists in another extension". This happens consistently across all builds since we upgraded our AL-Go templates last week. The error occurs during the compilation phase after dependencies are installed.
+
+      **Expected behavior:**
+      The compilation should complete successfully without object conflicts, and the pipeline should produce the app artifacts as it did before the template upgrade.
+
+      **Steps to reproduce:**
+      1. Clone the repository with AL-Go v5.2 templates
+      2. Push any change to trigger the CI/CD workflow
+      3. Observe the compilation step in the "Build" job
+      4. Error occurs at approximately 85% completion during object compilation
+
+      **Additional context:**
+      - Repository uses multi-project setup with 3 app folders
+      - Dependencies include Base Application and System Application
+      - Build logs attached showing the exact error message and stack trace
+      - This started happening after upgrading from AL-Go v4.8 to v5.2
+      - Local compilation works fine in VS Code
+
+      **Logs:**
+      ```
+      Error ALS0032: Object 'Table1' already exists in another extension 'Base Application' by 'Microsoft'.
+      The conflicting object is declared at line 15, column 1 in 'src\Tables\Table1.al'.
+      ```
+    expected: "The bug report is complete and the AI should assess it as 'Ready for Review ✅'"
+  - input: |
+      **Title:** PowerShell execution policy prevents AL-Go scripts from running on self-hosted runners
+
+      **AL-Go Version:** Preview
+
+      **Describe the bug:**
+      Self-hosted GitHub runners are unable to execute AL-Go PowerShell scripts due to execution policy restrictions. The workflow fails immediately when attempting to run the setup scripts with "Execution of scripts is disabled on this system" error.
+
+      **Expected behavior:**
+      AL-Go scripts should execute successfully on self-hosted runners, similar to how they work on GitHub-hosted runners.
+
+      **Steps to reproduce:**
+      1. Set up a self-hosted runner on Windows Server 2022
+      2. Configure the runner with default PowerShell execution policy (Restricted)
+      3. Trigger any AL-Go workflow (CI, Release, etc.)
+      4. Observe the failure in the "Setup" step
+
+      **Additional context:**
+      - Self-hosted runner is Windows Server 2022 with PowerShell 5.1
+      - Corporate environment with restricted execution policies
+      - Error occurs in WorkflowInitialize action
+      - GitHub-hosted runners work perfectly with the same repository
+
+      **Error logs:**
+      ```
+      File C:\actions-runner\_work\_actions\microsoft\AL-Go\v5.2\Actions\WorkflowInitialize\WorkflowInitialize.ps1 cannot be loaded because running scripts is disabled on this system.
+      + CategoryInfo          : SecurityError: (:) [], PSSecurityException
+      + FullyQualifiedErrorId : UnauthorizedAccess
+      ```
+    expected: "The bug report is complete and the AI should assess it as 'Ready for Review ✅'"
+  - input: |
+      **Title:** Build fails sometimes
+
+      **AL-Go Version:** Not specified
+
+      **Describe the bug:**
+      My build keeps failing randomly. It worked yesterday but now it doesn't work anymore. Getting some error about dependencies.
+
+      **Expected behavior:**
+      Build should work like before.
+
+      **Steps to reproduce:**
+      Just run the workflow and it fails.
+
+      **Additional context:**
+      Using latest version of everything.
+    expected: "The bug report is missing the AL-Go version and detailed steps to reproduce the issue. The AI should assess it as 'Missing Details 🔴'"
+  - input: |
+      **Title:** Docker container issues
+
+      **AL-Go Version:** v5.1
+
+      **Describe the bug:**
+      There are problems with the Docker container during the build process. Sometimes it works, sometimes it doesn't.
+
+      **Expected behavior:**
+      Container should always work properly.
+
+      **Steps to reproduce:**
+      Not sure exactly, but it happens during builds.
+
+      **Additional context:**
+      Running on Ubuntu runner. The error message mentions something about container startup but I didn't save the full logs.
+    expected: "The bug report is missing detailed steps to reproduce the issue and sufficient additional context. The AI should assess it as 'Missing Details 🔴'"
 evaluators: []
