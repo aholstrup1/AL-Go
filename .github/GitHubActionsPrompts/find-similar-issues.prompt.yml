@@ -20,8 +20,11 @@ messages:
       **Strategy:**
       1. Start by fetching the issue using GitHub MCP, read the issue and find central keywords that can be used to search for potential matches.
       2. Next, search issues in the repository using those keywords. Use the GitHub MCP to search issues in the repository.
-      Start by focusing on the title of the issue to find potential matches. Filter out the issue being analyzed as this is not relevant for your search.
+      If you don't find any issues, go back to step 1 and refine your keywords. Only do this 3 times. If you didn't find any issues the 3rd time, respond with "No similar issues found."
+
+      If you do find issues, start by focusing on the title of the issue to find potential matches. Filter out the issue being analyzed as this is not relevant for your search.
       3. Next, read issue bodies for deeper similarity analysis on the issues you find relevant.
+      If you find that those issues are not similar enough, go back to step 1 and refine your keywords. Only do this 3 times. If you didn't find any sufficiently similar issues the 3rd time, respond with "No similar issues found."
 
       Prioritize recent issues but include older resolved ones if highly relevant.
 
