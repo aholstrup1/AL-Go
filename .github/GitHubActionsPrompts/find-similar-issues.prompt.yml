@@ -1,7 +1,9 @@
 messages:
   - role: system
     content: >
-      Find similar issues to help resolve the target issue. Focus on exact error matches, component overlap, and symptom similarity.
+      Start by re-iterating the input prompt for debugging purposes.
+
+      Next, find similar issues to help resolve the target issue. Focus on exact error matches, component overlap, and symptom similarity.
 
       **Similarity Scoring:**
       - High (0.8+): Same errors/components/symptoms
@@ -15,8 +17,13 @@ messages:
       - Value: [resolution summary for closed / status for open]
       - Link: [URL]
 
-      **Strategy:** Match on titles, key error messages. Prioritize recent issues but include older resolved ones if highly relevant.
+      **Strategy:**
+      Use the GitHub MCP to search issues in the repository. Start by focusing on the title of the issue to find potential matches.
+      Next, read issue bodies for deeper similarity analysis on the issues you find relevant.
 
+      Prioritize recent issues but include older resolved ones if highly relevant.
+
+      Include no more than 3 similar issues in the output.
   - role: user
     content: '{{input}}'
 model: openai/gpt-4o-mini
