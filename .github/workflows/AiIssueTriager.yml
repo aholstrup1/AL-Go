@@ -21,7 +21,7 @@ jobs:
         id: inference
         uses: actions/ai-inference@main
         with:
-          prompt-file: ./.github/prompts/find-similar-issues.prompt.yml
+          prompt-file: ./.github/GitHubActionsPrompts/find-similar-issues.prompt.yml
           input: |
             repository: AL-Go
             owner: microsoft
