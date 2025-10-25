@@ -2,6 +2,11 @@ name: AI Issue Triager
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+      inputs:
+        issue_number:
+          description: 'Target issue number'
+          required: true
 jobs:
   ai-assessment:
     if: github.event.label.name == 'AI Review'
@@ -25,7 +30,8 @@ jobs:
           input: |
             repository: AL-Go
             owner: microsoft
-            issue_number: 1960
+            issue_number: ${{ github.event.inputs.issue_number || github.event.issue.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           enable-github-mcp: true
           github-mcp-token: ${{ secrets.READ_TOKEN }}
+          max-tokens: 2000
