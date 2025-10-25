@@ -25,7 +25,7 @@ messages:
 
       Include no more than 3 similar issues in the output.
   - role: user
-    content: '{{input}}'
+    content: 'Look in the repository {{repository}} owned by {{owner}} for issues similar to issue number {{issue_number}}.'
 model: openai/gpt-4o-mini
 modelParameters:
   max_tokens: 4000
