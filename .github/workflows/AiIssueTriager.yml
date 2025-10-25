@@ -27,7 +27,10 @@ jobs:
         uses: actions/ai-inference@main
         with:
           prompt-file: ./.github/GitHubActionsPrompts/find-similar-issues.prompt.yml
-          input: "Find similar issues for issue #${{ github.event.inputs.issue_number || github.event.issue.number }} in the AL-Go repository owned by microsoft."
+          input: |
+            repository: AL-Go
+            owner: microsoft
+            issue_number: ${{ github.event.inputs.issue_number || github.event.issue.number }}
           token: ${{ secrets.GITHUB_TOKEN }}
           enable-github-mcp: true
           github-mcp-token: ${{ secrets.READ_TOKEN }}
