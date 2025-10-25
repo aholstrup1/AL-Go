@@ -9,7 +9,7 @@ on:
           required: true
 jobs:
   ai-assessment:
-    if: github.event.label.name == 'AI Review'
+    if: github.event.label.name == 'AI Review' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       issues: write
