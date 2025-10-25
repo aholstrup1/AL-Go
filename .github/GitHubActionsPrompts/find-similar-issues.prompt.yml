@@ -20,6 +20,7 @@ messages:
 
       If no similar issues are found, please state that clearly in your response.
 
+  - role: user
     content: '{{input}}'
 model: openai/gpt-4o-mini
 modelParameters:
