@@ -34,4 +34,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           enable-github-mcp: true
           github-mcp-token: ${{ secrets.READ_TOKEN }}
-          max-tokens: 2000
+          max-tokens: 4000

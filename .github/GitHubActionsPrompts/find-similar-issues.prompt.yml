@@ -21,7 +21,6 @@ messages:
     content: '{{input}}'
 model: openai/gpt-4o-mini
 modelParameters:
-  max_tokens: 1500
-  temperature: 0.1
+  max_tokens: 4000
 testData: []
 evaluators: []
