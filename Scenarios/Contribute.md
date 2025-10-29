@@ -43,9 +43,83 @@ Please ensure that all unit tests run and create a Pull Request against [https:/
 
 In the AL-Go repository we use a number of precommit hooks to help us identify issues in the code. We run the precommit hooks locally but also as a PR check. In order to ensure this check passes please install pre-commit in your local AL-Go repository. Pre-Commit can be installed by following the instructions on https://pre-commit.com/#quick-start. Once the precommint hooks are installed you can run `pre-commit run --all-files` to verify your changes.
 
+## Testing your contributions
+
+When contributing to AL-Go, it's important to add tests for your changes to ensure code quality and prevent regressions. AL-Go uses both unit tests and end-to-end tests to validate functionality.
+
+**When to add tests:**
+
+- **Always add unit tests** for new functions, modules, or bug fixes
+- **Add end-to-end scenario tests** for new workflows or features that involve repository setup and GitHub Actions
+- **Update existing tests** if you modify existing functionality
+- **Ensure all tests pass** before submitting a pull request
+
+**Types of tests in AL-Go:**
+
+1. **Unit Tests** - Fast, isolated tests that verify individual functions and modules using Pester
+2. **End-to-End Tests** - Comprehensive tests that create real GitHub repositories and run complete workflows
+
+The sections below provide detailed guidance on how to add each type of test.
+
 ## Unit tests
 
 The Tests folder, in the AL-Go repository, contains a number of unit-tests. Open Tests/runtests.ps1 in VS Code and select Run. Unit tests are quick and will run on every PR and every Push. We will be adding a lot of unit tests going forward.
+
+### How to add unit tests
+
+When contributing to AL-Go, you should add unit tests for your changes. Unit tests in AL-Go use the [Pester](https://pester.dev/) testing framework for PowerShell.
+
+**Creating a new unit test file:**
+
+1. Create a new `.Test.ps1` file in the `Tests` folder. The file name should describe what you're testing (e.g., `MyFeature.Test.ps1`)
+2. Import the module or script you want to test at the beginning of your test file
+3. Use `Describe` blocks to group related tests
+4. Use `It` blocks for individual test cases
+5. Use `BeforeAll` for setup that runs once before all tests in a `Describe` block
+6. Use `Mock` to mock external dependencies and function calls
+
+**Example test structure:**
+
+```powershell
+Import-Module (Join-Path $PSScriptRoot '../Actions/.Modules/MyModule.psm1') -Force
+
+Describe "MyFeature tests" {
+    BeforeAll {
+        # Setup code that runs once
+    }
+
+    It 'Should do something specific' {
+        # Arrange
+        Mock Write-Host { }
+        
+        # Act
+        $result = MyFunction -Parameter "value"
+        
+        # Assert
+        $result | Should -Be "expected"
+    }
+}
+```
+
+**Best practices for unit tests:**
+
+- Test one thing per `It` block
+- Use descriptive test names that explain what is being tested
+- Follow the Arrange-Act-Assert pattern
+- Mock external dependencies to isolate the code under test
+- Clean up temporary files and folders created during tests
+- Use `InModuleScope` when you need to test private functions within a module
+
+**Running unit tests locally:**
+
+```powershell
+# Run all unit tests
+pwsh -File Tests/runtests.ps1 -Path Tests
+
+# Or run from VS Code by opening Tests/runtests.ps1 and selecting Run
+```
+
+The CI workflow automatically runs all unit tests on both Windows (PowerShell 5) and Linux (PowerShell 7) when you create a pull request.
 
 ## End to End tests
 
@@ -58,6 +132,49 @@ In the e2eTests folder, in the AL-Go repository, there are 3 types of end to end
   - GitHubPackages - create 3 repositories using GitHub Packages as dependency resolver and check that artifacts are built properly
   - SpecialCharacters - testing that various settings (+ publisher name and app name) can contain special national characters
   - and more...
+
+### How to add end-to-end scenario tests
+
+When adding new features to AL-Go, consider adding an end-to-end scenario test to validate the feature works in a real-world context.
+
+**Creating a new scenario test:**
+
+1. Create a new folder under `e2eTests/scenarios/` with a descriptive name (e.g., `MyNewFeature`)
+2. Create a `runtest.ps1` file in your scenario folder
+3. The test script should:
+   - Accept standard parameters (see existing scenario tests for the parameter template)
+   - Create temporary GitHub repositories to test against
+   - Configure the repositories with the necessary settings
+   - Run workflows and validate the results
+   - Clean up repositories on success (leave them for debugging on failure)
+
+**Example scenario test structure:**
+
+```powershell
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Global vars used for local test execution only.')]
+Param(
+    [switch] $github,
+    [string] $githubOwner = $global:E2EgithubOwner,
+    [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
+    # ... other standard parameters
+)
+
+Write-Host "Testing MyNewFeature scenario"
+
+# Create repository, configure settings, run workflows, validate results
+# See existing scenario tests for examples
+```
+
+**Best practices for E2E tests:**
+
+- Use descriptive scenario names that explain what functionality is being tested
+- Include comments explaining the test scenario and steps
+- Use unique repository names to avoid conflicts with other tests
+- Clean up resources (repositories) after successful test runs
+- Leave failed test repositories for debugging purposes
+- Test both success and failure scenarios where applicable
+
+**Note:** E2E tests require specific GitHub organization setup and credentials. They are automatically run by the AL-Go team during PR review, so you typically don't need to run them locally during development.
 
 In your personal fork, you can now run the end to end tests, if the following pre-requisites are available:
 
