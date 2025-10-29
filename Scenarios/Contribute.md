@@ -101,7 +101,6 @@ Describe "MyFeature tests" {
 
 - Test one thing per `It` block
 - Use descriptive test names that explain what is being tested
-- Follow the Arrange-Act-Assert pattern
 - Mock external dependencies to isolate the code under test
 - Clean up temporary files and folders created during tests
 - Use `InModuleScope` when you need to test private functions within a module
