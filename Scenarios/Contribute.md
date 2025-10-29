@@ -45,21 +45,17 @@ In the AL-Go repository we use a number of precommit hooks to help us identify i
 
 ## Testing your contributions
 
-When contributing to AL-Go, it's important to add tests for your changes to ensure code quality and prevent regressions. AL-Go uses both unit tests and end-to-end tests to validate functionality.
+When contributing to AL-Go, it's important to add tests for your changes to ensure code quality and prevent regressions.
 
 **When to add tests:**
 
 - **Always add unit tests** for new functions, modules, or bug fixes
-- **Add end-to-end scenario tests** for new workflows or features that involve repository setup and GitHub Actions
 - **Update existing tests** if you modify existing functionality
 - **Ensure all tests pass** before submitting a pull request
 
-**Types of tests in AL-Go:**
+Unit tests in AL-Go are fast, isolated tests that verify individual functions and modules using the Pester testing framework.
 
-1. **Unit Tests** - Fast, isolated tests that verify individual functions and modules using Pester
-2. **End-to-End Tests** - Comprehensive tests that create real GitHub repositories and run complete workflows
-
-The sections below provide detailed guidance on how to add each type of test.
+The section below provides detailed guidance on how to add unit tests.
 
 ## Unit tests
 
@@ -132,49 +128,6 @@ In the e2eTests folder, in the AL-Go repository, there are 3 types of end to end
   - GitHubPackages - create 3 repositories using GitHub Packages as dependency resolver and check that artifacts are built properly
   - SpecialCharacters - testing that various settings (+ publisher name and app name) can contain special national characters
   - and more...
-
-### How to add end-to-end scenario tests
-
-When adding new features to AL-Go, consider adding an end-to-end scenario test to validate the feature works in a real-world context.
-
-**Creating a new scenario test:**
-
-1. Create a new folder under `e2eTests/scenarios/` with a descriptive name (e.g., `MyNewFeature`)
-2. Create a `runtest.ps1` file in your scenario folder
-3. The test script should:
-   - Accept standard parameters (see existing scenario tests for the parameter template)
-   - Create temporary GitHub repositories to test against
-   - Configure the repositories with the necessary settings
-   - Run workflows and validate the results
-   - Clean up repositories on success (leave them for debugging on failure)
-
-**Example scenario test structure:**
-
-```powershell
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Justification = 'Global vars used for local test execution only.')]
-Param(
-    [switch] $github,
-    [string] $githubOwner = $global:E2EgithubOwner,
-    [string] $repoName = [System.IO.Path]::GetFileNameWithoutExtension([System.IO.Path]::GetTempFileName()),
-    # ... other standard parameters
-)
-
-Write-Host "Testing MyNewFeature scenario"
-
-# Create repository, configure settings, run workflows, validate results
-# See existing scenario tests for examples
-```
-
-**Best practices for E2E tests:**
-
-- Use descriptive scenario names that explain what functionality is being tested
-- Include comments explaining the test scenario and steps
-- Use unique repository names to avoid conflicts with other tests
-- Clean up resources (repositories) after successful test runs
-- Leave failed test repositories for debugging purposes
-- Test both success and failure scenarios where applicable
-
-**Note:** E2E tests require specific GitHub organization setup and credentials. They are automatically run by the AL-Go team during PR review, so you typically don't need to run them locally during development.
 
 In your personal fork, you can now run the end to end tests, if the following pre-requisites are available:
 
