@@ -235,6 +235,8 @@ try {
             $pattern = '.*(\$\{\{\s*([^}]+?)\s*\}\}).*'
             if ($appFile -match $pattern) {
                 $appFileFinalUrl = $appFileUrl.Replace($matches[1],[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($secrets."$($matches[2])")))
+            } else {
+                $appFileFinalUrl = $appFileUrl
             }
 
             # Download the app file to a temporary location
