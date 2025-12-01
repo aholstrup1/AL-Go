@@ -199,7 +199,7 @@ try {
             if ($matchingAppName) {
                 Write-Host "Test app dependency '$trimmedAppName' matches run test app '$matchingAppName', removing parentheses"
                 $index = $installTestAppDependencies.IndexOf($testAppDependency)
-                $installTestAppDependencies[$index] = $trimmedAppName
+                $installTestAppDependencies[$index] = $testAppDependency.Trim('()')
             } else {
                 Write-Host "Test app dependency '$trimmedAppName' does not match any run test app, keeping parentheses"
             }
