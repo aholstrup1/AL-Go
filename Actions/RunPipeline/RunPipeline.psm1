@@ -126,7 +126,21 @@ function Get-AppFileFromUrl {
 
     # Get the final app file path
     $appFile = Join-Path $DownloadPath $sanitizedFileName
-    Invoke-WebRequest -Method GET -UseBasicParsing -Uri $Url -OutFile $appFile -MaximumRetryCount 3 -RetryIntervalSec 5 | Out-Null
+    if ($PSVersionTable.PSVersion.Major -lt 7) {
+        Write-Host "Powershell version is less than 7. Using pwsh for download with retry logic."
+        if ((Get-Command pwsh -ErrorAction SilentlyContinue)) {
+            [scriptblock] $command = {
+                param($Url, $appFile)
+                Invoke-WebRequest -Method GET -UseBasicParsing -Uri $Url -OutFile $appFile -MaximumRetryCount 3 -RetryIntervalSec 5 | Out-Null
+            }
+            pwsh -noprofile -command $command -args $Url, $appFile
+        } else {
+            Write-Host "PowerShell Core (pwsh) not found. Downloading without retry logic."
+            Invoke-WebRequest -Method GET -UseBasicParsing -Uri $Url -OutFile $appFile | Out-Null
+        }
+    } else {
+        Invoke-WebRequest -Method GET -UseBasicParsing -Uri $Url -OutFile $appFile -MaximumRetryCount 3 -RetryIntervalSec 5 | Out-Null
+    }
     return $appFile
 }
 
