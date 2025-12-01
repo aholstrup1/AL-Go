@@ -224,7 +224,7 @@ try {
     $tempDependenciesLocation = NewTemporaryFolder
     foreach($list in @('Apps','TestApps')) {
         $install."$list" = @($install."$list" | ForEach-Object {
-            $appFile = $_
+            $appFile = $_.TrimStart('(').TrimEnd(')')
 
             # If the app file is not a URL, return it as is
             if ($appFile -notlike 'http*://*') {
