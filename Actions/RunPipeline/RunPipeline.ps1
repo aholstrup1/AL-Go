@@ -226,6 +226,11 @@ try {
     # Replace secret names in install.apps and install.testApps
     $tempDependenciesLocation = NewTemporaryFolder
     foreach($list in @('Apps','TestApps')) {
+        if ($install."$list".Count -eq 0) {
+            Write-Host "No apps in $list to process"
+            continue
+        }
+
         $install."$list" = @($install."$list" | ForEach-Object {
             Write-Host "Processing app file: $_"
             $appFile = $_.TrimStart('(').TrimEnd(')')
