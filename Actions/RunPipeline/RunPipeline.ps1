@@ -220,10 +220,14 @@ try {
         "TestApps" = $settings.installTestApps + $installTestAppDependencies
     }
 
+    Write-Host "Install apps: $($install.Apps -join ',')"
+    Write-Host "Install test apps: $($install.TestApps -join ',')"
+
     # Replace secret names in install.apps and install.testApps
     $tempDependenciesLocation = NewTemporaryFolder
     foreach($list in @('Apps','TestApps')) {
         $install."$list" = @($install."$list" | ForEach-Object {
+            Write-Host "Processing app file: $_"
             $appFile = $_.TrimStart('(').TrimEnd(')')
 
             # If the app file is not a URL, return it as is
