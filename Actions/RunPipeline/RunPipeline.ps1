@@ -186,9 +186,29 @@ try {
         })
     }
 
+
+    $runTestsInInstallTestApps = $settings.runTestsInInstallTestApps
+    $installTestAppDependencies = $installTestAppsJson | ConvertFrom-Json
+
+    Write-Host "runTestsInInstallTestApps - $($runTestsInInstallTestApps -join ',')"
+    Write-Host "Install test apps from input: $($installTestAppDependencies -join ',')"
+    if (($installTestAppDependencies.Count -gt 0) -and ($runTestsInInstallTestApps.Count -gt 0)) {
+        foreach($testAppDependency in $installTestAppDependencies) {
+            $trimmedAppName = [System.IO.Path]::GetFileName($testAppDependency).Trim('()')
+            $matchingAppName = $runTestsInInstallTestApps | Where-Object { $trimmedAppName -like "*$($_)*"} # TODO: Make this smarter
+            if ($matchingAppName) {
+                Write-Host "Test app dependency '$trimmedAppName' matches run test app '$matchingAppName', removing parentheses"
+                $index = $installTestAppDependencies.IndexOf($testAppDependency)
+                $installTestAppDependencies[$index] = $trimmedAppName
+            } else {
+                Write-Host "Test app dependency '$trimmedAppName' does not match any run test app, keeping parentheses"
+            }
+        }
+    }
+
     $install = @{
         "Apps" = $settings.installApps + @($installAppsJson | ConvertFrom-Json)
-        "TestApps" = $settings.installTestApps + @($installTestAppsJson | ConvertFrom-Json)
+        "TestApps" = $settings.installTestApps + $installTestAppDependencies
     }
 
     # Replace secret names in install.apps and install.testApps

@@ -147,6 +147,7 @@ function GetDefaultSettings
         "restoreDatabases"                              = @()
         "installApps"                                   = @()
         "installTestApps"                               = @()
+        "runTestsInInstallTestApps"                     = @()
         "installOnlyReferencedApps"                     = $true
         "generateDependencyArtifact"                    = $false
         "skipUpgrade"                                   = $false
