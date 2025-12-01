@@ -194,8 +194,16 @@ try {
     Write-Host "Install test apps from input: $($installTestAppDependencies -join ',')"
     if (($installTestAppDependencies.Count -gt 0) -and ($runTestsInInstallTestApps.Count -gt 0)) {
         foreach($testAppDependency in $installTestAppDependencies) {
-            $trimmedAppName = [System.IO.Path]::GetFileName($testAppDependency).Trim('()')
-            $matchingAppName = $runTestsInInstallTestApps | Where-Object { $trimmedAppName -like "*$($_)*"} # TODO: Make this smarter
+            # Check if app exists in file system
+            $trimmedPath = $testAppDependency.Trim('()')
+            if (-not (Test-Path $trimmedPath)) {
+                Write-Host "Test app dependency '$trimmedPath' does not exist, skipping"
+                continue
+            }
+
+            # Check if app name (from manifest) matches any of the runTestsInInstallTestApps (which are app names)
+            $trimmedAppName = Get-AppManifest -AppFilePath $trimmedPath | Select-Object -ExpandProperty name
+            $matchingAppName = $runTestsInInstallTestApps | Where-Object { $trimmedAppName -eq $_ }
             if ($matchingAppName) {
                 Write-Host "Test app dependency '$trimmedAppName' matches run test app '$matchingAppName', removing parentheses"
                 $index = $installTestAppDependencies.IndexOf($testAppDependency)

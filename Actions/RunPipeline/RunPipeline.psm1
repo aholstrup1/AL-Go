@@ -19,6 +19,15 @@ function Install-ALTool {
     return $alExe
 }
 
+function Get-AppManifest {
+    param(
+        [string] $AppFilePath
+    )
+    $alExePath = Install-ALTool
+    $manifestJson = & $alExePath GetPackageManifest $AppFilePath
+    return $manifestJson | ConvertFrom-Json
+}
+
 <#
     .SYNOPSIS
     Analyzes the install apps to check if they are symbols packages.
@@ -121,4 +130,4 @@ function Get-AppFileFromUrl {
     return $appFile
 }
 
-Export-ModuleMember -Function Test-InstallApps, Get-AppFileFromUrl
+Export-ModuleMember -Function Test-InstallApps, Get-AppFileFromUrl, Install-ALTool, Get-AppManifest
