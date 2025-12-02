@@ -215,8 +215,10 @@ try {
         }
     }
 
+    $installAppDependencies = $installAppsJson | ConvertFrom-Json
+
     $install = @{
-        "Apps" = $settings.installApps + @($installAppsJson | ConvertFrom-Json)
+        "Apps" = $settings.installApps + $installAppDependencies
         "TestApps" = $settings.installTestApps + $installTestAppDependencies
     }
 
@@ -233,6 +235,7 @@ try {
 
         $install."$list" = @($install."$list" | ForEach-Object {
             Write-Host "Processing app file: $_"
+            Write-Host "Type: $($_.GetType())"
             $appFile = $_.TrimStart('(').TrimEnd(')')
 
             # If the app file is not a URL, return it as is
