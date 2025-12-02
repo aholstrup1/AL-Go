@@ -236,8 +236,7 @@ try {
         $install."$list" = @($install."$list" | ForEach-Object {
             Write-Host "Processing app file: $_"
             Write-Host "Type: $($_.GetType())"
-            $appFile = $_.TrimStart('(').TrimEnd(')')
-
+            $appFile = $_
             # If the app file is not a URL, return it as is
             if ($appFile -notlike 'http*://*') {
                 return $appFile
