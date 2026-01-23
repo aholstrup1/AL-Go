@@ -350,6 +350,20 @@ foreach ($thisProject in $sortedProjectList) {
                 $projectSettings.deliverToAppSource."$_" = $projectSettings."AppSource$_"
             }
         }
+
+        if (!$projectSettings.deliverToAppSource.ProductId) {
+            if ($projectSettings.deliverToAppSource.continuousDelivery -or $projectSettings.deliverToAppSource.MainAppFolder) {
+                # If ProductId is not specified, but other AppSource delivery settings are, throw an error. This indicates a misconfiguration.
+                throw "deliverToAppSource.ProductId needs to be specified in $thisProject/.AL-Go/settings.json in order to deliver to AppSource"
+            } elseif (($type -eq 'Release') -and ($projects -ne "*")) {
+                # If we are doing a release delivery for a specific project, and ProductId is not specified, throw an error.
+                throw "deliverToAppSource.ProductId needs to be specified in $thisProject/.AL-Go/settings.json in order to deliver to AppSource"
+            } else {
+                OutputWarning "Project '$thisProject' does not have deliverToAppSource.ProductId configured. Skipping AppSource delivery."
+                continue
+            }
+        }
+
         # if type is Release, we only get here with the projects that needs to be delivered to AppSource
         # if type is CD, we get here for all projects, but should only deliver to AppSource if AppSourceContinuousDelivery is set to true
         if ($type -eq 'Release' -or $projectSettings.deliverToAppSource.continuousDelivery) {
@@ -371,9 +385,6 @@ foreach ($thisProject in $sortedProjectList) {
                 catch {
                     throw "Unable to determine main App folder"
                 }
-            }
-            if (!$projectSettings.deliverToAppSource.ProductId) {
-                throw "deliverToAppSource.ProductId needs to be specified in $thisProject/.AL-Go/settings.json in order to deliver to AppSource"
             }
             Write-Host "AppSource MainAppFolder $AppSourceMainAppFolder"
 
