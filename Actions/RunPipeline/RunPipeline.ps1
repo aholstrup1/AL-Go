@@ -454,6 +454,8 @@ try {
                         }
                     }
                     if ($parameters.ContainsKey('containerName')) {
+                        $customconfig = Get-BcContainerServerConfiguration -ContainerName $parameters.containerName
+                        Write-Host "Custom config: $($customconfig.ServerInstance)"
                         Publish-BcNuGetPackageToContainer -containerName $parameters.containerName -tenant $parameters.tenant -skipVerification -appSymbolsFolder $parameters.appSymbolsFolder @publishParams -ErrorAction SilentlyContinue
                     }
                     else {
