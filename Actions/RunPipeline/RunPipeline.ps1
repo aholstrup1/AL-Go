@@ -465,7 +465,7 @@ try {
                         Get-BcContainerServerConfiguration -ContainerName $parameters.containerName
                         Write-Host "Container Name: $($parameters.containerName)"
                         Write-Host "Custom config: $($customconfig.ServerInstance)"
-                        Publish-BcNuGetPackageToContainer -containerName $parameters.containerName -tenant $parameters.tenant -skipVerification -appSymbolsFolder $parameters.appSymbolsFolder @publishParams
+                        Publish-BcNuGetPackageToContainer -containerName $parameters.containerName -tenant $parameters.tenant -skipVerification -appSymbolsFolder $parameters.appSymbolsFolder @publishParams -ErrorAction SilentlyContinue
                     }
                     else {
                         if ($parameters.ContainsKey('installedApps') -and $parameters.ContainsKey('installedCountry')) {
