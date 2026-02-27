@@ -422,6 +422,11 @@ try {
             "InstallMissingDependencies" = {
                 Param([Hashtable]$parameters)
                 foreach($missingDependency in $parameters.missingDependencies) {
+                    if ($parameters.ContainsKey('containerName')) {
+                        $customconfig = Get-BcContainerServerConfiguration -ContainerName $parameters.containerName
+                        Write-Host "0 Container Name: $($parameters.containerName)"
+                        Write-Host "0 Custom config: $($customconfig.ServerInstance)"
+                    }
                     $appid = $missingDependency.Split(':')[0]
                     $appName = $missingDependency.Split(':')[1]
                     $version = $appName.SubString($appName.LastIndexOf('_')+1)
