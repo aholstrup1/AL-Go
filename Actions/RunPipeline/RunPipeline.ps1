@@ -465,7 +465,11 @@ try {
                         Get-BcContainerServerConfiguration -ContainerName $parameters.containerName
                         Write-Host "Container Name: $($parameters.containerName)"
                         Write-Host "Custom config: $($customconfig.ServerInstance)"
-                        Publish-BcNuGetPackageToContainer -containerName $parameters.containerName -tenant $parameters.tenant -skipVerification -appSymbolsFolder $parameters.appSymbolsFolder @publishParams -ErrorAction SilentlyContinue
+                        try {
+                            Publish-BcNuGetPackageToContainer -containerName $parameters.containerName -tenant $parameters.tenant -skipVerification -appSymbolsFolder $parameters.appSymbolsFolder @publishParams
+                        } catch {
+                            OutputWarning -message "Failed to publish app $appId version $version to container $($parameters.containerName). Error was: $($_.Exception.Message)."
+                        }
                     }
                     else {
                         if ($parameters.ContainsKey('installedApps') -and $parameters.ContainsKey('installedCountry')) {
