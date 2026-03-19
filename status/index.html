@@ -192,7 +192,7 @@ layout: null
         <div id="status-banner" class="status-banner" style="display:none;"></div>
         <div id="loading" class="loading">Loading issues...</div>
         <div id="error" class="error-msg" style="display:none;"></div>
-        <div id="issue-list" class="issue-list"></div>
+        <div id="sections"></div>
 
         <footer>
             <p>
@@ -205,18 +205,19 @@ layout: null
 
     <script>
         const SOURCES = [
-            { owner: 'aholstrup1', repo: 'AL-Go', label: 'known-issue' },
-            { owner: 'microsoft', repo: 'navcontainerhelper', label: 'Accepted' },
+            { owner: 'aholstrup1', repo: 'AL-Go', label: 'known-issue', heading: '🔔 AL-Go — Known Issues' },
+            { owner: 'microsoft', repo: 'navcontainerhelper', label: 'Accepted', heading: '🔔 BcContainerHelper — Known Issues' },
         ];
 
         async function fetchIssues() {
             const loading = document.getElementById('loading');
             const errorDiv = document.getElementById('error');
-            const issueList = document.getElementById('issue-list');
+            const sections = document.getElementById('sections');
             const banner = document.getElementById('status-banner');
 
             try {
-                const allIssues = [];
+                let totalCount = 0;
+
                 for (const source of SOURCES) {
                     const response = await fetch(
                         `https://api.github.com/repos/${source.owner}/${source.repo}/issues?labels=${source.label}&state=open&sort=created&direction=desc&per_page=50`
@@ -226,55 +227,69 @@ layout: null
                         continue;
                     }
                     const issues = await response.json();
-                    issues.forEach(issue => {
-                        issue._source = source;
-                    });
-                    allIssues.push(...issues);
-                }
+                    totalCount += issues.length;
 
-                // Sort all issues by created date descending
-                allIssues.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    // Create section
+                    const section = document.createElement('div');
+                    section.style.marginBottom = '2.5rem';
+
+                    const heading = document.createElement('h2');
+                    heading.textContent = source.heading;
+                    heading.style.cssText = 'font-size:1.3rem;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--card-border);';
+                    section.appendChild(heading);
+
+                    if (issues.length === 0) {
+                        const empty = document.createElement('p');
+                        empty.style.cssText = 'color:var(--text-secondary);padding:1rem 0;';
+                        empty.textContent = '✅ No known issues';
+                        section.appendChild(empty);
+                    } else {
+                        const list = document.createElement('div');
+                        list.className = 'issue-list';
+
+                        issues.forEach(issue => {
+                            const card = document.createElement('div');
+                            card.className = 'issue-card';
+
+                            const created = new Date(issue.created_at);
+                            const timeAgo = getTimeAgo(created);
+
+                            const labelsHtml = issue.labels
+                                .filter(l => l.name !== source.label)
+                                .map(l => `<span class="label" style="background:#${l.color};color:${getContrastColor(l.color)}">${l.name}</span>`)
+                                .join('');
+
+                            const bodyPreview = issue.body
+                                ? issue.body.substring(0, 300).replace(/[#*_`\[\]]/g, '')
+                                : '<em>No description provided</em>';
+
+                            card.innerHTML = `
+                                <h3><a href="${issue.html_url}" target="_blank">#${issue.number} — ${issue.title}</a></h3>
+                                <div class="issue-meta">Opened ${timeAgo} by ${issue.user.login}</div>
+                                <div class="issue-body">${bodyPreview}</div>
+                                <div class="labels">${labelsHtml}</div>
+                            `;
+
+                            list.appendChild(card);
+                        });
+
+                        section.appendChild(list);
+                    }
+
+                    sections.appendChild(section);
+                }
 
                 loading.style.display = 'none';
 
                 // Status banner
                 banner.style.display = 'flex';
-                if (allIssues.length === 0) {
+                if (totalCount === 0) {
                     banner.className = 'status-banner all-clear';
                     banner.innerHTML = '✅ All systems operational — no known issues';
                 } else {
                     banner.className = 'status-banner has-issues';
-                    banner.innerHTML = `⚠️ ${allIssues.length} known issue${allIssues.length > 1 ? 's' : ''} currently tracked`;
+                    banner.innerHTML = `⚠️ ${totalCount} known issue${totalCount > 1 ? 's' : ''} currently tracked`;
                 }
-
-                // Render issues
-                allIssues.forEach(issue => {
-                    const card = document.createElement('div');
-                    card.className = 'issue-card';
-
-                    const created = new Date(issue.created_at);
-                    const timeAgo = getTimeAgo(created);
-
-                    const repoLabel = `<span class="label" style="background:#0969da;color:#fff">${issue._source.owner}/${issue._source.repo}</span>`;
-
-                    const labelsHtml = issue.labels
-                        .filter(l => l.name !== issue._source.label)
-                        .map(l => `<span class="label" style="background:#${l.color};color:${getContrastColor(l.color)}">${l.name}</span>`)
-                        .join('');
-
-                    const bodyPreview = issue.body
-                        ? issue.body.substring(0, 300).replace(/[#*_`\[\]]/g, '')
-                        : '<em>No description provided</em>';
-
-                    card.innerHTML = `
-                        <h3><a href="${issue.html_url}" target="_blank">#${issue.number} — ${issue.title}</a></h3>
-                        <div class="issue-meta">Opened ${timeAgo} by ${issue.user.login}</div>
-                        <div class="issue-body">${bodyPreview}</div>
-                        <div class="labels">${repoLabel} ${labelsHtml}</div>
-                    `;
-
-                    issueList.appendChild(card);
-                });
 
             } catch (err) {
                 loading.style.display = 'none';
