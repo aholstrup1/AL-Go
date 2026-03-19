@@ -204,9 +204,10 @@ layout: null
     </div>
 
     <script>
-        const REPO_OWNER = 'aholstrup1';
-        const REPO_NAME = 'AL-Go';
-        const LABEL = 'known-issue';
+        const SOURCES = [
+            { owner: 'aholstrup1', repo: 'AL-Go', label: 'known-issue' },
+            { owner: 'microsoft', repo: 'navcontainerhelper', label: 'Accepted' },
+        ];
 
         async function fetchIssues() {
             const loading = document.getElementById('loading');
@@ -215,37 +216,49 @@ layout: null
             const banner = document.getElementById('status-banner');
 
             try {
-                const response = await fetch(
-                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues?labels=${LABEL}&state=open&sort=created&direction=desc&per_page=50`
-                );
-
-                if (!response.ok) {
-                    throw new Error(`GitHub API returned ${response.status}`);
+                const allIssues = [];
+                for (const source of SOURCES) {
+                    const response = await fetch(
+                        `https://api.github.com/repos/${source.owner}/${source.repo}/issues?labels=${source.label}&state=open&sort=created&direction=desc&per_page=50`
+                    );
+                    if (!response.ok) {
+                        console.warn(`Failed to fetch from ${source.owner}/${source.repo}: ${response.status}`);
+                        continue;
+                    }
+                    const issues = await response.json();
+                    issues.forEach(issue => {
+                        issue._source = source;
+                    });
+                    allIssues.push(...issues);
                 }
 
-                const issues = await response.json();
+                // Sort all issues by created date descending
+                allIssues.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
                 loading.style.display = 'none';
 
                 // Status banner
                 banner.style.display = 'flex';
-                if (issues.length === 0) {
+                if (allIssues.length === 0) {
                     banner.className = 'status-banner all-clear';
                     banner.innerHTML = '✅ All systems operational — no known issues';
                 } else {
                     banner.className = 'status-banner has-issues';
-                    banner.innerHTML = `⚠️ ${issues.length} known issue${issues.length > 1 ? 's' : ''} currently tracked`;
+                    banner.innerHTML = `⚠️ ${allIssues.length} known issue${allIssues.length > 1 ? 's' : ''} currently tracked`;
                 }
 
                 // Render issues
-                issues.forEach(issue => {
+                allIssues.forEach(issue => {
                     const card = document.createElement('div');
                     card.className = 'issue-card';
 
                     const created = new Date(issue.created_at);
                     const timeAgo = getTimeAgo(created);
 
+                    const repoLabel = `<span class="label" style="background:#0969da;color:#fff">${issue._source.owner}/${issue._source.repo}</span>`;
+
                     const labelsHtml = issue.labels
-                        .filter(l => l.name !== LABEL)
+                        .filter(l => l.name !== issue._source.label)
                         .map(l => `<span class="label" style="background:#${l.color};color:${getContrastColor(l.color)}">${l.name}</span>`)
                         .join('');
 
@@ -257,7 +270,7 @@ layout: null
                         <h3><a href="${issue.html_url}" target="_blank">#${issue.number} — ${issue.title}</a></h3>
                         <div class="issue-meta">Opened ${timeAgo} by ${issue.user.login}</div>
                         <div class="issue-body">${bodyPreview}</div>
-                        <div class="labels">${labelsHtml}</div>
+                        <div class="labels">${repoLabel} ${labelsHtml}</div>
                     `;
 
                     issueList.appendChild(card);
