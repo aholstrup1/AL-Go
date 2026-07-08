@@ -57,6 +57,55 @@ function GetRelativePath {
     return $relativePath
 }
 
+$script:__workspaceFileIndex = $null
+$script:__workspaceFileIndexRoot = $null
+
+<#
+    .SYNOPSIS
+    Returns a lazily-built index of file names to full paths for the given workspace.
+    .DESCRIPTION
+    Enumerates the workspace once and caches a hashtable keyed by lower-cased file name, whose values
+    are the list of full paths sharing that name. Subsequent calls for the same workspace reuse the
+    cached index. This avoids re-scanning the entire workspace for every file lookup, which is critical
+    when processing large numbers of diagnostics.
+    .PARAMETER WorkspacePath
+    The workspace path to index.
+#>
+function Get-WorkspaceFileIndex {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $WorkspacePath
+    )
+
+    if (($null -ne $script:__workspaceFileIndex) -and ($script:__workspaceFileIndexRoot -eq $WorkspacePath)) {
+        return $script:__workspaceFileIndex
+    }
+
+    $index = @{}
+    Get-ChildItem -Path $WorkspacePath -File -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+        $key = $_.Name.ToLowerInvariant()
+        if (-not $index.ContainsKey($key)) {
+            $index[$key] = [System.Collections.Generic.List[string]]::new()
+        }
+        $index[$key].Add($_.FullName)
+    }
+
+    $script:__workspaceFileIndex = $index
+    $script:__workspaceFileIndexRoot = $WorkspacePath
+    return $index
+}
+
+<#
+    .SYNOPSIS
+    Clears the cached workspace file index.
+    .DESCRIPTION
+    Primarily used by tests to force the index to be rebuilt for a new workspace.
+#>
+function Reset-WorkspaceFileIndex {
+    $script:__workspaceFileIndex = $null
+    $script:__workspaceFileIndexRoot = $null
+}
+
 <#
     .SYNOPSIS
     Finds a file in the workspace based on its absolute path.
@@ -89,12 +138,14 @@ function Get-FileFromAbsolutePath {
     # Extract the file name from the absolute path
     $fileName = [System.IO.Path]::GetFileName($normalizedPath)
 
-    # Search the workspace path for a file with that name
-    $matchingFiles = @(Get-ChildItem -Path $WorkspacePath -Filter $fileName -File -Recurse -ErrorAction SilentlyContinue)
-    if($matchingFiles.Count -eq 1) {
+    # Search the workspace for a file with that name. Use a lazily-built index (name -> full paths)
+    # so the workspace is enumerated at most once per process, instead of once per lookup. This keeps
+    # processing large numbers of diagnostics (e.g. multi-country builds) from scaling quadratically.
+    $index = Get-WorkspaceFileIndex -WorkspacePath $WorkspacePath
+    $key = $fileName.ToLowerInvariant()
+    if ($index.ContainsKey($key) -and $index[$key].Count -eq 1) {
         OutputDebug -message "Found one matching file for absolute path: $AbsolutePath"
-        $foundFile = $matchingFiles | Select-Object -First 1
-        $relativePath = GetRelativePath -BasePath $workspacePath -TargetPath $foundFile.FullName
+        $relativePath = GetRelativePath -BasePath $workspacePath -TargetPath $index[$key][0]
         return NormalizePath -Path $relativePath
     }
 
@@ -160,4 +211,4 @@ function Get-IssueSeverity {
     }
 }
 
-Export-ModuleMember -Function Get-FileFromAbsolutePath, Get-IssueMessage, Get-IssueSeverity
+Export-ModuleMember -Function Get-FileFromAbsolutePath, Get-IssueMessage, Get-IssueSeverity, Get-WorkspaceFileIndex, Reset-WorkspaceFileIndex

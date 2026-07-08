@@ -244,6 +244,47 @@ Describe 'ProcessALCodeAnalysisLogs Action Tests' {
         $rule.fullDescription.text | Should -Be "$($sampleIssue1.ruleId): $($sampleIssue1.fullMessage)"
     }
 
+    It 'Large number of issues are de-duplicated correctly (scales linearly)' {
+        Mock Get-FileFromAbsolutePath { return "path" }
+        # 1000 unique issues (distinct region per issue) plus 500 exact duplicates of the first 500.
+        $errorLogFile = Join-Path $errorLogsFolder "large.errorLog.json"
+        $baseIssueContent = $alErrorLogSchema
+        for ($i = 0; $i -lt 1000; $i++) {
+            $baseIssueContent.issues += @{
+                "ruleId" = "AA{0:000}" -f ($i % 80)
+                "locations" = @(@{ "analysisTarget" = @(@{
+                    "uri" = "D:\\a\\repo\\repo\\TestArtifacts\\ALFileName.al"
+                    "region" = @{ "startLine" = $i; "startColumn" = 1; "endLine" = $i; "endColumn" = 5 }
+                }) })
+                "shortMessage" = "Issue $i"
+                "fullMessage" = "Full $($i % 80)"
+                "properties" = @{ "severity" = "Warning"; "category" = "category"; "helpLink" = "helplink" }
+            }
+        }
+        # Duplicate the first 500 issues verbatim.
+        for ($i = 0; $i -lt 500; $i++) {
+            $baseIssueContent.issues += @{
+                "ruleId" = "AA{0:000}" -f ($i % 80)
+                "locations" = @(@{ "analysisTarget" = @(@{
+                    "uri" = "D:\\a\\repo\\repo\\TestArtifacts\\ALFileName.al"
+                    "region" = @{ "startLine" = $i; "startColumn" = 1; "endLine" = $i; "endColumn" = 5 }
+                }) })
+                "shortMessage" = "Issue $i"
+                "fullMessage" = "Full $($i % 80)"
+                "properties" = @{ "severity" = "Warning"; "category" = "category"; "helpLink" = "helplink" }
+            }
+        }
+        $baseIssueContent | ConvertTo-Json -Depth 10 | Set-Content -Path $errorLogFile
+
+        & $scriptPath
+
+        $sarifFile = Join-Path $errorLogsFolder "output.sarif.json"
+        $sarifContent = Get-Content -Path $sarifFile -Raw | ConvertFrom-Json
+        # 1000 unique results (the 500 duplicates are dropped), 80 distinct rules.
+        $sarifContent.runs[0].results.Count | Should -Be 1000
+        $sarifContent.runs[0].tool.driver.rules.Count | Should -Be 80
+    }
+
     It 'Compile Action' {
         Invoke-Expression $actionScript
     }
@@ -309,6 +350,25 @@ Describe 'ProcessALCodeAnalysisLogs Action Tests' {
             $result = Get-FileFromAbsolutePath -AbsolutePath $pathWithDrive -WorkspacePath $testWorkspace
 
             $result | Should -Be "SubDir1/Nested/NestedFile.al"
+        }
+
+        It 'Falls back to a unique file name match when the absolute path does not resolve' {
+            Reset-WorkspaceFileIndex
+            # An absolute path that does not exist, but whose file name (NestedFile.al) is unique in the workspace.
+            $missingPath = "D:\builder\somewhere\else\NestedFile.al"
+            $result = Get-FileFromAbsolutePath -AbsolutePath $missingPath -WorkspacePath $testWorkspace
+
+            $result | Should -Be "SubDir1/Nested/NestedFile.al"
+        }
+
+        It 'Returns null when the file name is not unique in the workspace' {
+            Reset-WorkspaceFileIndex
+            # Create a second file with the same name so the match is ambiguous.
+            Set-Content -Path (Join-Path $subDir1 "NestedFile.al") -Value "// duplicate name"
+            $missingPath = "D:\builder\somewhere\else\NestedFile.al"
+            $result = Get-FileFromAbsolutePath -AbsolutePath $missingPath -WorkspacePath $testWorkspace
+
+            $result | Should -Be $null
         }
     }
 }

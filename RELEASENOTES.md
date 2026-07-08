@@ -2,6 +2,10 @@
 
 The `trackALAlertsInGitHub` setting now also works when `workspaceCompilation` (preview) is enabled. When both are turned on, AL-Go passes `--errorlogdirectory` to `altool workspace compile` so each project emits an `*.errorLog.json` diagnostics file into `.buildartifacts/ErrorLogs/`, which is processed into SARIF and surfaced as code scanning alerts — matching the classic Run-AlPipeline behavior. If the consumed compiler version does not yet support `--errorlogdirectory`, the option is skipped and a warning is logged (the rest of the build is unaffected).
 
+### Faster AL code analysis log processing
+
+`ProcessALCodeAnalysisLogs` now scales linearly with the number of diagnostics instead of quadratically. De-duplication uses hash-based lookups (a set of composite result keys and a set of rule ids) and results/rules accumulate in lists, and workspace file lookups are memoized with a single lazily-built file-name index. Large multi-project/multi-country builds that previously could exceed the GitHub Actions 6-hour job limit while merging tens of thousands of results now complete in seconds.
+
 ## v9.1
 
 ### Resilient Pull Request Status Check for large builds
