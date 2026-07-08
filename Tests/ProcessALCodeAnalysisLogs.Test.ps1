@@ -191,6 +191,25 @@ Describe 'ProcessALCodeAnalysisLogs Action Tests' {
         $sarifContent.runs[0].results.Count | Should -Be 2
     }
 
+    It 'URI-encodes artifact locations that contain spaces (valid SARIF URI)' {
+        # BCApps paths often contain spaces (e.g. '1.Setup Data'). A raw space is not a valid URI
+        # character, so upload-sarif warns and alerts can fail to map. The emitted uri must be encoded.
+        Mock Get-FileFromAbsolutePath { return "App/src/1.Setup Data/Contoso Helpers/Foo.al" }
+        $errorLogFile = Join-Path $errorLogsFolder "spaced.errorLog.json"
+        $baseIssueContent = $alErrorLogSchema
+        $baseIssueContent.issues += $sampleIssue1
+        $baseIssueContent | ConvertTo-Json -Depth 10 | Set-Content -Path $errorLogFile
+
+        & $scriptPath
+
+        $sarifFile = Join-Path $errorLogsFolder "output.sarif.json"
+        $sarifContent = Get-Content -Path $sarifFile -Raw | ConvertFrom-Json
+        $uri = $sarifContent.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri
+        $uri | Should -Be "App/src/1.Setup%20Data/Contoso%20Helpers/Foo.al"
+        # '/' separators must remain unencoded so the path structure is preserved.
+        $uri | Should -Not -Match '%2F'
+    }
+
     It 'Multiple issues with same ruleId results in SARIF with single rule' {
         Mock Get-FileFromAbsolutePath { return "path" }
         # Create 2 error log file with 2 issues
@@ -369,6 +388,29 @@ Describe 'ProcessALCodeAnalysisLogs Action Tests' {
             $result = Get-FileFromAbsolutePath -AbsolutePath $missingPath -WorkspacePath $testWorkspace
 
             $result | Should -Be $null
+        }
+    }
+
+    Context 'ConvertTo-SarifArtifactUri Function Tests' {
+
+        BeforeAll {
+            Import-Module (Join-Path -Path $PSScriptRoot -ChildPath "..\Actions\ProcessALCodeAnalysisLogs\ProcessALCodeAnalysisLogs.psm1" -Resolve) -Force
+        }
+
+        It 'Encodes spaces per segment but preserves / separators' {
+            $result = ConvertTo-SarifArtifactUri -RelativePath "App/src/1.Setup Data/Contoso Helpers/Foo.al"
+            $result | Should -Be "App/src/1.Setup%20Data/Contoso%20Helpers/Foo.al"
+        }
+
+        It 'Leaves already-valid paths unchanged' {
+            $result = ConvertTo-SarifArtifactUri -RelativePath "App/src/Foo.al"
+            $result | Should -Be "App/src/Foo.al"
+        }
+
+        It 'Returns an empty string for null or empty input' {
+            # A [string] parameter coerces $null to an empty string, so both cases return ''.
+            (ConvertTo-SarifArtifactUri -RelativePath $null) | Should -BeNullOrEmpty
+            (ConvertTo-SarifArtifactUri -RelativePath "") | Should -BeNullOrEmpty
         }
     }
 }

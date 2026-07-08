@@ -6,6 +6,10 @@ The `trackALAlertsInGitHub` setting now also works when `workspaceCompilation` (
 
 `ProcessALCodeAnalysisLogs` now scales linearly with the number of diagnostics instead of quadratically. De-duplication uses hash-based lookups (a set of composite result keys and a set of rule ids) and results/rules accumulate in lists, and workspace file lookups are memoized with a single lazily-built file-name index. Large multi-project/multi-country builds that previously could exceed the GitHub Actions 6-hour job limit while merging tens of thousands of results now complete in seconds.
 
+### Valid SARIF URIs for file paths containing spaces
+
+`ProcessALCodeAnalysisLogs` now URI-encodes each segment of the artifact location path when writing SARIF (for example `1.Setup Data/Foo.al` becomes `1.Setup%20Data/Foo.al`). Paths that contain spaces or other characters that are not valid in a URI previously caused `github/codeql-action/upload-sarif` to log "is not a valid URI" warnings and could prevent AL code scanning alerts from mapping to the correct files. The `/` path separators are preserved so the path structure is unchanged.
+
 ## v9.1
 
 ### Resilient Pull Request Status Check for large builds
