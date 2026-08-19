@@ -118,7 +118,8 @@ try {
     }
 
     if ($workspaceCompilationDependencyResolution -eq "NuGet") {
-        $toolRoot = Join-Path $buildArtifactFolder "ALTool"
+        $toolRootBase = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $buildArtifactFolder }
+        $toolRoot = Join-Path $toolRootBase "ALTool"
         if (Test-Path $toolRoot) {
             Remove-Item -Path $toolRoot -Recurse -Force
         }
