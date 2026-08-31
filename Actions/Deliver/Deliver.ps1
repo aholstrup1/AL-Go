@@ -61,6 +61,14 @@ function ConnectAzStorageAccount {
 Import-Module (Join-Path $PSScriptRoot "Deliver.psm1") -DisableNameChecking
 DownloadAndImportBcContainerHelper
 
+# TEST HACK (issue #4191): treat the e2e test branch as 'main' so that artifact
+# resolution (release asset naming and build-artifact branch lookup) targets the
+# real builds produced on main. Do NOT merge - test scaffolding only.
+if ("$ENV:GITHUB_REF_NAME" -eq 'e2e') {
+    Write-Host "TEST HACK: translating GITHUB_REF_NAME 'e2e' -> 'main' for artifact resolution"
+    $ENV:GITHUB_REF_NAME = 'main'
+}
+
 $refname = "$ENV:GITHUB_REF_NAME".Replace('/', '_')
 
 $artifacts = $artifacts.Replace('/', ([System.IO.Path]::DirectorySeparatorChar)).Replace('\', ([System.IO.Path]::DirectorySeparatorChar))
